@@ -41,7 +41,7 @@
 
         label { font-size: 12px; font-weight: bold; color: #7f8c8d; text-transform: uppercase; }
 
-        /* Элементы управления */
+        /* Кнопки */
         button {
             padding: 10px 20px;
             cursor: pointer;
@@ -53,15 +53,26 @@
         }
         button#replayBtn { background-color: #2ecc71; color: white; }
         button#replayBtn:hover { background-color: #27ae60; }
-        button#replayBtn:disabled { background-color: #95a5a6; cursor: not-allowed; }
+        button:disabled { background-color: #95a5a6; cursor: not-allowed; }
         button.secondary { background-color: #e74c3c; color: white; }
         button.secondary:hover { background-color: #c0392b; }
 
-        select, input[type="file"], input[type="color"], input[type="number"] {
+        /* Поля ввода (Select, File, Number) - у них белый фон */
+        select, input[type="file"], input[type="number"] {
             padding: 8px;
             border: 1px solid #bdc3c7;
             border-radius: 4px;
             background: #fff;
+        }
+
+        /* ИСПРАВЛЕНИЕ: Поле выбора цвета (Color) - убираем фон и отступы */
+        input[type="color"] {
+            padding: 0;
+            border: none;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            background: none; /* Прозрачный фон, чтобы видеть цвет */
         }
 
         /* КОНТЕЙНЕР ХОЛСТА */
@@ -73,10 +84,9 @@
             background-color: white;
             width: 800px;
             height: 600px;
-            /* Важно: отключаем повтор для картинок, но градиенты ниже будут повторяться сами */
             background-repeat: no-repeat;
             background-position: center;
-            background-size: cover; /* Для загруженных картинок */
+            background-size: cover; 
         }
 
         canvas {
@@ -85,7 +95,7 @@
             touch-action: none; 
         }
 
-        /* --- СТИЛИ ФОНОВ (Все переведены на repeating-linear-gradient) --- */
+        /* --- СТИЛИ ФОНОВ --- */
         
         /* 1. Обычная линейка */
         .bg-lines {
@@ -93,17 +103,15 @@
                 #999 0,
                 #999 1px,
                 transparent 1px,
-                transparent 40px /* Высота строки */
+                transparent 40px
             );
-            background-size: auto; /* Заполняет всю область */
+            background-size: auto;
         }
 
         /* 2. Клетка */
         .bg-grid {
             background-image: 
-                /* Вертикальные линии */
                 repeating-linear-gradient(to right, #cfcfcf 0, #cfcfcf 1px, transparent 1px, transparent 20px),
-                /* Горизонтальные линии */
                 repeating-linear-gradient(to bottom, #cfcfcf 0, #cfcfcf 1px, transparent 1px, transparent 20px);
             background-size: auto;
         }
@@ -112,22 +120,22 @@
         .bg-propisi {
             background-color: #ffffff;
             background-image: 
-                /* Слой 1: Горизонтальные линии (Структура строки) */
+                /* Горизонтальные линии */
                 repeating-linear-gradient(to bottom,
-                    #8c8c8c 0px, #8c8c8c 1px,      /* Верхняя линия строки */
-                    transparent 1px, transparent 26px,  /* Высота рабочей строки (25px) */
-                    #8c8c8c 26px, #8c8c8c 27px,    /* Нижняя линия строки */
-                    transparent 27px, transparent 80px  /* Межстрочный интервал (53px) */
+                    #8c8c8c 0px, #8c8c8c 1px,
+                    transparent 1px, transparent 26px,
+                    #8c8c8c 26px, #8c8c8c 27px,
+                    transparent 27px, transparent 80px
                 ),
-                /* Слой 2: Косые линии (СЕТКА) */
+                /* Косые линии */
                 repeating-linear-gradient(115deg, 
                     transparent,
-                    transparent 84px,     /* <-- ШАГ ЕЩЕ БОЛЬШЕ (Ячейка шире) */
-                    #d1d1d1 84px,         /* Цвет косой линии */
-                    #d1d1d1 85px          /* Толщина 1px */
+                    transparent 84px,
+                    #d1d1d1 84px,
+                    #d1d1d1 85px
                 );
             background-size: auto;
-            background-position: 0 20px; /* Сдвиг первой строки */
+            background-position: 0 20px;
         }
 
     </style>
@@ -190,14 +198,12 @@
         let currentPath = [];
         let isReplaying = false;
 
-        // Инициализация
         window.onload = function() { changeBackground(); };
 
-        // --- УПРАВЛЕНИЕ ФОНОМ ---
         function changeBackground() {
             const type = document.getElementById('bgSelect').value;
-            container.className = 'canvas-wrapper'; // Сброс классов
-            container.style.backgroundImage = '';   // Сброс картинки
+            container.className = 'canvas-wrapper';
+            container.style.backgroundImage = '';
             if (type !== 'none') container.classList.add('bg-' + type);
         }
 
@@ -213,7 +219,6 @@
             }
         }
 
-        // --- РИСОВАНИЕ ---
         function getPos(e) {
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -227,6 +232,7 @@
             isDrawing = true;
             const point = getPos(e);
             
+            // Получаем цвет ПРЯМО СЕЙЧАС из инпута
             currentPath = {
                 color: document.getElementById('color').value,
                 width: document.getElementById('width').value,
@@ -265,7 +271,6 @@
             }
         }
 
-        // События
         canvas.addEventListener('mousedown', startPath);
         canvas.addEventListener('mousemove', movePath);
         canvas.addEventListener('mouseup', endPath);
@@ -274,7 +279,6 @@
         canvas.addEventListener('touchmove', movePath, { passive: false });
         canvas.addEventListener('touchend', endPath);
 
-        // --- ВОСПРОИЗВЕДЕНИЕ ---
         function clearCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (!isReplaying) allPaths = [];

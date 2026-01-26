@@ -103,32 +103,25 @@
 
         /* 3. Косая линейка (Точная копия образца) */
         .bg-propisi {
-            background-color: #fff;
+            background-color: #ffffff;
             background-image: 
-                /* 1. Слой горизонтальных линий (поверх косых) */
+                /* Слой 1 (Верхний): Горизонтальные линии */
                 repeating-linear-gradient(to bottom,
-                    /* Линия 1: Верхняя вспомогательная (тонкая, светлая) */
-                    #b8b8b8 0px, #b8b8b8 1px,
-                    transparent 1px, transparent 18px,
-                    /* Линия 2: Верхняя граница строки (тонкая, светлая) */
-                    #b8b8b8 18px, #b8b8b8 19px,
-                    transparent 19px, transparent 44px,
-                    /* Линия 3: Базовая линия строки (ТОЛСТАЯ, ТЕМНАЯ) */
-                    #666666 44px, #666666 46px,
-                    transparent 46px, transparent 64px,
-                    /* Линия 4: Нижняя вспомогательная (тонкая, светлая) */
-                    #b8b8b8 64px, #b8b8b8 65px,
-                    transparent 65px, transparent 85px /* Конец паттерна (высота блока) */
+                    #8c8c8c 0px, #8c8c8c 1px,      /* Верхняя линия рабочей строки */
+                    transparent 1px, transparent 26px,  /* Высота рабочей строки (25px) */
+                    #8c8c8c 26px, #8c8c8c 27px,    /* Нижняя линия рабочей строки */
+                    transparent 27px, transparent 80px  /* Межстрочный интервал (53px) */
                 ),
-                /* 2. Слой косых линий (под низом) */
-                repeating-linear-gradient(66deg,
-                    #b8b8b8 0px, #b8b8b8 1px,   /* Цвет и толщина косой линии */
-                    transparent 1px, transparent 32px /* Расстояние между косыми линиями */
+                /* Слой 2 (Нижний): Косые линии */
+                repeating-linear-gradient(115deg, /* Угол наклона ~65 градусов к горизонту */
+                    transparent,
+                    transparent 29px,     /* Ширина ячейки */
+                    #d1d1d1 29px,         /* Цвет косой линии (чуть светлее) */
+                    #d1d1d1 30px          /* Толщина косой линии 1px */
                 );
-            /* Задаем размер паттерна для гор. линий и масштаб для косых */
-            background-size: 100% 85px, auto;
-            /* Небольшое смещение для центровки */
-            background-position: 0 10px, 0 0;
+            /* Важно: убираем лишние параметры смещения, чтобы паттерн был равномерным */
+            background-size: auto;
+            background-position: 0 20px; /* Чуть сдвинем вниз, чтобы первая строка была видна целиком */
         }
 
     </style>

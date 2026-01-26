@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тренажер письма (Прописи)</title>
+    <title>Тренажер письма</title>
     <style>
         /* --- ОБЩИЕ СТИЛИ --- */
         body {
@@ -30,7 +30,7 @@
             align-items: center;
             justify-content: center;
             margin-bottom: 20px;
-            max-width: 900px;
+            max-width: 950px;
         }
 
         .control-group {
@@ -41,7 +41,7 @@
 
         label { font-size: 12px; font-weight: bold; color: #7f8c8d; text-transform: uppercase; }
 
-        /* Кнопки и инпуты */
+        /* Элементы управления */
         button {
             padding: 10px 20px;
             cursor: pointer;
@@ -64,7 +64,7 @@
             background: #fff;
         }
 
-        /* КОНТЕЙНЕР ХОЛСТА ("БУМАГА") */
+        /* КОНТЕЙНЕР ХОЛСТА */
         .canvas-wrapper {
             position: relative;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
@@ -73,54 +73,61 @@
             background-color: white;
             width: 800px;
             height: 600px;
-            background-size: cover;
-            background-position: center;
+            /* Важно: отключаем повтор для картинок, но градиенты ниже будут повторяться сами */
             background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover; /* Для загруженных картинок */
         }
 
         canvas {
             display: block;
-            /* Курсор-точка для удобства рисования */
             cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="black" opacity="0.5"/></svg>') 5 5, crosshair;
             touch-action: none; 
         }
 
-        /* --- СТИЛИ ФОНОВ --- */
+        /* --- СТИЛИ ФОНОВ (Все переведены на repeating-linear-gradient) --- */
         
         /* 1. Обычная линейка */
         .bg-lines {
-            background-image: linear-gradient(#999 1px, transparent 1px);
-            background-size: 100% 40px;
+            background-image: repeating-linear-gradient(to bottom,
+                #999 0,
+                #999 1px,
+                transparent 1px,
+                transparent 40px /* Высота строки */
+            );
+            background-size: auto; /* Заполняет всю область */
         }
 
         /* 2. Клетка */
         .bg-grid {
             background-image: 
-                linear-gradient(#cfcfcf 1px, transparent 1px),
-                linear-gradient(90deg, #cfcfcf 1px, transparent 1px);
-            background-size: 20px 20px;
+                /* Вертикальные линии */
+                repeating-linear-gradient(to right, #cfcfcf 0, #cfcfcf 1px, transparent 1px, transparent 20px),
+                /* Горизонтальные линии */
+                repeating-linear-gradient(to bottom, #cfcfcf 0, #cfcfcf 1px, transparent 1px, transparent 20px);
+            background-size: auto;
         }
 
-        /* 3. Косая линейка (Исправленная ширина ячеек) */
+        /* 3. Косая линейка (Прописи) */
         .bg-propisi {
             background-color: #ffffff;
             background-image: 
-                /* Слой 1: Горизонтальные линии (оставляем как было, высота верная) */
+                /* Слой 1: Горизонтальные линии (Структура строки) */
                 repeating-linear-gradient(to bottom,
                     #8c8c8c 0px, #8c8c8c 1px,      /* Верхняя линия строки */
-                    transparent 1px, transparent 26px,  /* Высота строки 25px */
+                    transparent 1px, transparent 26px,  /* Высота рабочей строки (25px) */
                     #8c8c8c 26px, #8c8c8c 27px,    /* Нижняя линия строки */
-                    transparent 27px, transparent 80px  /* Пропуск до следующей строки */
+                    transparent 27px, transparent 80px  /* Межстрочный интервал (53px) */
                 ),
-                /* Слой 2: Косые линии (сделали реже: было 29px, стало 80px) */
+                /* Слой 2: Косые линии (СЕТКА) */
                 repeating-linear-gradient(115deg, 
                     transparent,
-                    transparent 79px,     /* <-- ШАГ СЕТКИ: увеличили ширину ячейки */
-                    #d1d1d1 54px,         /* Цвет косой линии */
-                    #d1d1d1 55px          /* Толщина 1px */
+                    transparent 84px,     /* <-- ШАГ ЕЩЕ БОЛЬШЕ (Ячейка шире) */
+                    #d1d1d1 84px,         /* Цвет косой линии */
+                    #d1d1d1 85px          /* Толщина 1px */
                 );
             background-size: auto;
-            background-position: 0 20px;
+            background-position: 0 20px; /* Сдвиг первой строки */
         }
 
     </style>
@@ -141,7 +148,7 @@
         <div class="control-group">
             <label for="bgSelect">Разлиновка</label>
             <select id="bgSelect" onchange="changeBackground()">
-                <option value="propisi" selected>Косая линейка (Русская)</option>
+                <option value="propisi" selected>Косая линейка (1 класс)</option>
                 <option value="lines">Линейка (Обычная)</option>
                 <option value="grid">Клетка</option>
                 <option value="none">Белый лист</option>
@@ -160,7 +167,8 @@
         
         <div class="control-group">
             <label for="color">Цвет ручки</label>
-            <input type="color" id="color" value="#0000CC"> </div>
+            <input type="color" id="color" value="#0000CC">
+        </div>
 
         <div class="control-group">
             <label for="width">Толщина</label>
@@ -182,10 +190,10 @@
         let currentPath = [];
         let isReplaying = false;
 
-        // Инициализация: ставим фон по умолчанию
+        // Инициализация
         window.onload = function() { changeBackground(); };
 
-        // --- ФОН ---
+        // --- УПРАВЛЕНИЕ ФОНОМ ---
         function changeBackground() {
             const type = document.getElementById('bgSelect').value;
             container.className = 'canvas-wrapper'; // Сброс классов
@@ -205,7 +213,7 @@
             }
         }
 
-        // --- РИСОВАНИЕ (Mouse & Touch) ---
+        // --- РИСОВАНИЕ ---
         function getPos(e) {
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -257,6 +265,7 @@
             }
         }
 
+        // События
         canvas.addEventListener('mousedown', startPath);
         canvas.addEventListener('mousemove', movePath);
         canvas.addEventListener('mouseup', endPath);

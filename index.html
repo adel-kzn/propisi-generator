@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handwriting Repeater Clone</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f2f5;
+            padding: 20px;
+        }
+
+        h1 { color: #333; }
+
+        .controls {
+            margin-bottom: 15px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        button {
+            padding: 8px 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        button:hover { background-color: #0056b3; }
+        button.secondary { background-color: #6c757d; }
+        button.secondary:hover { background-color: #545b62; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        .canvas-container {
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            background: white; /* Цвет "бумаги" */
+        }
+
+        /* Добавляем линовку как на бумаге (опционально) */
+        .canvas-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(#e1e1e1 1px, transparent 1px);
+            background-size: 100% 40px;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        canvas {
+            display: block;
+            cursor: crosshair;
+        }
+
+        label { font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <h1>Мой Handwriting Repeater</h1>
+
+    <div class="controls">
+        <button onclick="startReplay()" id="replayBtn">▶ Воспроизвести</button>
+        <button onclick="clearCanvas()" class="secondary">🗑 Очистить</button>
+        
+        <div>
+            <label for="speed">Скорость:</label>
+            <input type="range" id="speed" min="1" max="20" value="5">
+        </div>
+        
+        <div>
+            <label for="color">Цвет:</label>
+            <input type="color" id="color" value="#000000">
+        </div>
+
+        <div>
+            <label for="width">Толщина:</label>
+            <input type="number" id="width" value="3" min="1" max="20" style="width: 50px;">
+        </div>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="drawingCanvas" width="800" height="500"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Переменные состояния
+        let isDrawing = false;
+        let allPaths = []; // Хранит все линии. Каждая линия — это массив точек.
+        let currentPath = []; // Текущая рисуемая линия
+        let replayTimeout;
+
+        // Настройки кисти
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        // --- Обработчики событий мыши ---
+        
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            const point = getPos(e);
+            
+            // Начинаем новую линию
+            currentPath = {
+                color: document.getElementById('color').value,
+                width: document.getElementById('width').value,
+                points: [point]
+            };
+            
+            // Рисуем точку сразу
+            ctx.beginPath();
+            ctx.fillStyle = currentPath.color;
+            ctx.arc(point.x, point.y, currentPath.width / 2, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            
+            const point = getPos(e);
+            currentPath.points.push(point); // Сохраняем точку
+            
+            // Рисуем линию от предыдущей точки к текущей
+            const points = currentPath.points;
+            if (points.length > 1) {
+                const prevPoint = points[points.length - 2];
+                
+                ctx.beginPath();
+                ctx.lineWidth = currentPath.width;
+                ctx.strokeStyle = currentPath.color;
+                ctx.moveTo(prevPoint.x, prevPoint.y);
+                ctx.lineTo(point.x, point.y);
+                ctx.stroke();
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            if (isDrawing) {
+                isDrawing = false;
+                allPaths.push(currentPath); // Сохраняем полную линию в историю
+            }
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+             if (isDrawing) {
+                isDrawing = false;
+                allPaths.push(currentPath);
+            }
+        });
+
+        // --- Вспомогательные функции ---
+
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Сбрасываем историю только если это не подготовка к реплею
+            if (!isReplaying) {
+                allPaths = [];
+            }
+        }
+
+        // --- Логика воспроизведения (Replay) ---
+        
+        let isReplaying = false;
+
+        function startReplay() {
+            if (allPaths.length === 0 || isReplaying) return;
+            
+            isReplaying = true;
+            document.getElementById('replayBtn').disabled = true;
+            
+            // 1. Очищаем холст, но сохраняем данные в памяти (allPaths не стираем)
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const speedInput = document.getElementById('speed');
+            let pathIndex = 0;
+            let pointIndex = 1; // Начинаем с 1, чтобы рисовать линию к 0
+
+            function animate() {
+                if (pathIndex >= allPaths.length) {
+                    isReplaying = false;
+                    document.getElementById('replayBtn').disabled = false;
+                    return;
+                }
+
+                const path = allPaths[pathIndex];
+                
+                // Настраиваем кисть под конкретную линию
+                ctx.lineWidth = path.width;
+                ctx.strokeStyle = path.color;
+                ctx.fillStyle = path.color;
+
+                // Если это начало линии, рисуем стартовую точку
+                if (pointIndex === 1) {
+                    ctx.beginPath();
+                    ctx.arc(path.points[0].x, path.points[0].y, path.width / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Рисуем сегмент
+                if (pointIndex < path.points.length) {
+                    const p1 = path.points[pointIndex - 1];
+                    const p2 = path.points[pointIndex];
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.stroke();
+                    
+                    pointIndex++;
+                    
+                    // Скорость: чем больше число, тем меньше задержка.
+                    // requestAnimationFrame был бы плавнее, но setTimeout проще для контроля "скорости" в данном контексте
+                    const delay = 20 / parseInt(speedInput.value); 
+                    setTimeout(animate, delay);
+                } else {
+                    // Линия закончена, переходим к следующей
+                    pathIndex++;
+                    pointIndex = 1;
+                    // Небольшая пауза между штрихами (как рука поднимается)
+                    setTimeout(animate, 100 / parseInt(speedInput.value)); 
+                }
+            }
+
+            animate();
+        }
+    </script>
+</body>
+</html>

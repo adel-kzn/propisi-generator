@@ -101,27 +101,26 @@
             background-size: 20px 20px;
         }
 
-        /* 3. Косая линейка (Точная копия образца) */
+        /* 3. Косая линейка (Исправленная ширина ячеек) */
         .bg-propisi {
             background-color: #ffffff;
             background-image: 
-                /* Слой 1 (Верхний): Горизонтальные линии */
+                /* Слой 1: Горизонтальные линии (оставляем как было, высота верная) */
                 repeating-linear-gradient(to bottom,
-                    #8c8c8c 0px, #8c8c8c 1px,      /* Верхняя линия рабочей строки */
-                    transparent 1px, transparent 26px,  /* Высота рабочей строки (25px) */
-                    #8c8c8c 26px, #8c8c8c 27px,    /* Нижняя линия рабочей строки */
-                    transparent 27px, transparent 80px  /* Межстрочный интервал (53px) */
+                    #8c8c8c 0px, #8c8c8c 1px,      /* Верхняя линия строки */
+                    transparent 1px, transparent 26px,  /* Высота строки 25px */
+                    #8c8c8c 26px, #8c8c8c 27px,    /* Нижняя линия строки */
+                    transparent 27px, transparent 80px  /* Пропуск до следующей строки */
                 ),
-                /* Слой 2 (Нижний): Косые линии */
-                repeating-linear-gradient(115deg, /* Угол наклона ~65 градусов к горизонту */
+                /* Слой 2: Косые линии (сделали реже: было 29px, стало 55px) */
+                repeating-linear-gradient(115deg, 
                     transparent,
-                    transparent 29px,     /* Ширина ячейки */
-                    #d1d1d1 29px,         /* Цвет косой линии (чуть светлее) */
-                    #d1d1d1 30px          /* Толщина косой линии 1px */
+                    transparent 54px,     /* <-- ШАГ СЕТКИ: увеличили ширину ячейки */
+                    #d1d1d1 54px,         /* Цвет косой линии */
+                    #d1d1d1 55px          /* Толщина 1px */
                 );
-            /* Важно: убираем лишние параметры смещения, чтобы паттерн был равномерным */
             background-size: auto;
-            background-position: 0 20px; /* Чуть сдвинем вниз, чтобы первая строка была видна целиком */
+            background-position: 0 20px;
         }
 
     </style>

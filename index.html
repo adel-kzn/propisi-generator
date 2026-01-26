@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Тренажер письма (Прописи)</title>
     <style>
+        /* --- ОБЩИЕ СТИЛИ --- */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
@@ -40,7 +41,7 @@
 
         label { font-size: 12px; font-weight: bold; color: #7f8c8d; text-transform: uppercase; }
 
-        /* Стили кнопок и инпутов */
+        /* Кнопки и инпуты */
         button {
             padding: 10px 20px;
             cursor: pointer;
@@ -50,31 +51,28 @@
             font-weight: 600;
             transition: all 0.2s;
         }
-
         button#replayBtn { background-color: #2ecc71; color: white; }
         button#replayBtn:hover { background-color: #27ae60; }
         button#replayBtn:disabled { background-color: #95a5a6; cursor: not-allowed; }
-
         button.secondary { background-color: #e74c3c; color: white; }
         button.secondary:hover { background-color: #c0392b; }
 
-        select, input[type="file"] {
+        select, input[type="file"], input[type="color"], input[type="number"] {
             padding: 8px;
             border: 1px solid #bdc3c7;
             border-radius: 4px;
             background: #fff;
         }
 
-        /* КОНТЕЙНЕР ХОЛСТА (ЛИСТ БУМАГИ) */
+        /* КОНТЕЙНЕР ХОЛСТА ("БУМАГА") */
         .canvas-wrapper {
             position: relative;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border-radius: 2px; /* Острые края как у бумаги */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
             overflow: hidden;
             background-color: white;
             width: 800px;
             height: 600px;
-            /* Важно для корректного отображения фона */
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -82,11 +80,12 @@
 
         canvas {
             display: block;
-            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="black"/></svg>') 12 12, crosshair;
-            touch-action: none; /* Отключаем скролл на мобильных при рисовании */
+            /* Курсор-точка для удобства рисования */
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="black" opacity="0.5"/></svg>') 5 5, crosshair;
+            touch-action: none; 
         }
 
-        /* --- СТИЛИ ФОНОВ (CSS ГЕНЕРАЦИЯ) --- */
+        /* --- СТИЛИ ФОНОВ --- */
         
         /* 1. Обычная линейка */
         .bg-lines {
@@ -102,23 +101,34 @@
             background-size: 20px 20px;
         }
 
-        /* 3. Косая линейка (ПРОПИСИ ДЛЯ 1 КЛАССА) */
-        /* Используем сложный градиент для имитации тетради */
+        /* 3. Косая линейка (Точная копия образца) */
         .bg-propisi {
             background-color: #fff;
             background-image: 
-                /* Косые линии (угол 65 град) */
-                repeating-linear-gradient(65deg, transparent, transparent 29px, #d6eaf8 30px),
-                /* Горизонтальные линии: Основная строка и Верхняя */
-                linear-gradient(to bottom, 
-                    transparent 9px, 
-                    #2980b9 10px,   /* Верхняя линия строки */
-                    transparent 11px, 
-                    transparent 39px, 
-                    #2980b9 40px,   /* Нижняя линия строки */
-                    transparent 41px
+                /* 1. Слой горизонтальных линий (поверх косых) */
+                repeating-linear-gradient(to bottom,
+                    /* Линия 1: Верхняя вспомогательная (тонкая, светлая) */
+                    #b8b8b8 0px, #b8b8b8 1px,
+                    transparent 1px, transparent 18px,
+                    /* Линия 2: Верхняя граница строки (тонкая, светлая) */
+                    #b8b8b8 18px, #b8b8b8 19px,
+                    transparent 19px, transparent 44px,
+                    /* Линия 3: Базовая линия строки (ТОЛСТАЯ, ТЕМНАЯ) */
+                    #666666 44px, #666666 46px,
+                    transparent 46px, transparent 64px,
+                    /* Линия 4: Нижняя вспомогательная (тонкая, светлая) */
+                    #b8b8b8 64px, #b8b8b8 65px,
+                    transparent 65px, transparent 85px /* Конец паттерна (высота блока) */
+                ),
+                /* 2. Слой косых линий (под низом) */
+                repeating-linear-gradient(66deg,
+                    #b8b8b8 0px, #b8b8b8 1px,   /* Цвет и толщина косой линии */
+                    transparent 1px, transparent 32px /* Расстояние между косыми линиями */
                 );
-            background-size: 100% 50px; /* Высота строки */
+            /* Задаем размер паттерна для гор. линий и масштаб для косых */
+            background-size: 100% 85px, auto;
+            /* Небольшое смещение для центровки */
+            background-position: 0 10px, 0 0;
         }
 
     </style>
@@ -139,16 +149,16 @@
         <div class="control-group">
             <label for="bgSelect">Разлиновка</label>
             <select id="bgSelect" onchange="changeBackground()">
-                <option value="none">Белый лист</option>
-                <option value="lines">Линейка</option>
+                <option value="propisi" selected>Косая линейка (Русская)</option>
+                <option value="lines">Линейка (Обычная)</option>
                 <option value="grid">Клетка</option>
-                <option value="propisi" selected>Косая линейка (1 класс)</option>
+                <option value="none">Белый лист</option>
             </select>
         </div>
 
         <div class="control-group">
             <label>Свой фон (Скан)</label>
-            <input type="file" id="bgUpload" accept="image/*" onchange="uploadBackground(this)">
+            <input type="file" id="bgUpload" accept="image/*" onchange="uploadBackground(this)" style="width: 180px;">
         </div>
 
         <div class="control-group">
@@ -158,11 +168,11 @@
         
         <div class="control-group">
             <label for="color">Цвет ручки</label>
-            <input type="color" id="color" value="#00008b"> </div>
+            <input type="color" id="color" value="#0000CC"> </div>
 
         <div class="control-group">
             <label for="width">Толщина</label>
-            <input type="number" id="width" value="4" min="1" max="20" style="width: 50px;">
+            <input type="number" id="width" value="4" min="1" max="20" style="width: 60px;">
         </div>
     </div>
 
@@ -180,59 +190,40 @@
         let currentPath = [];
         let isReplaying = false;
 
-        // Инициализация при запуске
-        window.onload = function() {
-            changeBackground(); // Применяем фон по умолчанию
-        };
+        // Инициализация: ставим фон по умолчанию
+        window.onload = function() { changeBackground(); };
 
-        // --- Управление фоном ---
-
+        // --- ФОН ---
         function changeBackground() {
             const type = document.getElementById('bgSelect').value;
-            // Сбрасываем все классы фонов
-            container.className = 'canvas-wrapper';
-            container.style.backgroundImage = ''; // Сброс пользовательской картинки
-
-            if (type !== 'none') {
-                container.classList.add('bg-' + type);
-            }
+            container.className = 'canvas-wrapper'; // Сброс классов
+            container.style.backgroundImage = '';   // Сброс картинки
+            if (type !== 'none') container.classList.add('bg-' + type);
         }
 
         function uploadBackground(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                reader.onload = function (e) {
-                    // Сбрасываем CSS классы
+                reader.onload = (e) => {
                     container.className = 'canvas-wrapper';
-                    // Ставим картинку как фон
                     container.style.backgroundImage = `url(${e.target.result})`;
-                    // Сбрасываем селект на "Белый лист", чтобы не путать
                     document.getElementById('bgSelect').value = 'none';
                 };
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
-        // --- Рисование (Mouse + Touch) ---
-
+        // --- РИСОВАНИЕ (Mouse & Touch) ---
         function getPos(e) {
             const rect = canvas.getBoundingClientRect();
-            // Проверка на touch событие
-            if(e.touches) {
-                return {
-                    x: e.touches[0].clientX - rect.left,
-                    y: e.touches[0].clientY - rect.top
-                };
-            }
-            return {
-                x: e.clientX - rect.left,
-                y: e.clientY - rect.top
-            };
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: clientX - rect.left, y: clientY - rect.top };
         }
 
         function startPath(e) {
             if (isReplaying) return;
-            e.preventDefault(); // Чтобы экран не скроллился на телефоне
+            e.preventDefault();
             isDrawing = true;
             const point = getPos(e);
             
@@ -251,7 +242,6 @@
         function movePath(e) {
             if (!isDrawing) return;
             e.preventDefault();
-            
             const point = getPos(e);
             currentPath.points.push(point);
             
@@ -260,8 +250,7 @@
                 const prevPoint = points[points.length - 2];
                 ctx.beginPath();
                 ctx.lineWidth = currentPath.width;
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round'; ctx.lineJoin = 'round';
                 ctx.strokeStyle = currentPath.color;
                 ctx.moveTo(prevPoint.x, prevPoint.y);
                 ctx.lineTo(point.x, point.y);
@@ -276,29 +265,22 @@
             }
         }
 
-        // Мышь
         canvas.addEventListener('mousedown', startPath);
         canvas.addEventListener('mousemove', movePath);
         canvas.addEventListener('mouseup', endPath);
         canvas.addEventListener('mouseleave', endPath);
-
-        // Тачскрин (Телефоны/Планшеты)
-        canvas.addEventListener('touchstart', startPath);
-        canvas.addEventListener('touchmove', movePath);
+        canvas.addEventListener('touchstart', startPath, { passive: false });
+        canvas.addEventListener('touchmove', movePath, { passive: false });
         canvas.addEventListener('touchend', endPath);
 
-        // --- Логика очистки и повтора ---
-
+        // --- ВОСПРОИЗВЕДЕНИЕ ---
         function clearCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (!isReplaying) {
-                allPaths = [];
-            }
+            if (!isReplaying) allPaths = [];
         }
 
         function startReplay() {
             if (allPaths.length === 0 || isReplaying) return;
-            
             isReplaying = true;
             document.getElementById('replayBtn').disabled = true;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -313,11 +295,9 @@
                     document.getElementById('replayBtn').disabled = false;
                     return;
                 }
-
                 const path = allPaths[pathIndex];
                 ctx.lineWidth = path.width;
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round'; ctx.lineJoin = 'round';
                 ctx.strokeStyle = path.color;
                 ctx.fillStyle = path.color;
 
@@ -330,17 +310,12 @@
                 if (pointIndex < path.points.length) {
                     const p1 = path.points[pointIndex - 1];
                     const p2 = path.points[pointIndex];
-                    
                     ctx.beginPath();
                     ctx.moveTo(p1.x, p1.y);
                     ctx.lineTo(p2.x, p2.y);
                     ctx.stroke();
-                    
                     pointIndex++;
-                    // Обратная зависимость: скорость 1 = задержка 20мс, скорость 10 = задержка 2мс
-                    const speedVal = parseInt(speedInput.value);
-                    const delay = 25 / speedVal; 
-                    setTimeout(animate, delay);
+                    setTimeout(animate, 25 / parseInt(speedInput.value));
                 } else {
                     pathIndex++;
                     pointIndex = 1;

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Тренажер письма</title>
     <style>
-        /* --- ОБЩИЕ СТИЛИ --- */
+        /* --- СТИЛИ ИНТЕРФЕЙСА --- */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
@@ -18,7 +18,6 @@
 
         h1 { color: #2c3e50; margin-bottom: 20px; }
 
-        /* Панель управления */
         .controls {
             background: white;
             padding: 20px;
@@ -41,7 +40,6 @@
 
         label { font-size: 12px; font-weight: bold; color: #7f8c8d; text-transform: uppercase; }
 
-        /* Кнопки */
         button {
             padding: 10px 20px;
             cursor: pointer;
@@ -54,19 +52,14 @@
             align-items: center;
             gap: 5px;
         }
-        /* Цвета кнопок */
+        
         button#replayBtn { background-color: #2ecc71; color: white; }
         button#replayBtn:hover { background-color: #27ae60; }
-        
         button.action-btn { background-color: #3498db; color: white; }
         button.action-btn:hover { background-color: #2980b9; }
-
         button.secondary { background-color: #e74c3c; color: white; }
-        button.secondary:hover { background-color: #c0392b; }
-
         button:disabled { background-color: #95a5a6; cursor: not-allowed; opacity: 0.7; }
 
-        /* Поля ввода */
         select, input[type="file"], input[type="number"] {
             padding: 8px;
             border: 1px solid #bdc3c7;
@@ -75,26 +68,19 @@
         }
 
         input[type="color"] {
-            padding: 0;
-            border: none;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            background: none;
+            padding: 0; border: none; width: 40px; height: 40px;
+            cursor: pointer; background: none;
         }
 
-        /* КОНТЕЙНЕР ХОЛСТА */
+        /* КОНТЕЙНЕР */
         .canvas-wrapper {
             position: relative;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             border: 1px solid #e0e0e0;
-            overflow: hidden;
-            background-color: white;
+            /* Убрали CSS фоны, теперь всё рисует JS */
+            background-color: white; 
             width: 800px;
             height: 600px;
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: cover; 
         }
 
         canvas {
@@ -102,48 +88,6 @@
             cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="black" opacity="0.5"/></svg>') 5 5, crosshair;
             touch-action: none; 
         }
-
-        /* --- СТИЛИ ФОНОВ --- */
-        
-        /* 1. Обычная линейка */
-        .bg-lines {
-            background-image: repeating-linear-gradient(to bottom,
-                #999 0,
-                #999 1px,
-                transparent 1px,
-                transparent 40px
-            );
-            background-size: auto;
-        }
-
-        /* 2. Клетка */
-        .bg-grid {
-            background-image: 
-                repeating-linear-gradient(to right, #cfcfcf 0, #cfcfcf 1px, transparent 1px, transparent 20px),
-                repeating-linear-gradient(to bottom, #cfcfcf 0, #cfcfcf 1px, transparent 1px, transparent 20px);
-            background-size: auto;
-        }
-
-        /* 3. Косая линейка (Прописи) */
-        .bg-propisi {
-            background-color: #ffffff;
-            background-image: 
-                repeating-linear-gradient(to bottom,
-                    #8c8c8c 0px, #8c8c8c 1px,
-                    transparent 1px, transparent 26px,
-                    #8c8c8c 26px, #8c8c8c 27px,
-                    transparent 27px, transparent 80px
-                ),
-                repeating-linear-gradient(115deg, 
-                    transparent,
-                    transparent 84px,
-                    #d1d1d1 84px,
-                    #d1d1d1 85px
-                );
-            background-size: auto;
-            background-position: 0 20px;
-        }
-
     </style>
 </head>
 <body>
@@ -153,9 +97,9 @@
     <div class="controls">
         <div class="control-group">
             <label>Действия</label>
-            <div style="display:flex; gap:10px; flex-wrap: wrap;">
+            <div style="display:flex; gap:10px;">
                 <button onclick="startReplay()" id="replayBtn">▶ Показать</button>
-                <button onclick="clearCanvas()" class="secondary">🗑</button>
+                <button onclick="fullClear()" class="secondary">🗑</button>
             </div>
         </div>
 
@@ -169,7 +113,7 @@
         
         <div class="control-group">
             <label for="bgSelect">Разлиновка</label>
-            <select id="bgSelect" onchange="changeBackground()">
+            <select id="bgSelect" onchange="redrawAll()">
                 <option value="propisi" selected>Косая линейка (1 класс)</option>
                 <option value="lines">Линейка (Обычная)</option>
                 <option value="grid">Клетка</option>
@@ -179,7 +123,7 @@
 
         <div class="control-group">
             <label>Свой фон</label>
-            <input type="file" id="bgUpload" accept="image/*" onchange="uploadBackground(this)" style="width: 120px;">
+            <input type="file" id="bgUpload" accept="image/*" onchange="handleImageUpload(this)" style="width: 120px;">
         </div>
 
         <div class="control-group">
@@ -205,29 +149,137 @@
     <script>
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
-        const container = document.getElementById('canvasContainer');
         
         let isDrawing = false;
         let allPaths = [];
         let currentPath = [];
         let isReplaying = false;
+        let uploadedImageObj = null; // Для хранения загруженной картинки
 
-        window.onload = function() { changeBackground(); };
+        // Инициализация
+        window.onload = function() { redrawAll(); };
 
-        function changeBackground() {
+        // --- ЛОГИКА ОТРИСОВКИ ФОНОВ (JS вместо CSS) ---
+
+        function drawBackground() {
             const type = document.getElementById('bgSelect').value;
-            container.className = 'canvas-wrapper';
-            container.style.backgroundImage = '';
-            if (type !== 'none') container.classList.add('bg-' + type);
+            const w = canvas.width;
+            const h = canvas.height;
+
+            // 1. Заливаем белым (обязательно для видео)
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, w, h);
+
+            // 2. Если есть загруженная картинка - рисуем её
+            if (uploadedImageObj) {
+                ctx.drawImage(uploadedImageObj, 0, 0, w, h);
+                return; // Если картинка есть, линии не рисуем (или можно поверх)
+            }
+
+            // 3. Рисуем сетки
+            ctx.lineWidth = 1;
+
+            if (type === 'lines') {
+                ctx.beginPath();
+                ctx.strokeStyle = '#999999';
+                for (let y = 40; y < h; y += 40) {
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(w, y);
+                }
+                ctx.stroke();
+            } 
+            else if (type === 'grid') {
+                ctx.beginPath();
+                ctx.strokeStyle = '#cfcfcf';
+                // Вертикальные
+                for (let x = 20; x < w; x += 20) {
+                    ctx.moveTo(x, 0); ctx.lineTo(x, h);
+                }
+                // Горизонтальные
+                for (let y = 20; y < h; y += 20) {
+                    ctx.moveTo(0, y); ctx.lineTo(w, y);
+                }
+                ctx.stroke();
+            } 
+            else if (type === 'propisi') {
+                // Косая линейка (копия логики из CSS)
+                
+                // А. Косые линии (На заднем плане)
+                ctx.beginPath();
+                ctx.strokeStyle = '#d1d1d1';
+                // Наклон ~65 градусов. Смещение по X примерно равно высоте / 2
+                const slantOffset = 280; // Насколько низ сдвинут влево относительно верха
+                const step = 55; // Шаг сетки
+                
+                // Рисуем с запасом слева и справа, так как линии наклонные
+                for (let x = -slantOffset; x < w + slantOffset; x += step) {
+                    ctx.moveTo(x + slantOffset, 0); // Верхняя точка
+                    ctx.lineTo(x, h); // Нижняя точка (сдвинута влево)
+                }
+                ctx.stroke();
+
+                // Б. Горизонтальные линии (Рабочая строка)
+                ctx.beginPath();
+                ctx.strokeStyle = '#8c8c8c';
+                
+                let y = 20; // Начальный отступ сверху
+                while (y < h) {
+                    // Верхняя линия строки
+                    ctx.moveTo(0, y); ctx.lineTo(w, y);
+                    // Нижняя линия строки (+26px)
+                    ctx.moveTo(0, y + 26); ctx.lineTo(w, y + 26);
+                    
+                    y += 80; // Переход к следующему блоку (26 строка + 54 пробел)
+                }
+                ctx.stroke();
+            }
         }
 
-        function uploadBackground(input) {
+        // Главная функция обновления экрана
+        function redrawAll() {
+            if (isReplaying) return;
+            // 1. Рисуем фон
+            drawBackground();
+            // 2. Рисуем все сохраненные линии поверх
+            allPaths.forEach(path => drawSinglePath(path));
+        }
+
+        // Рисует одну полную линию (штрих)
+        function drawSinglePath(path) {
+            if (path.points.length < 1) return;
+            ctx.lineWidth = path.width;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = path.color;
+            ctx.fillStyle = path.color;
+
+            ctx.beginPath();
+            // Точка
+            if (path.points.length === 1) {
+                ctx.arc(path.points[0].x, path.points[0].y, path.width / 2, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                // Линия
+                ctx.moveTo(path.points[0].x, path.points[0].y);
+                for (let i = 1; i < path.points.length; i++) {
+                    ctx.lineTo(path.points[i].x, path.points[i].y);
+                }
+                ctx.stroke();
+            }
+        }
+
+        // --- ЗАГРУЗКА КАРТИНКИ ---
+        function handleImageUpload(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    container.className = 'canvas-wrapper';
-                    container.style.backgroundImage = `url(${e.target.result})`;
-                    document.getElementById('bgSelect').value = 'none';
+                    const img = new Image();
+                    img.onload = () => {
+                        uploadedImageObj = img; // Сохраняем объект
+                        document.getElementById('bgSelect').value = 'none'; // Сбрасываем селект
+                        redrawAll();
+                    };
+                    img.src = e.target.result;
                 };
                 reader.readAsDataURL(input.files[0]);
             }
@@ -251,6 +303,7 @@
                 width: document.getElementById('width').value,
                 points: [point]
             };
+            // Рисуем точку сразу (визуально)
             ctx.beginPath();
             ctx.fillStyle = currentPath.color;
             ctx.arc(point.x, point.y, currentPath.width / 2, 0, Math.PI * 2);
@@ -262,14 +315,16 @@
             e.preventDefault();
             const point = getPos(e);
             currentPath.points.push(point);
+            
+            // Рисуем сегмент сразу
             const points = currentPath.points;
             if (points.length > 1) {
-                const prevPoint = points[points.length - 2];
+                const prev = points[points.length - 2];
                 ctx.beginPath();
                 ctx.lineWidth = currentPath.width;
                 ctx.lineCap = 'round'; ctx.lineJoin = 'round';
                 ctx.strokeStyle = currentPath.color;
-                ctx.moveTo(prevPoint.x, prevPoint.y);
+                ctx.moveTo(prev.x, prev.y);
                 ctx.lineTo(point.x, point.y);
                 ctx.stroke();
             }
@@ -290,19 +345,23 @@
         canvas.addEventListener('touchmove', movePath, { passive: false });
         canvas.addEventListener('touchend', endPath);
 
-        function clearCanvas() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (!isReplaying) allPaths = [];
+        function fullClear() {
+            allPaths = [];
+            uploadedImageObj = null; // Сброс картинки при полной очистке? 
+            // Если не хотите сбрасывать фон при очистке, закомментируйте строку выше
+            redrawAll();
         }
 
-        // --- ВОСПРОИЗВЕДЕНИЕ (С поддержкой колбэка для видео) ---
+        // --- ВОСПРОИЗВЕДЕНИЕ ---
         function startReplay(onComplete) {
             if (allPaths.length === 0 || isReplaying) return;
             
             isReplaying = true;
             document.getElementById('replayBtn').disabled = true;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
             
+            // Очищаем и рисуем фон (чистый лист с линейками)
+            drawBackground(); 
+
             const speedInput = document.getElementById('speed');
             let pathIndex = 0;
             let pointIndex = 1;
@@ -311,7 +370,6 @@
                 if (pathIndex >= allPaths.length) {
                     isReplaying = false;
                     document.getElementById('replayBtn').disabled = false;
-                    // Если передана функция завершения (например, остановка видео), вызываем её
                     if (onComplete) onComplete();
                     return;
                 }
@@ -345,62 +403,54 @@
             animate();
         }
 
-        // --- ФУНКЦИИ СОХРАНЕНИЯ ---
+        // --- СОХРАНЕНИЕ ---
 
-        // 1. Скачать Фото (PNG)
         function downloadImage() {
-            // Создаем временную ссылку
+            // Перед сохранением убедимся, что фон отрисован
+            redrawAll();
             const link = document.createElement('a');
-            link.download = 'propisi-text.png';
-            // Конвертируем Canvas в картинку
+            link.download = 'propisi-image.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
         }
 
-        // 2. Скачать Видео (WebM)
         function recordVideo() {
-            if (allPaths.length === 0) {
-                alert("Сначала напишите что-нибудь!");
-                return;
-            }
+            if (allPaths.length === 0) { alert("Нет записей!"); return; }
 
             const btn = document.getElementById('recordBtn');
             const originalText = btn.innerText;
             btn.innerText = "⏺ Запись...";
             btn.disabled = true;
 
-            // Захватываем поток с Canvas (30 кадров в секунду)
+            // Сначала рисуем чистый фон
+            drawBackground();
+
             const stream = canvas.captureStream(30);
             const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
             const chunks = [];
 
-            // Собираем куски видео
-            recorder.ondataavailable = function(e) {
-                if (e.data.size > 0) chunks.push(e.data);
-            };
-
-            // Когда запись остановлена -> создаем файл
-            recorder.onstop = function() {
+            recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+            
+            recorder.onstop = () => {
                 const blob = new Blob(chunks, { type: 'video/webm' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.style.display = 'none';
                 a.href = url;
-                a.download = 'propisi-animation.webm';
+                a.download = 'propisi-video.webm';
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
-                
-                // Возвращаем кнопку в исходное состояние
                 btn.innerText = originalText;
                 btn.disabled = false;
+                // Возвращаем рисунок на место после записи
+                redrawAll();
             };
 
-            // Запускаем запись
             recorder.start();
 
-            // Запускаем воспроизведение, и когда оно закончится -> стоп запись
-            startReplay(function() {
+            // Запускаем анимацию рисования
+            startReplay(() => {
                 recorder.stop();
             });
         }

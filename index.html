@@ -50,14 +50,23 @@
             font-size: 14px;
             font-weight: 600;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
+        /* Цвета кнопок */
         button#replayBtn { background-color: #2ecc71; color: white; }
         button#replayBtn:hover { background-color: #27ae60; }
-        button:disabled { background-color: #95a5a6; cursor: not-allowed; }
+        
+        button.action-btn { background-color: #3498db; color: white; }
+        button.action-btn:hover { background-color: #2980b9; }
+
         button.secondary { background-color: #e74c3c; color: white; }
         button.secondary:hover { background-color: #c0392b; }
 
-        /* Поля ввода (Select, File, Number) - у них белый фон */
+        button:disabled { background-color: #95a5a6; cursor: not-allowed; opacity: 0.7; }
+
+        /* Поля ввода */
         select, input[type="file"], input[type="number"] {
             padding: 8px;
             border: 1px solid #bdc3c7;
@@ -65,14 +74,13 @@
             background: #fff;
         }
 
-        /* ИСПРАВЛЕНИЕ: Поле выбора цвета (Color) - убираем фон и отступы */
         input[type="color"] {
             padding: 0;
             border: none;
             width: 40px;
             height: 40px;
             cursor: pointer;
-            background: none; /* Прозрачный фон, чтобы видеть цвет */
+            background: none;
         }
 
         /* КОНТЕЙНЕР ХОЛСТА */
@@ -120,14 +128,12 @@
         .bg-propisi {
             background-color: #ffffff;
             background-image: 
-                /* Горизонтальные линии */
                 repeating-linear-gradient(to bottom,
                     #8c8c8c 0px, #8c8c8c 1px,
                     transparent 1px, transparent 26px,
                     #8c8c8c 26px, #8c8c8c 27px,
                     transparent 27px, transparent 80px
                 ),
-                /* Косые линии */
                 repeating-linear-gradient(115deg, 
                     transparent,
                     transparent 84px,
@@ -147,9 +153,17 @@
     <div class="controls">
         <div class="control-group">
             <label>Действия</label>
-            <div style="display:flex; gap:10px;">
+            <div style="display:flex; gap:10px; flex-wrap: wrap;">
                 <button onclick="startReplay()" id="replayBtn">▶ Показать</button>
-                <button onclick="clearCanvas()" class="secondary">Очистить</button>
+                <button onclick="clearCanvas()" class="secondary">🗑</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Сохранить</label>
+            <div style="display:flex; gap:10px;">
+                <button onclick="downloadImage()" class="action-btn">📷 Фото</button>
+                <button onclick="recordVideo()" id="recordBtn" class="action-btn">🎥 Видео</button>
             </div>
         </div>
         
@@ -164,8 +178,8 @@
         </div>
 
         <div class="control-group">
-            <label>Свой фон (Скан)</label>
-            <input type="file" id="bgUpload" accept="image/*" onchange="uploadBackground(this)" style="width: 180px;">
+            <label>Свой фон</label>
+            <input type="file" id="bgUpload" accept="image/*" onchange="uploadBackground(this)" style="width: 120px;">
         </div>
 
         <div class="control-group">
@@ -174,13 +188,13 @@
         </div>
         
         <div class="control-group">
-            <label for="color">Цвет ручки</label>
+            <label for="color">Цвет</label>
             <input type="color" id="color" value="#0000CC">
         </div>
 
         <div class="control-group">
             <label for="width">Толщина</label>
-            <input type="number" id="width" value="4" min="1" max="20" style="width: 60px;">
+            <input type="number" id="width" value="4" min="1" max="20" style="width: 50px;">
         </div>
     </div>
 
@@ -219,6 +233,7 @@
             }
         }
 
+        // --- РИСОВАНИЕ ---
         function getPos(e) {
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -231,14 +246,11 @@
             e.preventDefault();
             isDrawing = true;
             const point = getPos(e);
-            
-            // Получаем цвет ПРЯМО СЕЙЧАС из инпута
             currentPath = {
                 color: document.getElementById('color').value,
                 width: document.getElementById('width').value,
                 points: [point]
             };
-            
             ctx.beginPath();
             ctx.fillStyle = currentPath.color;
             ctx.arc(point.x, point.y, currentPath.width / 2, 0, Math.PI * 2);
@@ -250,7 +262,6 @@
             e.preventDefault();
             const point = getPos(e);
             currentPath.points.push(point);
-            
             const points = currentPath.points;
             if (points.length > 1) {
                 const prevPoint = points[points.length - 2];
@@ -284,8 +295,10 @@
             if (!isReplaying) allPaths = [];
         }
 
-        function startReplay() {
+        // --- ВОСПРОИЗВЕДЕНИЕ (С поддержкой колбэка для видео) ---
+        function startReplay(onComplete) {
             if (allPaths.length === 0 || isReplaying) return;
+            
             isReplaying = true;
             document.getElementById('replayBtn').disabled = true;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -298,6 +311,8 @@
                 if (pathIndex >= allPaths.length) {
                     isReplaying = false;
                     document.getElementById('replayBtn').disabled = false;
+                    // Если передана функция завершения (например, остановка видео), вызываем её
+                    if (onComplete) onComplete();
                     return;
                 }
                 const path = allPaths[pathIndex];
@@ -328,6 +343,66 @@
                 }
             }
             animate();
+        }
+
+        // --- ФУНКЦИИ СОХРАНЕНИЯ ---
+
+        // 1. Скачать Фото (PNG)
+        function downloadImage() {
+            // Создаем временную ссылку
+            const link = document.createElement('a');
+            link.download = 'propisi-text.png';
+            // Конвертируем Canvas в картинку
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // 2. Скачать Видео (WebM)
+        function recordVideo() {
+            if (allPaths.length === 0) {
+                alert("Сначала напишите что-нибудь!");
+                return;
+            }
+
+            const btn = document.getElementById('recordBtn');
+            const originalText = btn.innerText;
+            btn.innerText = "⏺ Запись...";
+            btn.disabled = true;
+
+            // Захватываем поток с Canvas (30 кадров в секунду)
+            const stream = canvas.captureStream(30);
+            const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+            const chunks = [];
+
+            // Собираем куски видео
+            recorder.ondataavailable = function(e) {
+                if (e.data.size > 0) chunks.push(e.data);
+            };
+
+            // Когда запись остановлена -> создаем файл
+            recorder.onstop = function() {
+                const blob = new Blob(chunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'propisi-animation.webm';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                
+                // Возвращаем кнопку в исходное состояние
+                btn.innerText = originalText;
+                btn.disabled = false;
+            };
+
+            // Запускаем запись
+            recorder.start();
+
+            // Запускаем воспроизведение, и когда оно закончится -> стоп запись
+            startReplay(function() {
+                recorder.stop();
+            });
         }
     </script>
 </body>

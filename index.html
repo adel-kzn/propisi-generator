@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Рисование Прописей (v10.0 Grid)</title>
+    <title>Рисование (v10.1 Full)</title>
 
     <meta name="yandex-verification" content="zoqf7gn5mwyntin5" />
     <script type="text/javascript" >
@@ -136,7 +136,7 @@
     <div class="sidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Интерактивная доска v10.0</p>
+            <p class="app-subtitle">Интерактивная доска v10.1</p>
         </div>
 
         <div class="nav-tabs">
@@ -148,7 +148,8 @@
             <div class="section-label">1. Подложка</div>
             <select id="bgSelect" onchange="changeBackground()">
                 <option value="propisi_often" selected>Частая косая (1 класс)</option>
-                <option value="cell">Клетка (5 мм)</option> <option value="lines">Обычная линейка</option>
+                <option value="cell">Клетка (5 мм)</option> 
+                <option value="lines">Обычная линейка</option>
                 <option value="white">Чистый лист</option>
                 <option value="custom">📁 Загрузить своё фото...</option>
             </select>
@@ -310,10 +311,9 @@
                 }
                 bgCtx.stroke();
                 
-                // Перерисовываем поля поверх сетки, чтобы было красиво
+                // Перерисовываем поля поверх сетки
                 bgCtx.beginPath(); bgCtx.strokeStyle = '#FF8080'; bgCtx.lineWidth = 4;
                 bgCtx.moveTo(20*MM, 0); bgCtx.lineTo(20*MM, h); bgCtx.stroke();
-                
                 return;
             }
 
@@ -323,7 +323,7 @@
             
             let slantStep = 0; let drawSlant = false;
             if (type === 'propisi_often') { drawSlant = true; slantStep = 25 * MM; }
-            else if (type === 'propisi_rare') { drawSlant = true; slantStep = 150 * MM; } // Этого режима больше нет в селекте, но логику можно оставить
+            else if (type === 'propisi_rare') { drawSlant = true; slantStep = 150 * MM; }
 
             bgCtx.lineWidth = 2;
             while(y < h - MT) {
@@ -449,6 +449,7 @@
             let recorder = null;
             
             if (forExport) {
+                // Захватываем поток с ВИДИМОГО КАНВАСА
                 const stream = drawCanvas.captureStream(30);
                 recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
                 const chunks = [];
@@ -478,7 +479,9 @@
                 if (!isReplaying) return;
 
                 if (forExport) {
+                    // ХАК: РИСУЕМ ФОН ПРЯМО НА СЛОЙ РИСОВАНИЯ КАЖДЫЙ КАДР
                     drawCtx.drawImage(bgCanvas, 0, 0);
+                    // Затем перерисовываем все старые линии поверх фона
                     for(let i=0; i<actionIdx; i++) {
                         drawStroke(actions[i]);
                     }
@@ -490,6 +493,7 @@
                 }
 
                 if (!forExport) {
+                     // ОБЫЧНЫЙ ПРОСМОТР (Без перерисовки фона, он и так снизу)
                      const act = actions[actionIdx];
                      if (pointIdx === 0) {
                         drawCtx.beginPath();

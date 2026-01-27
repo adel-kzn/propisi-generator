@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Генератор Прописей (Primo Final)</title>
+    <title>Генератор прописей</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -26,6 +26,7 @@
         body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--app-bg); height: 100vh; display: flex; overflow: hidden; }
         
         .sidebar { width: 360px; min-width: 360px; background: var(--sidebar-bg); border-right: 1px solid rgba(0,0,0,0.1); display: flex; flex-direction: column; padding: 20px; gap: 15px; overflow-y: auto; z-index: 10; }
+        .app-header { margin-bottom: 5px; }
         .app-title { font-size: 20px; font-weight: 700; margin: 0; }
         .app-subtitle { font-size: 12px; color: var(--text-secondary); margin: 0; }
         
@@ -54,7 +55,7 @@
     <div class="sidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Генератор PDF • v7.1 (Fix Wrap)</p>
+            <p class="app-subtitle">Генератор прописей</p>
         </div>
 
         <div class="nav-tabs">
@@ -90,7 +91,7 @@
              <button class="btn-primary" onclick="generatePDF()" id="downloadBtn">
                 Скачать PDF
             </button>
-            <div id="status">Загрузка primo.ttf...</div>
+            <div id="status">Загрузка шрифта...</div>
         </div>
     </div>
 
@@ -116,10 +117,6 @@
         
         const FONT_SIZE_PX = 116; 
         const OFFSET_PX = 0; 
-
-        // ==========================================
-        // === ЛОГИКА NEKIN MACRO (ПЕРЕВОД JS) ===
-        // ==========================================
 
         function getHeadAndTail(char) {
             const code = char.charCodeAt(0);
@@ -249,21 +246,15 @@
             let res = "";
             let c1 = "";
             let c2 = text[0];
-            
-            // Обработка начала слова (аналог макроса)
             res += ins(" ", c2) + c2;
-
             for (let i = 1; i < text.length; i++) {
                 c1 = c2;
                 c2 = text[i];
                 res += ins(c1, c2) + c2;
             }
-            // Обработка хвоста
             res += ins(c2, " ");
             return res;
         }
-
-        // ==========================================
 
         window.onload = async function() {
             try {
@@ -297,12 +288,8 @@
             updatePreview();
         }
 
-        // --- ИСПРАВЛЕННЫЙ ПЕРЕНОС СТРОК ---
         function getLines(text, maxWidth) {
-            // Чтобы корректно измерить длину, нам нужно мерить уже "ПЕРЕРАБОТАННЫЙ" текст.
-            // Потому что хвосты добавляют ширину.
             ctx.font = `${FONT_SIZE_PX}px PrimoFont`; 
-            
             const words = text.replace(/\n/g, " \n ").split(" ");
             const lines = [];
             let currentLineRaw = words[0]; 
@@ -315,10 +302,8 @@
                     continue;
                 }
                 
-                // Формируем "будущую" строку, чтобы измерить её длину с хвостами
                 let potentialLineRaw = currentLineRaw + " " + word;
                 let potentialLineProcessed = processPrimoText(potentialLineRaw);
-                
                 let width = ctx.measureText(potentialLineProcessed).width;
                 
                 if (width < maxWidth) {
@@ -351,13 +336,8 @@
             f.load().then(loadedFace => {
                 document.fonts.add(loadedFace);
                 const maxTextWidth = w - MARGIN_LEFT - MARGIN_RIGHT;
-                
-                // 1. Разбиваем на строки (измеряя ширину С УЧЕТОМ хвостов)
                 const lines = getLines(rawText, maxTextWidth);
-                
-                // 2. Обрабатываем каждую строку (вставляем хвосты)
                 const processedLines = lines.map(line => processPrimoText(line));
-                
                 drawTextViaSVG(processedLines, w, h, textColor);
             });
         }

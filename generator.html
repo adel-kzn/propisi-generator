@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Генератор прописей</title>
+
+    <meta name="yandex-verification" content="zoqf7gn5mwyntin5" />
+    <script type="text/javascript" >
+       (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+       m[i].l=1*new Date();
+       for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+       k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+       (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+       ym(106467293, "init", {clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/106467293" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        /* ПОДКЛЮЧАЕМ ТВОЙ ШРИФТ */
+        @font-face {
+            font-family: 'Primo';
+            src: url('primo.ttf') format('truetype');
+        }
+
+        :root {
+            --app-bg: #F2F2F7;
+            --sidebar-bg: rgba(255, 255, 255, 0.85);
+            --sidebar-border: rgba(0, 0, 0, 0.05);
+            --text-primary: #1C1C1E;
+            --text-secondary: #8E8E93;
+            --accent: #007AFF;
+            --accent-hover: #0062cc;
+            --danger: #FF3B30;
+            --radius-L: 16px;
+            --radius-M: 10px;
+            --shadow-card: 0 8px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--app-bg);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 320px;
+            min-width: 320px;
+            height: 100%;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-right: 1px solid var(--sidebar-border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 20px;
+            gap: 20px;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .app-title { font-size: 24px; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
+        .app-subtitle { font-size: 13px; color: var(--text-secondary); margin: 0; }
+
+        /* TAB NAVIGATION */
+        .nav-tabs {
+            display: flex;
+            background: rgba(0,0,0,0.05);
+            padding: 4px;
+            border-radius: var(--radius-M);
+        }
+        .nav-tab {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            color: var(--text-secondary);
+            border-radius: 7px;
+            transition: all 0.2s;
+        }
+        .nav-tab.active {
+            background: white;
+            color: var(--text-primary);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .section { display: flex; flex-direction: column; gap: 8px; }
+        .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px; margin-left: 4px; }
+
+        /* FORM ELEMENTS */
+        select, textarea, input[type="text"] {
+            width: 100%; padding: 10px 12px;
+            border-radius: var(--radius-M); border: 1px solid rgba(0,0,0,0.1);
+            background-color: rgba(255,255,255,0.6);
+            font-size: 15px; color: var(--text-primary); outline: none;
+            font-family: inherit; resize: none;
+        }
+        textarea { height: 120px; }
+
+        button.btn-primary {
+            border: none; height: 44px; border-radius: var(--radius-M);
+            font-size: 17px; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            background-color: var(--accent); color: white; box-shadow: 0 2px 8px rgba(0,122,255,0.25);
+            width: 100%; transition: transform 0.1s;
+        }
+        button.btn-primary:active { transform: scale(0.98); }
+        button:disabled { opacity: 0.6; cursor: wait; }
+
+        /* PREVIEW AREA */
+        .main-area {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--app-bg);
+            padding: 30px;
+            overflow: auto;
+        }
+        
+        .a4-preview {
+            width: 210mm; /* Реальный размер A4 */
+            height: 297mm;
+            background: white;
+            box-shadow: var(--shadow-card);
+            /* Начальный зум, будет меняться JS-ом */
+            transform-origin: center top;
+            margin-bottom: 20px;
+        }
+        
+        canvas {
+            width: 100%; height: 100%; display: block;
+        }
+
+        @media (max-width: 850px) {
+            body { flex-direction: column; height: auto; overflow-y: auto; }
+            .sidebar { width: 100%; min-width: 0; height: auto; border-right: none; border-bottom: 1px solid var(--sidebar-border); }
+            .main-area { padding: 10px; display: block; }
+            .a4-preview { width: 100%; height: auto; aspect-ratio: 210/297; transform: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div>
+            <h1 class="app-title">Прописи</h1>
+            <p class="app-subtitle">Версия 3.3</p>
+        </div>
+
+        <div class="nav-tabs">
+            <a href="index.html" class="nav-tab">Рисование</a>
+            <a href="generator.html" class="nav-tab active">Генератор PDF</a>
+        </div>
+
+        <div class="section">
+            <div class="section-label">1. Выберите лист</div>
+            <select id="bgSelect" onchange="drawPreview()">
+                <option value="propisi_often" selected>Частая косая (1 класс)</option>
+                <option value="propisi_rare">Редкая косая (Стандарт)</option>
+                <option value="lines">Обычная линейка</option>
+                <option value="grid">Клетка</option>
+                <option value="white">Чистый лист</option>
+            </select>
+        </div>
+
+        <div class="section">
+            <div class="section-label">2. Текст прописи</div>
+            <textarea id="textInput" oninput="drawPreview()" placeholder="Введите буквы или слова...
+Например:
+А а Б б В в
+Мама мыла раму"></textarea>
+        </div>
+
+        <div class="section">
+            <div class="section-label">3. Вид шрифта</div>
+            <select id="colorStyle" onchange="drawPreview()">
+                <option value="pale">Серый (для обводки)</option>
+                <option value="black">Черный (для примера)</option>
+            </select>
+        </div>
+        
+        <div class="section" style="margin-top: auto; padding-top: 20px;">
+             <button class="btn-primary" onclick="generatePDF()" id="downloadBtn">
+                Скачать PDF
+            </button>
+            <div id="status" style="text-align: center; font-size: 11px; color: #8E8E93; min-height: 15px;"></div>
+        </div>
+    </div>
+
+    <div class="main-area">
+        <div class="a4-preview" id="previewContainer">
+            <canvas id="previewCanvas" width="2480" height="3508"></canvas>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('previewCanvas');
+        const ctx = canvas.getContext('2d');
+        const fontName = 'Primo';
+        
+        // Переменная для хранения Base64 версии шрифта (нужна для PDF)
+        let fontBase64 = null;
+
+        // --- 1. ЗАГРУЗКА ШРИФТА ---
+        window.onload = async function() {
+            // Рисуем превью сразу (шрифт подгрузится чуть позже)
+            drawPreview();
+            
+            // Загружаем шрифт для PDF
+            try {
+                const response = await fetch('primo.ttf');
+                const blob = await response.blob();
+                const reader = new FileReader();
+                reader.onloadend = function() {
+                    // Получаем строку data:font/ttf;base64,.....
+                    // Нам нужна только часть после запятой
+                    fontBase64 = reader.result.split(',')[1];
+                    document.getElementById('status').innerText = 'Шрифт готов к печати';
+                };
+                reader.readAsDataURL(blob);
+                
+                // Ждем пока браузер отрисует шрифт на канвасе
+                document.fonts.load('100px "Primo"').then(() => drawPreview());
+                
+            } catch (e) {
+                console.error("Ошибка загрузки шрифта:", e);
+                document.getElementById('status').innerText = 'Ошибка: положите файл primo.ttf рядом!';
+            }
+            
+            adjustPreviewScale();
+            window.onresize = adjustPreviewScale;
+        };
+
+        function adjustPreviewScale() {
+            if(window.innerWidth > 850) {
+                const container = document.querySelector('.main-area');
+                const preview = document.querySelector('.a4-preview');
+                // Подгоняем масштаб, чтобы лист влезал по высоте с отступами
+                const scale = (container.clientHeight - 60) / preview.offsetHeight;
+                preview.style.transform = `scale(${Math.min(scale, 1)})`;
+            }
+        }
+
+        // --- 2. ОТРИСОВКА ПРЕВЬЮ (CANVAS) ---
+        function drawPreview() {
+            const w = canvas.width;
+            const h = canvas.height;
+            const type = document.getElementById('bgSelect').value;
+            const text = document.getElementById('textInput').value;
+            const colorStyle = document.getElementById('colorStyle').value;
+
+            // Очистка
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, w, h);
+
+            // Настройки масштаба линий (для высокого разрешения)
+            // A4 @ 300 DPI ~ 2480px width
+            // Стандартная строка ~ 5-8 мм. 
+            // В пикселях: 1 мм ≈ 11.8 px. 
+            // 4 мм (строка) ≈ 47 px.
+            
+            // Настройка разлиновки
+            let rowH = 50;  // Высота рабочей строки
+            let gapH = 100; // Межстрочный
+            let slant = 0;
+            
+            ctx.lineWidth = 3; // Толщина линий фона
+            
+            if (type === 'propisi_often') {
+                // Частая косая (1 класс)
+                rowH = 50; gapH = 100; slant = 65; 
+                drawGrid(w, h, rowH, gapH, slant, 50); // шаг косой 50
+            } 
+            else if (type === 'propisi_rare') {
+                // Редкая косая
+                rowH = 50; gapH = 100; slant = 65;
+                drawGrid(w, h, rowH, gapH, slant, 250); // шаг косой 250
+            }
+            else if (type === 'lines') {
+                rowH = 50; gapH = 100;
+                drawGrid(w, h, rowH, gapH, 0, 0);
+            }
+            else if (type === 'grid') {
+                drawSquareGrid(w, h, 50);
+                rowH = 50; gapH = 0; // Для клетки логика строк другая
+            }
+
+            // --- ОТРИСОВКА ТЕКСТА ---
+            if (text) {
+                ctx.font = `200px "${fontName}"`; // Размер шрифта подбираем под 300 DPI
+                
+                if (colorStyle === 'pale') ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'; // Бледный серый
+                else ctx.fillStyle = 'black';
+
+                const lines = text.split('\n');
+                // Начальная позиция Y (отступ сверху + высота строки)
+                // Подбираем, чтобы буквы стояли на нижней линейке
+                let startY = 100 + 50 + rowH; // Поля + отступ
+                let lineHeight = rowH + gapH; 
+                
+                if (type === 'grid') lineHeight = 200; // В клетке просто через интервал
+
+                // Корректировка вертикального положения для Primo
+                // (у разных шрифтов разная базовая линия)
+                const fontBaselineShift = 15; 
+
+                lines.forEach((line, index) => {
+                    // Рисуем текст
+                    ctx.fillText(line, 150, startY + (index * lineHeight) - fontBaselineShift);
+                });
+            }
+        }
+
+        function drawGrid(w, h, rowH, gapH, angleDeg, slantStep) {
+            // Горизонтальные линии
+            ctx.strokeStyle = '#d1d1d1'; // Серый
+            ctx.beginPath();
+            
+            let y = 100; // Поля сверху
+            let totalH = rowH + gapH;
+
+            while (y < h - 100) {
+                // Верхняя линия строки
+                ctx.moveTo(0, y); ctx.lineTo(w, y);
+                // Нижняя линия строки
+                ctx.moveTo(0, y + rowH); ctx.lineTo(w, y + rowH);
+                
+                // Наклонные линии (только внутри строки или через всё?)
+                // Обычно в прописях через всё идут
+                y += totalH;
+            }
+            ctx.stroke();
+
+            // Наклонные линии
+            if (angleDeg > 0 && slantStep > 0) {
+                ctx.strokeStyle = '#e0e0e0'; // Чуть светлее
+                ctx.beginPath();
+                
+                // Расчет сдвига (tg угла)
+                // 90 - 65 = 25 градусов отклонение от вертикали
+                // Но нам проще подобрать коэффициент сдвига
+                const shift = h * 0.4; // Примерный наклон
+                
+                for (let x = -shift; x < w + shift; x += slantStep) {
+                    ctx.moveTo(x + shift, 0);
+                    ctx.lineTo(x, h);
+                }
+                ctx.stroke();
+            }
+        }
+
+        function drawSquareGrid(w, h, step) {
+            ctx.strokeStyle = '#d1d1d1';
+            ctx.beginPath();
+            for (let x = 100; x < w - 100; x += step) {
+                ctx.moveTo(x, 100); ctx.lineTo(x, h-100);
+            }
+            for (let y = 100; y < h - 100; y += step) {
+                ctx.moveTo(100, y); ctx.lineTo(w-100, y);
+            }
+            ctx.stroke();
+        }
+
+        // --- 3. ГЕНЕРАЦИЯ PDF ---
+        async function generatePDF() {
+            if (!fontBase64) {
+                alert("Шрифт еще не загружен или файл primo.ttf не найден.");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            // Создаем документ A4 (210 x 297 mm)
+            const doc = new jsPDF({
+                orientation: 'p',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            // Добавляем наш шрифт
+            doc.addFileToVFS("Primo.ttf", fontBase64);
+            doc.addFont("Primo.ttf", "Primo", "normal");
+            doc.setFont("Primo");
+
+            // 1. Рисуем фон (Переносим логику с канваса на PDF методы)
+            // Это сделает линии идеально четкими векторными
+            // Для упрощения сейчас мы вставим КАРТИНКУ с канваса как фон,
+            // а ТЕКСТ напечатаем векторно поверх. Это лучший компромисс.
+            
+            // Скрываем текст на канвасе перед снимком фона
+            const savedText = document.getElementById('textInput').value;
+            document.getElementById('textInput').value = ""; 
+            drawPreview(); // Рисуем чистый фон
+            
+            // Делаем снимок фона
+            const bgImage = canvas.toDataURL("image/jpeg", 0.8);
+            doc.addImage(bgImage, 'JPEG', 0, 0, 210, 297);
+            
+            // Возвращаем текст и перерисовываем экран
+            document.getElementById('textInput').value = savedText;
+            drawPreview();
+
+            // 2. Печатаем Векторный текст поверх
+            const text = savedText;
+            if (text) {
+                const colorStyle = document.getElementById('colorStyle').value;
+                if (colorStyle === 'pale') doc.setTextColor(200, 200, 200); // Серый
+                else doc.setTextColor(0, 0, 0);
+
+                doc.setFontSize(55); // Размер шрифта подбираем под PDF (в пунктах)
+                
+                const lines = text.split('\n');
+                
+                // Координаты в мм
+                let startY = 8.5 + 4.2 + 13; // Поля + строка (подбор на глаз под фон)
+                // Эти цифры нужно будет откалибровать один раз, распечатав лист
+                
+                // ВАЖНО: Калибровка под "Частую косую"
+                // rowH на канвасе = 50px. В PDF это примерно 4.2mm
+                const lineHeight = 12.7; // (rowH + gapH) в мм
+
+                lines.forEach((line, index) => {
+                    // X = отступ слева (12мм)
+                    // Y = базовая линия текста
+                    doc.text(line, 12, startY + (index * lineHeight));
+                });
+            }
+
+            doc.save("propisi.pdf");
+        }
+    </script>
+</body>
+</html>

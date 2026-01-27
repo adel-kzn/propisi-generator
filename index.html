@@ -301,6 +301,7 @@
                 <option value="propisi" selected>Косая линейка (1 класс)</option>
                 <option value="lines">Обычная линейка</option>
                 <option value="grid">Клетка</option>
+                <option value="music">Нотный стан</option>
                 <option value="none">Чистый лист</option>
             </select>
             
@@ -448,22 +449,38 @@
                 for (let x = 20; x < w; x += 20) { ctx.moveTo(x, 0); ctx.lineTo(x, h); }
                 for (let y = 20; y < h; y += 20) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
                 ctx.stroke();
-            } 
+            }
+            else if (type === 'music') {
+                // --- НОТНЫЙ СТАН ---
+                const lineGap = 15;      // Расстояние между линиями нотного стана
+                const staffGap = 60;     // Расстояние МЕЖДУ станами
+                
+                ctx.beginPath();
+                ctx.strokeStyle = '#444444'; // Темно-серый цвет для контраста
+
+                let y = 50; // Начальный отступ сверху
+                
+                // Рисуем станы, пока влезают в экран
+                while (y + (lineGap * 4) < h) {
+                    // Рисуем 5 линий для одного стана
+                    for (let i = 0; i < 5; i++) {
+                        let currentY = y + (i * lineGap);
+                        ctx.moveTo(0, currentY);
+                        ctx.lineTo(w, currentY);
+                    }
+                    // Переходим к следующему стану
+                    y += (lineGap * 4) + staffGap;
+                }
+                ctx.stroke();
+            }
             else if (type === 'propisi') {
-                // --- НАСТРОЙКИ (РЕДКАЯ КОСАЯ) ---
-                const rowHeight = 25;   // Высота рабочей строки
-                const rowGap = 50;      // Межстрочный интервал
-                
-                // ИЗМЕНЕНИЕ ЗДЕСЬ: Увеличили шаг с 25 до 80 (редкие линии)
+                // --- РЕДКАЯ КОСАЯ ---
+                const rowHeight = 25;   
+                const rowGap = 50;      
                 const slantStep = 80;   
-                
                 const totalRow = rowHeight + rowGap;
                 
-                // Цвет линий
                 ctx.strokeStyle = '#6e6e6e'; 
-                
-                // 1. Рисуем наклонные линии
-                // Угол 65 градусов (сдвиг ≈ 0.46 от высоты)
                 const slantShift = h * 0.4663; 
                 
                 ctx.beginPath();
@@ -473,18 +490,13 @@
                 }
                 ctx.stroke();
 
-                // 2. Рисуем горизонтальные линии
                 ctx.beginPath();
-                let y = 50; // Отступ сверху
+                let y = 50; 
                 while (y < h) {
-                    // Верхняя линия строки
                     ctx.moveTo(0, y);
                     ctx.lineTo(w, y);
-                    
-                    // Нижняя линия строки
                     ctx.moveTo(0, y + rowHeight);
                     ctx.lineTo(w, y + rowHeight);
-
                     y += totalRow;
                 }
                 ctx.stroke();

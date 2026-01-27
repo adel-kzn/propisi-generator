@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Рисование прописей</title>
+    <title>Рисование Прописей (Pro)</title>
 
     <meta name="yandex-verification" content="zoqf7gn5mwyntin5" />
     <script type="text/javascript" >
@@ -37,101 +37,78 @@
             overflow: hidden;
         }
 
-        /* SIDEBAR (Идентичен Генератору) */
+        /* --- SIDEBAR --- */
         .sidebar {
-            width: 360px;
-            min-width: 360px;
-            height: 100%;
-            background: var(--sidebar-bg);
-            border-right: 1px solid rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            gap: 15px;
-            overflow-y: auto;
-            z-index: 10;
+            width: 360px; min-width: 360px; height: 100%;
+            background: var(--sidebar-bg); border-right: 1px solid rgba(0,0,0,0.1);
+            display: flex; flex-direction: column; padding: 20px; gap: 15px;
+            overflow-y: auto; z-index: 10;
         }
-
-        .app-header { margin-bottom: 5px; }
         .app-title { font-size: 20px; font-weight: 700; margin: 0; }
         .app-subtitle { font-size: 12px; color: var(--text-secondary); margin: 0; }
-
-        .nav-tabs {
-            display: flex;
-            background: #F2F2F7;
-            padding: 4px;
-            border-radius: 10px;
-        }
-        .nav-tab {
-            flex: 1;
-            text-align: center;
-            padding: 8px 12px;
-            font-size: 13px;
-            font-weight: 500;
-            text-decoration: none;
-            color: var(--text-primary);
-            border-radius: 7px;
-            transition: all 0.2s;
-        }
-        .nav-tab.active {
-            background: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .section { display: flex; flex-direction: column; gap: 8px; }
-        .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px; }
-
-        select, input[type=range] {
-            width: 100%; padding: 12px;
-            border-radius: var(--radius-M); border: 1px solid #E5E5EA;
-            background-color: white;
-            font-size: 15px; outline: none;
-        }
         
-        .tools-grid { display: flex; gap: 10px; }
+        .nav-tabs { display: flex; background: #F2F2F7; padding: 4px; border-radius: 10px; }
+        .nav-tab { flex: 1; text-align: center; padding: 8px 12px; font-size: 13px; font-weight: 500; text-decoration: none; color: var(--text-primary); border-radius: 7px; transition: all 0.2s; }
+        .nav-tab.active { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+        .section { display: flex; flex-direction: column; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
+        .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); }
+
+        select, input[type=range], input[type=file] {
+            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #E5E5EA;
+            background-color: white; font-size: 14px; outline: none;
+        }
+
+        /* Инструменты */
+        .tools-row { display: flex; gap: 8px; }
         .tool-btn {
-            flex: 1; padding: 10px; border: 1px solid #E5E5EA;
-            border-radius: 8px; background: white; cursor: pointer;
-            font-size: 14px; text-align: center;
+            flex: 1; padding: 10px; border: 1px solid #E5E5EA; border-radius: 8px;
+            background: white; cursor: pointer; text-align: center; font-size: 13px; font-weight: 500;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
         }
         .tool-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .tool-btn:active { transform: scale(0.98); }
 
-        button.btn-danger {
-            border: none; height: 44px; border-radius: var(--radius-M);
-            font-size: 16px; font-weight: 600; cursor: pointer;
-            background-color: #FF3B30; color: white; width: 100%;
+        /* Палитра */
+        .color-palette { display: flex; gap: 10px; justify-content: space-between; }
+        .color-swatch {
+            width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+            border: 2px solid transparent; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
+        .color-swatch.active { border-color: #000; transform: scale(1.1); }
 
-        /* MAIN AREA */
+        /* Кнопки действий */
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        button.btn-action {
+            border: none; height: 40px; border-radius: 8px; font-weight: 600; font-size: 13px;
+            cursor: pointer; background: #F2F2F7; color: var(--text-primary); transition: 0.2s;
+        }
+        button.btn-action:hover { background: #E5E5EA; }
+        button.btn-primary { background: var(--accent); color: white; }
+        button.btn-danger { background: #FF3B30; color: white; }
+        
+        /* --- MAIN AREA --- */
         .main-area {
-            flex-grow: 1;
-            background-color: var(--app-bg);
-            padding: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            overflow-y: auto;
-            touch-action: none; /* Важно для рисования */
+            flex-grow: 1; background-color: var(--app-bg); padding: 30px;
+            overflow: auto; display: flex; justify-content: center; align-items: flex-start;
         }
         
-        .a4-container {
-            width: 100%; max-width: 800px;
-            aspect-ratio: 210 / 297;
-            background: white;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        .canvas-wrapper {
             position: relative;
-            cursor: crosshair;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.15);
+            background: white;
+            transform-origin: top center;
+            transition: transform 0.1s ease-out; /* Плавный зум */
         }
 
-        canvas {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%;
-        }
+        canvas { position: absolute; top: 0; left: 0; }
+        #bgCanvas { z-index: 1; }
+        #drawCanvas { z-index: 2; cursor: crosshair; }
 
         @media (max-width: 900px) {
             body { flex-direction: column; height: auto; overflow-y: auto; }
-            .sidebar { width: 100%; min-width: 0; height: auto; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); }
-            .main-area { padding: 20px; }
+            .sidebar { width: 100%; min-width: 0; height: auto; border-right: none; }
+            .main-area { padding: 10px; overflow: hidden; }
         }
     </style>
 </head>
@@ -140,7 +117,7 @@
     <div class="sidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Рисование пальцем/мышью</p>
+            <p class="app-subtitle">Интерактивная доска v2.0</p>
         </div>
 
         <div class="nav-tabs">
@@ -149,39 +126,54 @@
         </div>
 
         <div class="section">
-            <div class="section-label">1. Лист</div>
-            <select id="bgSelect" onchange="redraw()">
+            <div class="section-label">1. Подложка</div>
+            <select id="bgSelect" onchange="changeBackground()">
                 <option value="propisi_often" selected>Частая косая (1 класс)</option>
-                <option value="propisi_rare">Редкая косая (Стандарт)</option>
+                <option value="propisi_rare">Редкая косая</option>
                 <option value="lines">Обычная линейка</option>
                 <option value="white">Чистый лист</option>
+                <option value="custom">📁 Загрузить своё фото...</option>
             </select>
+            <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="handleImageUpload()">
         </div>
 
         <div class="section">
             <div class="section-label">2. Инструменты</div>
-            <div class="tools-grid">
+            <div class="tools-row">
                 <div class="tool-btn active" onclick="setTool('pen')" id="btnPen">🖊 Ручка</div>
                 <div class="tool-btn" onclick="setTool('eraser')" id="btnEraser">🧼 Ластик</div>
+                <div class="tool-btn" onclick="undo()" title="Отменить">↩️ Отмена</div>
+            </div>
+            
+            <div class="color-palette" id="palette">
+                <div class="color-swatch active" style="background:#0055AA" onclick="setColor('#0055AA', this)"></div> <div class="color-swatch" style="background:#FF3B30" onclick="setColor('#FF3B30', this)"></div> <div class="color-swatch" style="background:#34C759" onclick="setColor('#34C759', this)"></div> <div class="color-swatch" style="background:#000000" onclick="setColor('#000000', this)"></div> </div>
+            
+            <div style="margin-top:5px;">
+                <div class="section-label">Толщина линии</div>
+                <input type="range" id="lineWidth" min="1" max="15" value="4">
             </div>
         </div>
 
         <div class="section">
-            <div class="section-label">Толщина линии</div>
-            <input type="range" id="lineWidth" min="1" max="10" value="3">
+            <div class="section-label">3. Запись урока</div>
+            <button class="btn-action btn-primary" onclick="playRecording()">▶️ Проиграть (Как учитель)</button>
+            <div class="action-grid">
+                 <button class="btn-action" onclick="exportVideo()">📹 Видео</button>
+                 <button class="btn-action" onclick="downloadImage()">📷 Фото</button>
+            </div>
         </div>
-        
-        <div class="section" style="margin-top: auto;">
-             <button class="btn-danger" onclick="clearCanvas()">
-                Очистить всё
-            </button>
+
+        <div class="section" style="margin-top:auto;">
+            <div class="section-label">Масштаб (Zoom)</div>
+            <input type="range" id="zoomRange" min="0.5" max="2.0" step="0.1" value="1.0" oninput="setZoom(this.value)">
+            <button class="btn-action btn-danger" style="margin-top:10px;" onclick="clearCanvas()">🗑 Очистить всё</button>
         </div>
     </div>
 
     <div class="main-area">
-        <div class="a4-container" id="canvasContainer">
-            <canvas id="bgCanvas" width="2480" height="3508" style="z-index: 1;"></canvas>
-            <canvas id="drawCanvas" width="2480" height="3508" style="z-index: 2;"></canvas>
+        <div class="canvas-wrapper" id="canvasWrapper">
+            <canvas id="bgCanvas" width="2480" height="3508"></canvas>
+            <canvas id="drawCanvas" width="2480" height="3508"></canvas>
         </div>
     </div>
 
@@ -190,155 +182,364 @@
         const bgCtx = bgCanvas.getContext('2d');
         const drawCanvas = document.getElementById('drawCanvas');
         const drawCtx = drawCanvas.getContext('2d');
-        
-        // Переменные рисования
-        let isDrawing = false;
-        let currentTool = 'pen';
-        let lastX = 0;
-        let lastY = 0;
+        const wrapper = document.getElementById('canvasWrapper');
 
-        // Константы размеров (как в генераторе)
-        const MM_TO_PX = 11.81; 
-        const ROW_H = 4 * MM_TO_PX;
-        const GAP_H = 8 * MM_TO_PX;
-        const MARGIN_TOP = 20 * MM_TO_PX;
-        const MARGIN_LEFT = 20 * MM_TO_PX;
+        // История для UNDO и REPLAY
+        // Структура: [ { type: 'stroke', color, width, points: [{x,y}, {x,y}...] } ]
+        let actions = []; 
+        let currentStroke = null;
+        
+        let isDrawing = false;
+        let tool = 'pen';
+        let color = '#0055AA';
+        let zoom = 1.0;
+        let customImage = null; // Для загруженной картинки
+
+        // Константы (как в Генераторе)
+        const MM = 11.81;
+        const ROW_H = 4 * MM; 
+        const GAP_H = 8 * MM; 
+        const MT = 20 * MM; 
 
         window.onload = function() {
-            redraw();
-            setupDrawing();
+            setZoom(1.0);
+            drawBackground();
+            setupEvents();
         };
 
-        // --- РИСОВАНИЕ ФОНА (Точь-в-точь как в генераторе) ---
-        function redraw() {
+        // --- 1. ЛОГИКА ФОНА ---
+        function changeBackground() {
+            const val = document.getElementById('bgSelect').value;
+            if (val === 'custom') {
+                document.getElementById('fileInput').click();
+            } else {
+                customImage = null;
+                drawBackground();
+            }
+        }
+
+        function handleImageUpload() {
+            const file = document.getElementById('fileInput').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        customImage = img;
+                        drawBackground();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function drawBackground() {
             const w = bgCanvas.width;
             const h = bgCanvas.height;
             const type = document.getElementById('bgSelect').value;
-
+            
             bgCtx.fillStyle = 'white';
             bgCtx.fillRect(0, 0, w, h);
 
-            if (type === 'white') return;
-
-            // Розовая вертикальная черта
-            bgCtx.beginPath(); bgCtx.strokeStyle = '#FF8080'; bgCtx.lineWidth = 4;
-            bgCtx.moveTo(MARGIN_LEFT, 0); bgCtx.lineTo(MARGIN_LEFT, h); bgCtx.stroke();
-
-            const totalH = ROW_H + GAP_H;
-            let y = MARGIN_TOP;
-            
-            // Настройки косой линии
-            let slantStep = 0;
-            let drawSlant = false;
-            if (type === 'propisi_often') { drawSlant = true; slantStep = 25 * MM_TO_PX; }
-            else if (type === 'propisi_rare') { drawSlant = true; slantStep = 150 * MM_TO_PX; }
-
-            // Горизонтальные линии
-            bgCtx.lineWidth = 2;
-            while (y < h - MARGIN_TOP) {
-                bgCtx.beginPath(); bgCtx.strokeStyle = '#5096F2'; 
-                bgCtx.moveTo(0, y); bgCtx.lineTo(w, y); bgCtx.stroke();
-                
-                bgCtx.beginPath(); bgCtx.moveTo(0, y + ROW_H); bgCtx.lineTo(w, y + ROW_H); bgCtx.stroke();
-                y += totalH;
+            if (customImage) {
+                // Растягиваем картинку на весь лист
+                bgCtx.drawImage(customImage, 0, 0, w, h);
+                return;
             }
 
-            // Косые линии
+            if (type === 'white') return;
+
+            // Рисуем сетку (Логика из генератора)
+            bgCtx.lineWidth = 2;
+            
+            // Поля
+            bgCtx.beginPath(); bgCtx.strokeStyle = '#FF8080'; bgCtx.lineWidth = 4;
+            bgCtx.moveTo(20*MM, 0); bgCtx.lineTo(20*MM, h); bgCtx.stroke();
+            
+            const totalH = ROW_H + GAP_H;
+            let y = MT;
+            
+            let slantStep = 0; 
+            let drawSlant = false;
+            if (type === 'propisi_often') { drawSlant = true; slantStep = 25 * MM; }
+            else if (type === 'propisi_rare') { drawSlant = true; slantStep = 150 * MM; }
+
+            // Горизонтальные
+            bgCtx.lineWidth = 2;
+            while(y < h - MT) {
+                bgCtx.beginPath(); bgCtx.strokeStyle = '#5096F2';
+                bgCtx.moveTo(0, y); bgCtx.lineTo(w, y); bgCtx.stroke();
+                bgCtx.beginPath(); bgCtx.moveTo(0, y+ROW_H); bgCtx.lineTo(w, y+ROW_H); bgCtx.stroke();
+                y += totalH;
+            }
+            
+            // Косые
             if (drawSlant) {
                 bgCtx.beginPath(); bgCtx.strokeStyle = '#D1D1D6';
-                const tan = 0.466; // 65 градусов
-                const totalShift = h * tan;
-                for (let x = -totalShift; x < w; x += slantStep) {
-                    bgCtx.moveTo(x + totalShift, 0); bgCtx.lineTo(x, h);
+                const tan = 0.466; 
+                const shift = h * tan;
+                for(let x = -shift; x < w; x += slantStep) {
+                    bgCtx.moveTo(x + shift, 0); bgCtx.lineTo(x, h);
                 }
                 bgCtx.stroke();
             }
         }
 
-        // --- ЛОГИКА РИСОВАНИЯ ПАЛЬЦЕМ/МЫШЬЮ ---
-        function setupDrawing() {
-            // Мышь
-            drawCanvas.addEventListener('mousedown', startDraw);
-            drawCanvas.addEventListener('mousemove', draw);
-            drawCanvas.addEventListener('mouseup', stopDraw);
-            drawCanvas.addEventListener('mouseout', stopDraw);
-            
-            // Тач (телефон/планшет)
-            drawCanvas.addEventListener('touchstart', (e) => {
-                e.preventDefault(); 
-                const touch = e.touches[0];
-                startDraw(touch);
-            }, {passive: false});
-            
-            drawCanvas.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                const touch = e.touches[0];
-                draw(touch);
-            }, {passive: false});
-            
-            drawCanvas.addEventListener('touchend', stopDraw);
-        }
-
+        // --- 2. ЛОГИКА РИСОВАНИЯ ---
         function getCoords(e) {
             const rect = drawCanvas.getBoundingClientRect();
-            // Масштабирование координат (так как canvas может быть сжат CSS)
+            // Учитываем зум при расчете координат
             const scaleX = drawCanvas.width / rect.width;
             const scaleY = drawCanvas.height / rect.height;
+            
+            let clientX = e.clientX;
+            let clientY = e.clientY;
+            
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+
             return {
-                x: (e.clientX - rect.left) * scaleX,
-                y: (e.clientY - rect.top) * scaleY
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
             };
         }
 
         function startDraw(e) {
             isDrawing = true;
             const coords = getCoords(e);
-            lastX = coords.x;
-            lastY = coords.y;
-        }
-
-        function draw(e) {
-            if (!isDrawing) return;
-            const coords = getCoords(e);
             
+            // Начинаем новый штрих
+            const width = document.getElementById('lineWidth').value * 2;
+            currentStroke = {
+                type: 'stroke',
+                tool: tool,
+                color: color,
+                width: width,
+                points: [ {x: coords.x, y: coords.y} ]
+            };
+
             drawCtx.beginPath();
             drawCtx.lineCap = 'round';
             drawCtx.lineJoin = 'round';
-            drawCtx.lineWidth = document.getElementById('lineWidth').value * 2; // Множитель для разрешения
-
-            if (currentTool === 'pen') {
-                drawCtx.strokeStyle = '#0055AA'; // Синий цвет ручки
-                drawCtx.globalCompositeOperation = 'source-over';
-            } else {
-                drawCtx.strokeStyle = 'rgba(0,0,0,1)';
-                drawCtx.globalCompositeOperation = 'destination-out'; // Режим ластика
-                drawCtx.lineWidth = 40; // Ластик побольше
-            }
-
-            drawCtx.moveTo(lastX, lastY);
-            drawCtx.lineTo(coords.x, coords.y);
-            drawCtx.stroke();
-
-            lastX = coords.x;
-            lastY = coords.y;
+            drawCtx.lineWidth = width;
+            drawCtx.strokeStyle = (tool === 'eraser') ? 'rgba(0,0,0,1)' : color;
+            drawCtx.globalCompositeOperation = (tool === 'eraser') ? 'destination-out' : 'source-over';
+            
+            if (tool === 'eraser') drawCtx.lineWidth = 60; // Ластик толще
+            
+            drawCtx.moveTo(coords.x, coords.y);
         }
 
-        function stopDraw() {
+        function moveDraw(e) {
+            if (!isDrawing) return;
+            e.preventDefault(); // Чтобы не скроллить на таче
+            
+            const coords = getCoords(e);
+            currentStroke.points.push({x: coords.x, y: coords.y}); // Записываем путь
+            
+            drawCtx.lineTo(coords.x, coords.y);
+            drawCtx.stroke();
+        }
+
+        function endDraw() {
+            if (isDrawing && currentStroke) {
+                actions.push(currentStroke); // Сохраняем штрих в историю
+            }
             isDrawing = false;
+            currentStroke = null;
             drawCtx.beginPath();
         }
 
-        function setTool(tool) {
-            currentTool = tool;
-            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
-            if(tool === 'pen') document.getElementById('btnPen').classList.add('active');
-            else document.getElementById('btnEraser').classList.add('active');
+        function setupEvents() {
+            // Мышь
+            drawCanvas.addEventListener('mousedown', startDraw);
+            drawCanvas.addEventListener('mousemove', moveDraw);
+            drawCanvas.addEventListener('mouseup', endDraw);
+            drawCanvas.addEventListener('mouseout', endDraw);
+            // Тач
+            drawCanvas.addEventListener('touchstart', startDraw, {passive: false});
+            drawCanvas.addEventListener('touchmove', moveDraw, {passive: false});
+            drawCanvas.addEventListener('touchend', endDraw);
+        }
+
+        // --- 3. ИНСТРУМЕНТЫ (Undo, Zoom, Color) ---
+        function setTool(t) {
+            tool = t;
+            document.getElementById('btnPen').classList.toggle('active', t==='pen');
+            document.getElementById('btnEraser').classList.toggle('active', t==='eraser');
+        }
+
+        function setColor(c, el) {
+            color = c;
+            tool = 'pen';
+            setTool('pen');
+            // Обновляем UI
+            document.querySelectorAll('.color-swatch').forEach(d => d.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        function setZoom(z) {
+            zoom = z;
+            // Меняем размер контейнера, а не канваса (чтобы качество не падало)
+            wrapper.style.width = (210 * 3.78 * zoom) + 'px'; // 210mm approx to px
+            // Или проще через transform scale
+            wrapper.style.transform = `scale(${zoom})`;
+            // Корректируем margin, чтобы при зуме < 1 было по центру
+            wrapper.style.marginBottom = (zoom > 1 ? (3508 * (zoom-1)) : 0) + 'px';
+        }
+
+        function undo() {
+            if (actions.length === 0) return;
+            actions.pop(); // Удаляем последний штрих
+            redrawAll();   // Перерисовываем всё заново
         }
 
         function clearCanvas() {
-            if(confirm('Очистить рисунок?')) {
-                drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+            if(confirm('Удалить все записи?')) {
+                actions = [];
+                drawCtx.clearRect(0,0, drawCanvas.width, drawCanvas.height);
             }
+        }
+
+        // Перерисовка всей истории (нужна для Undo и Replay)
+        function redrawAll() {
+            drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+            
+            actions.forEach(act => {
+                drawCtx.beginPath();
+                drawCtx.lineCap = 'round';
+                drawCtx.lineJoin = 'round';
+                
+                if (act.tool === 'eraser') {
+                    drawCtx.globalCompositeOperation = 'destination-out';
+                    drawCtx.lineWidth = 60;
+                } else {
+                    drawCtx.globalCompositeOperation = 'source-over';
+                    drawCtx.strokeStyle = act.color;
+                    drawCtx.lineWidth = act.width;
+                }
+
+                if (act.points.length > 0) {
+                    drawCtx.moveTo(act.points[0].x, act.points[0].y);
+                    for (let i = 1; i < act.points.length; i++) {
+                        drawCtx.lineTo(act.points[i].x, act.points[i].y);
+                    }
+                    drawCtx.stroke();
+                }
+            });
+        }
+
+        // --- 4. МАГИЯ: ПОВТОР (REPLAY) ---
+        let isReplaying = false;
+
+        function playRecording() {
+            if (actions.length === 0) return;
+            if (isReplaying) return;
+            isReplaying = true;
+
+            // Очищаем
+            drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+
+            // Асинхронная отрисовка
+            let actionIdx = 0;
+            let pointIdx = 0;
+
+            function animate() {
+                if (actionIdx >= actions.length) {
+                    isReplaying = false;
+                    return; // Конец
+                }
+
+                const act = actions[actionIdx];
+                
+                // Настройка кисти для текущего штриха
+                if (pointIdx === 0) {
+                    drawCtx.beginPath();
+                    drawCtx.lineCap = 'round';
+                    drawCtx.lineJoin = 'round';
+                    if (act.tool === 'eraser') {
+                        drawCtx.globalCompositeOperation = 'destination-out';
+                        drawCtx.lineWidth = 60;
+                    } else {
+                        drawCtx.globalCompositeOperation = 'source-over';
+                        drawCtx.strokeStyle = act.color;
+                        drawCtx.lineWidth = act.width;
+                    }
+                    if(act.points.length > 0) drawCtx.moveTo(act.points[0].x, act.points[0].y);
+                    pointIdx = 1;
+                }
+
+                // Рисуем кусочками (по 3 точки за кадр для скорости)
+                for(let k=0; k<3; k++) {
+                    if (pointIdx < act.points.length) {
+                        drawCtx.lineTo(act.points[pointIdx].x, act.points[pointIdx].y);
+                        drawCtx.stroke();
+                        pointIdx++;
+                    } else {
+                        // Штрих закончен
+                        actionIdx++;
+                        pointIdx = 0;
+                        break;
+                    }
+                }
+
+                requestAnimationFrame(animate);
+            }
+            
+            animate();
+        }
+
+        // --- 5. ЭКСПОРТ (ФОТО / ВИДЕО) ---
+        function downloadImage() {
+            // Создаем временный канвас, чтобы склеить фон и рисунок
+            const temp = document.createElement('canvas');
+            temp.width = bgCanvas.width;
+            temp.height = bgCanvas.height;
+            const tCtx = temp.getContext('2d');
+            
+            tCtx.drawImage(bgCanvas, 0, 0);
+            tCtx.drawImage(drawCanvas, 0, 0);
+            
+            const link = document.createElement('a');
+            link.download = 'propisi_page.jpg';
+            link.href = temp.toDataURL('image/jpeg', 0.9);
+            link.click();
+        }
+
+        function exportVideo() {
+            // Для записи видео мы запускаем Replay и захватываем поток
+            if (actions.length === 0) { alert('Сначала напишите что-нибудь!'); return; }
+            
+            const stream = drawCanvas.captureStream(30); // 30 FPS
+            const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+            const chunks = [];
+            
+            recorder.ondataavailable = e => chunks.push(e.data);
+            recorder.onstop = () => {
+                const blob = new Blob(chunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'lesson.webm';
+                a.click();
+                alert('Видео сохранено! (формат .webm)');
+            };
+
+            recorder.start();
+            playRecording(); // Запускаем анимацию
+
+            // Проверяем, когда анимация закончится, чтобы остановить запись
+            const checkEnd = setInterval(() => {
+                if (!isReplaying) {
+                    recorder.stop();
+                    clearInterval(checkEnd);
+                    // Возвращаем рисунок на место (т.к. playRecording мог остановиться)
+                    redrawAll(); 
+                }
+            }, 500);
         }
     </script>
 </body>

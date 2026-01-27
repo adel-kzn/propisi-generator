@@ -2,45 +2,83 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Сканер Primo</title>
+    <title>Супер-Сканер Primo</title>
     <style>
         @font-face { font-family: 'PrimoScan'; src: url('primo.ttf'); }
-        body { font-family: sans-serif; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; }
-        .card { border: 1px solid #ccc; padding: 5px; text-align: center; }
-        .glyph { font-family: 'PrimoScan'; font-size: 40px; display: block; margin-bottom: 5px; }
-        .code { font-size: 10px; color: #666; font-family: monospace; }
-        .highlight { background-color: #e0f7fa; border-color: #00acc1; }
+        body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
+        h2 { border-bottom: 2px solid #333; padding-bottom: 10px; margin-top: 40px; }
+        .grid { display: flex; flex-wrap: wrap; gap: 5px; }
+        .card { 
+            background: white; 
+            border: 1px solid #ccc; 
+            padding: 5px; 
+            text-align: center; 
+            width: 80px;
+            /* Важно: не обрезать содержимое, если буква широкая */
+            overflow: visible; 
+            position: relative;
+            z-index: 1;
+        }
+        .card:hover { z-index: 100; border-color: blue; transform: scale(1.5); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .glyph { 
+            font-family: 'PrimoScan'; 
+            font-size: 40px; 
+            line-height: 1.0;
+            display: block; 
+            margin-bottom: 5px; 
+            color: #000;
+        }
+        .code { font-size: 10px; color: #888; font-family: monospace; display: block; }
+        .label { font-size: 9px; color: blue; }
     </style>
 </head>
 <body>
-    <h2>Ищем спрятанные буквы (без хвостов)</h2>
-    <p>Прокрутите вниз и ищите буквы, у которых нет соединительного крючка справа.</p>
-    <div class="grid" id="grid"></div>
+    <h1>Поиск нормальных букв</h1>
+    <p>Наведи мышку на букву, чтобы увеличить ее.</p>
+
+    <h2>1. Латиница (English Range)</h2>
+    <p>Если здесь русские буквы — это "хак" 90-х.</p>
+    <div class="grid" id="latin"></div>
+
+    <h2>2. Стандартная Кириллица</h2>
+    <p>Здесь могут быть "битые" буквы.</p>
+    <div class="grid" id="cyrillic"></div>
+
+    <h2>3. Скрытые (PUA) и Альтернативы</h2>
+    <p>Ищи здесь буквы с хвостиками и нормальную "В".</p>
+    <div class="grid" id="pua"></div>
+
     <script>
-        const container = document.getElementById('grid');
-        
-        // 1. Стандартная кириллица (для сравнения)
-        addRange(0x0410, 0x044F, "Стандарт");
-
-        // 2. Область PUA (Private Use Area) - здесь часто прячут альтернативы
-        addRange(0xE000, 0xE200, "Скрытые (PUA)");
-        
-        // 3. Дополнительные области, где могут быть спрятаны символы
-        addRange(0x0400, 0x04FF, "Вся кириллица");
-
-        function addRange(start, end, label) {
+        function addRange(containerId, start, end) {
+            const container = document.getElementById(containerId);
             for (let i = start; i <= end; i++) {
+                // Исключаем управляющие символы
+                if (i >= 0x007F && i <= 0x009F) continue;
+
                 const div = document.createElement('div');
                 div.className = 'card';
-                // Пропускаем совсем пустые, но в шрифтах могут быть пустышки
+                
+                // Пробуем отобразить символ
+                const char = String.fromCharCode(i);
+                const hex = i.toString(16).toUpperCase().padStart(4, '0');
+                
                 div.innerHTML = `
-                    <span class="glyph">&#${i};</span>
-                    <span class="code">U+${i.toString(16).toUpperCase()}</span>
+                    <span class="glyph">&#x${hex};</span>
+                    <span class="code">U+${hex}</span>
+                    <span class="label">${char}</span>
                 `;
                 container.appendChild(div);
             }
         }
+
+        // 1. Латиница (Basic Latin + Supplement)
+        addRange('latin', 0x0020, 0x00FF);
+
+        // 2. Кириллица
+        addRange('cyrillic', 0x0410, 0x0451);
+
+        // 3. PUA (Частная область) - расширим диапазон
+        addRange('pua', 0xE000, 0xE250); 
     </script>
 </body>
 </html>

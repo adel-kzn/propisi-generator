@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Генератор прописей</title>
+    <title>Генератор прописей (v8.0 Sync)</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -55,7 +55,7 @@
     <div class="sidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Генератор прописей</p>
+            <p class="app-subtitle">Генератор прописей v8.0</p>
         </div>
 
         <div class="nav-tabs">
@@ -67,8 +67,9 @@
             <div class="section-label">1. Разлиновка</div>
             <select id="bgSelect" onchange="updatePreview()">
                 <option value="propisi_often" selected>Частая косая (1 класс)</option>
-                <option value="propisi_rare">Редкая косая (Стандарт)</option>
-                <option value="lines">Обычная линейка</option>
+                <option value="propisi_lines">Узкая линейка (2 класс)</option>
+                <option value="wide_lines">Широкая линейка (Старшие)</option>
+                <option value="cell">Клетка (5 мм)</option>
                 <option value="white">Чистый лист</option>
             </select>
         </div>
@@ -118,6 +119,7 @@
         const FONT_SIZE_PX = 116; 
         const OFFSET_PX = 0; 
 
+        // --- ЛОГИКА ШРИФТА NEKIN (PRIMO) ---
         function getHeadAndTail(char) {
             const code = char.charCodeAt(0);
             const map = {
@@ -342,18 +344,57 @@
             });
         }
 
+        // --- ЛОГИКА ФОНА (СИНХРОНИЗИРОВАНО С РИСОВАНИЕМ v10.4) ---
         function drawBackground(w, h, type) {
             if (type === 'white') return;
+
+            // 1. ПОЛЯ (Красная черта) - во всех режимах
+            ctx.lineWidth = 2;
             ctx.beginPath(); ctx.strokeStyle = '#FF8080'; ctx.lineWidth = 4;
             ctx.moveTo(MARGIN_LEFT, 0); ctx.lineTo(MARGIN_LEFT, h); ctx.stroke();
+            
+            // --- РЕЖИМ КЛЕТКИ (CELL) ---
+            if (type === 'cell') {
+                const cellSize = 5 * MM_TO_PX; 
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = '#5096F2'; 
+                ctx.beginPath();
+                for (let x = 0; x < w; x += cellSize) { ctx.moveTo(x, 0); ctx.lineTo(x, h); }
+                for (let y = 0; y < h; y += cellSize) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
+                ctx.stroke();
+                // Повторно рисуем поле
+                ctx.beginPath(); ctx.strokeStyle = '#FF8080'; ctx.lineWidth = 4;
+                ctx.moveTo(MARGIN_LEFT, 0); ctx.lineTo(MARGIN_LEFT, h); ctx.stroke();
+                return;
+            }
+
+            // --- ШИРОКАЯ ЛИНЕЙКА (Обычная) ---
+            if (type === 'wide_lines') {
+                const lineStep = 9 * MM_TO_PX; 
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#5096F2';
+                ctx.beginPath();
+                for (let y = MARGIN_TOP; y < h; y += lineStep) {
+                    ctx.moveTo(0, y); ctx.lineTo(w, y);
+                }
+                ctx.stroke();
+                return;
+            }
+
+            // --- УЗКАЯ ЛИНЕЙКА / ПРОПИСИ (Без редкой косой) ---
             const totalH = ROW_H + GAP_H;
             let y = MARGIN_TOP;
-            ctx.lineWidth = 2;
-            let slantStep = 0;
+            
             let drawSlant = false;
-            if (type === 'propisi_often') { drawSlant = true; slantStep = 25 * MM_TO_PX; }
-            else if (type === 'propisi_rare') { drawSlant = true; slantStep = 150 * MM_TO_PX; }
-            while (y < h - MARGIN_TOP) {
+            let slantStep = 0;
+            
+            if (type === 'propisi_often') { 
+                drawSlant = true; 
+                slantStep = 25 * MM_TO_PX; 
+            }
+
+            ctx.lineWidth = 2;
+            while(y < h - MARGIN_TOP) {
                 ctx.beginPath(); ctx.strokeStyle = '#5096F2'; 
                 ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(0, y + ROW_H); ctx.lineTo(w, y + ROW_H); ctx.stroke();

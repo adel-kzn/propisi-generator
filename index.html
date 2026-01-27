@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Тренажер письма</title>
-<meta name="yandex-verification" content="zoqf7gn5mwyntin5" />
+
+    <meta name="yandex-verification" content="zoqf7gn5mwyntin5" />
+
     <script type="text/javascript">
         (function(m,e,t,r,i,k,a){
             m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -33,6 +35,7 @@
             --z-sidebar: 1000;
             --z-overlay: 900;
             --z-menu-btn: 800;
+            --z-zoom: 500;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -129,6 +132,41 @@
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #E5E5EA; border-radius: 2px; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); margin-top: -8px; cursor: pointer; }
 
+        /* --- ZOOM CONTROLS --- */
+        .zoom-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            z-index: var(--z-zoom);
+        }
+        .zoom-btn {
+            width: 44px;
+            height: 44px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-size: 22px;
+            color: var(--accent);
+            padding: 0;
+        }
+        .zoom-btn:hover { background: #f0f0f0; }
+        
+        .zoom-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            min-width: 44px;
+            text-align: center;
+        }
+
         /* --- КНОПКА МЕНЮ (ГАМБУРГЕР) --- */
         .menu-btn {
             position: absolute;
@@ -207,6 +245,8 @@
             .close-btn { display: block; }
 
             .main-area { padding: 10px; }
+            
+            .zoom-controls { bottom: 60px; right: 10px; }
         }
 
     </style>
@@ -223,7 +263,7 @@
         <div class="sidebar-header">
             <div>
                 <h1 class="app-title">Прописи</h1>
-                <p class="app-subtitle">Тренажер письма v2.5</p>
+                <p class="app-subtitle">Тренажер письма v3.0</p>
             </div>
             <button class="close-btn" onclick="closeMenu()">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
@@ -279,11 +319,18 @@
             <div class="section-label">Скорость</div>
             <input type="range" id="speed" min="1" max="10" value="5">
         </div>
-    </div>
+
+        </div>
 
     <div class="main-area">
         <div class="canvas-container">
             <canvas id="drawingCanvas" width="800" height="600"></canvas>
+            
+            <div class="zoom-controls">
+                <button class="zoom-btn" onclick="changeZoom(0.1)">+</button>
+                <div id="zoomValue" class="zoom-value">100%</div>
+                <button class="zoom-btn" onclick="changeZoom(-0.1)">−</button>
+            </div>
         </div>
     </div>
 
@@ -298,8 +345,28 @@
         let currentPath = [];
         let isReplaying = false;
         let uploadedImageObj = null;
+        let currentZoom = 1.0;
 
-        window.onload = function() { redrawAll(); };
+        window.onload = function() { 
+            redrawAll();
+            updateZoomDisplay();
+        };
+
+        // --- ЗУМ ЛОГИКА ---
+        function changeZoom(delta) {
+            const newZoom = parseFloat((currentZoom + delta).toFixed(1));
+            
+            if (newZoom >= 0.5 && newZoom <= 3.0) {
+                currentZoom = newZoom;
+                redrawAll();
+                updateZoomDisplay();
+            }
+        }
+
+        function updateZoomDisplay() {
+            const zoomPercent = Math.round(currentZoom * 100);
+            document.getElementById('zoomValue').innerText = zoomPercent + '%';
+        }
 
         // --- МОБИЛЬНОЕ МЕНЮ ---
         function toggleMenu() {
@@ -326,14 +393,16 @@
 
         function drawBackground() {
             const type = document.getElementById('bgSelect').value;
-            const w = canvas.width;
-            const h = canvas.height;
+            const w = canvas.width / currentZoom;
+            const h = canvas.height / currentZoom;
 
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, w, h);
 
             if (uploadedImageObj) {
-                ctx.drawImage(uploadedImageObj, 0, 0, w, h);
+                // ИСПРАВЛЕНО: Рисуем картинку на весь холст.
+                // Масштабирование произойдет за счет ctx.scale() в функции redrawAll
+                ctx.drawImage(uploadedImageObj, 0, 0, canvas.width, canvas.height);
                 return;
             }
 
@@ -375,9 +444,16 @@
         }
 
         function redrawAll() {
-            if (isReplaying) return;
-            drawBackground();
-            allPaths.forEach(path => drawSinglePath(path));
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.scale(currentZoom, currentZoom);
+            
+            if (!isReplaying) {
+                drawBackground();
+                allPaths.forEach(path => drawSinglePath(path));
+            }
+            
+            ctx.restore();
         }
 
         function drawSinglePath(path) {
@@ -422,8 +498,8 @@
         // --- ВВОД (МЫШЬ + ТАЧ) ---
         function getPos(e) {
             const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
+            const cssScaleX = canvas.width / rect.width;
+            const cssScaleY = canvas.height / rect.height;
 
             let clientX, clientY;
             if (e.touches && e.touches.length > 0) {
@@ -434,15 +510,19 @@
                 clientY = e.clientY;
             }
             
+            const rawX = (clientX - rect.left) * cssScaleX;
+            const rawY = (clientY - rect.top) * cssScaleY;
+
             return { 
-                x: (clientX - rect.left) * scaleX, 
-                y: (clientY - rect.top) * scaleY 
+                x: rawX / currentZoom, 
+                y: rawY / currentZoom 
             };
         }
 
         function startPath(e) {
             if (isReplaying) return;
             if (e.target.closest('.menu-btn')) return;
+            if (e.target.closest('.zoom-controls')) return;
 
             e.preventDefault();
             isDrawing = true;
@@ -452,10 +532,14 @@
                 width: document.getElementById('width').value,
                 points: [point]
             };
+            
+            ctx.save();
+            ctx.scale(currentZoom, currentZoom);
             ctx.beginPath();
             ctx.fillStyle = currentPath.color;
             ctx.arc(point.x, point.y, currentPath.width / 2, 0, Math.PI * 2);
             ctx.fill();
+            ctx.restore();
         }
 
         function movePath(e) {
@@ -467,6 +551,9 @@
             const points = currentPath.points;
             if (points.length > 1) {
                 const prev = points[points.length - 2];
+                
+                ctx.save();
+                ctx.scale(currentZoom, currentZoom);
                 ctx.beginPath();
                 ctx.lineWidth = currentPath.width;
                 ctx.lineCap = 'round'; ctx.lineJoin = 'round';
@@ -474,6 +561,7 @@
                 ctx.moveTo(prev.x, prev.y);
                 ctx.lineTo(point.x, point.y);
                 ctx.stroke();
+                ctx.restore();
             }
         }
 
@@ -507,7 +595,12 @@
             if (allPaths.length === 0 || isReplaying) return;
             isReplaying = true;
             document.getElementById('replayBtn').disabled = true;
-            drawBackground(); 
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.scale(currentZoom, currentZoom);
+            drawBackground();
+            ctx.restore();
 
             const speedInput = document.getElementById('speed');
             let pathIndex = 0;
@@ -518,9 +611,14 @@
                     isReplaying = false;
                     document.getElementById('replayBtn').disabled = false;
                     if (onComplete) onComplete();
+                    redrawAll();
                     return;
                 }
                 const path = allPaths[pathIndex];
+                
+                ctx.save();
+                ctx.scale(currentZoom, currentZoom);
+                
                 ctx.lineWidth = path.width;
                 ctx.lineCap = 'round'; ctx.lineJoin = 'round';
                 ctx.strokeStyle = path.color;
@@ -540,10 +638,12 @@
                     ctx.lineTo(p2.x, p2.y);
                     ctx.stroke();
                     pointIndex++;
+                    ctx.restore();
                     setTimeout(animate, 25 / parseInt(speedInput.value));
                 } else {
                     pathIndex++;
                     pointIndex = 1;
+                    ctx.restore();
                     setTimeout(animate, 200 / parseInt(speedInput.value)); 
                 }
             }
@@ -568,7 +668,7 @@
             btn.innerHTML = 'Запись...';
             btn.disabled = true;
             
-            drawBackground();
+            redrawAll();
 
             const stream = canvas.captureStream(30);
             const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });

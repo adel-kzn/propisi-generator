@@ -4,11 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Тренажер письма</title>
+
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=106467293', 'ym');
+
+        ym(106467293, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/106467293" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
     <style>
         /* --- APPLE / MACOS STYLE SYSTEM --- */
         :root {
             --app-bg: #F2F2F7;
-            --sidebar-bg: rgba(255, 255, 255, 0.75);
+            --sidebar-bg: rgba(255, 255, 255, 0.85);
             --sidebar-border: rgba(0, 0, 0, 0.05);
             --text-primary: #1C1C1E;
             --text-secondary: #8E8E93;
@@ -18,6 +30,9 @@
             --radius-L: 16px;
             --radius-M: 10px;
             --shadow-card: 0 8px 40px rgba(0, 0, 0, 0.12);
+            --z-sidebar: 1000;
+            --z-overlay: 900;
+            --z-menu-btn: 800;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -30,6 +45,7 @@
             height: 100vh;
             display: flex;
             overflow: hidden;
+            position: relative;
         }
 
         /* --- ЛЕВАЯ ПАНЕЛЬ (SIDEBAR) --- */
@@ -44,122 +60,101 @@
             display: flex;
             flex-direction: column;
             padding: 24px 20px;
-            gap: 24px;
+            gap: 20px;
             overflow-y: auto;
-            z-index: 10;
+            z-index: var(--z-sidebar);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .app-title {
-            font-size: 24px;
-            font-weight: 700;
-            margin: 0 0 5px 0;
-            letter-spacing: -0.5px;
-        }
-        .app-subtitle {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin: 0;
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .section { display: flex; flex-direction: column; gap: 10px; }
-        .section-label {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
+        .close-btn {
+            display: none;
+            background: none;
+            border: none;
             color: var(--text-secondary);
-            letter-spacing: 0.5px;
-            margin-left: 4px;
+            cursor: pointer;
+            padding: 5px;
         }
+
+        .app-title { font-size: 24px; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
+        .app-subtitle { font-size: 13px; color: var(--text-secondary); margin: 0; }
+
+        .section { display: flex; flex-direction: column; gap: 8px; }
+        .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px; margin-left: 4px; }
 
         /* --- КНОПКИ И КОНТРОЛЫ --- */
         .row { display: flex; gap: 10px; }
         .row > * { flex: 1; }
 
         button {
-            border: none;
-            height: 40px;
-            border-radius: var(--radius-M);
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            border: none; height: 40px; border-radius: var(--radius-M);
+            font-size: 15px; font-weight: 500; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
             transition: transform 0.1s, opacity 0.2s;
         }
         button:active { transform: scale(0.96); }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .btn-primary { background-color: var(--accent); color: white; box-shadow: 0 2px 8px rgba(0,122,255,0.25); }
-        .btn-primary:hover { background-color: var(--accent-hover); }
-
         .btn-secondary { background-color: rgba(0,0,0,0.05); color: var(--text-primary); }
-        .btn-secondary:hover { background-color: rgba(0,0,0,0.08); }
-
         .btn-danger { background-color: rgba(255, 59, 48, 0.1); color: var(--danger); }
-        .btn-danger:hover { background-color: rgba(255, 59, 48, 0.15); }
 
         select {
-            width: 100%;
-            height: 40px;
-            padding: 0 12px;
-            border-radius: var(--radius-M);
-            border: 1px solid rgba(0,0,0,0.1);
-            background-color: rgba(255,255,255,0.8);
-            font-size: 15px;
-            color: var(--text-primary);
-            outline: none;
-            appearance: none;
+            width: 100%; height: 40px; padding: 0 12px;
+            border-radius: var(--radius-M); border: 1px solid rgba(0,0,0,0.1);
+            background-color: rgba(255,255,255,0.6);
+            font-size: 15px; color: var(--text-primary); outline: none; appearance: none;
             background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007AFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px top 50%;
-            background-size: 10px auto;
+            background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 10px auto;
         }
 
-        .file-input-wrapper {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-            width: 100%;
-        }
-        .file-input-wrapper input[type=file] {
-            font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer;
-        }
-        .btn-file {
-            width: 100%; display: flex; align-items: center; justify-content: center;
-            background: white; border: 1px dashed #ccc; color: var(--accent);
-        }
+        .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
+        .file-input-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
+        .btn-file { width: 100%; background: white; border: 1px dashed #ccc; color: var(--accent); }
 
         .tool-panel {
-            background: white;
-            padding: 10px;
-            border-radius: var(--radius-M);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            background: white; padding: 8px 12px; border-radius: var(--radius-M);
+            display: flex; align-items: center; justify-content: space-between;
             box-shadow: 0 1px 4px rgba(0,0,0,0.05);
         }
-        
-        input[type="color"] {
-            border: none; width: 32px; height: 32px; padding: 0; 
-            background: none; cursor: pointer; border-radius: 50%;
-        }
-        
-        input[type="number"] {
-            width: 50px; border: none; text-align: right; font-size: 16px; font-weight: 600; color: var(--text-primary); outline: none;
+        input[type="color"] { border: none; width: 32px; height: 32px; padding: 0; background: none; cursor: pointer; border-radius: 50%; }
+        input[type="number"] { width: 50px; border: none; text-align: right; font-size: 16px; font-weight: 600; color: var(--text-primary); outline: none; }
+
+        input[type=range] { width: 100%; -webkit-appearance: none; background: transparent; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #E5E5EA; border-radius: 2px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); margin-top: -8px; cursor: pointer; }
+
+        /* --- КНОПКА МЕНЮ (ГАМБУРГЕР) --- */
+        .menu-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 44px;
+            height: 44px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: var(--z-menu-btn);
+            color: var(--text-primary);
         }
 
-        input[type=range] {
-            width: 100%; -webkit-appearance: none; background: transparent;
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(2px);
+            z-index: var(--z-overlay);
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s;
         }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%; height: 4px; background: #E5E5EA; border-radius: 2px;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%;
-            background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); margin-top: -8px; cursor: pointer;
-        }
+        .overlay.active { opacity: 1; pointer-events: all; }
 
         /* --- ПРАВАЯ ЧАСТЬ (CANVAS) --- */
         .main-area {
@@ -170,6 +165,7 @@
             background-color: var(--app-bg);
             padding: 20px;
             overflow: hidden;
+            width: 100%;
         }
 
         .canvas-container {
@@ -185,34 +181,64 @@
         }
 
         canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-            cursor: crosshair;
-            touch-action: none;
+            display: block; width: 100%; height: 100%;
+            cursor: crosshair; touch-action: none;
         }
 
-        .icon { width: 18px; height: 18px; fill: currentColor; }
+        .icon { width: 24px; height: 24px; fill: currentColor; }
+
+        /* --- АДАПТИВНОСТЬ (MOBILE) --- */
+        @media (max-width: 850px) {
+            .menu-btn { display: flex; }
+
+            .sidebar {
+                position: absolute;
+                left: 0; top: 0; bottom: 0;
+                transform: translateX(-100%);
+                width: 280px;
+                min-width: 280px;
+                box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .close-btn { display: block; }
+
+            .main-area { padding: 10px; }
+        }
 
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <div>
-            <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Тренажер для письма v2.1</p>
+    <button class="menu-btn" onclick="toggleMenu()">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+    </button>
+
+    <div class="overlay" onclick="closeMenu()"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div>
+                <h1 class="app-title">Прописи</h1>
+                <p class="app-subtitle">Тренажер письма v2.3</p>
+            </div>
+            <button class="close-btn" onclick="closeMenu()">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </button>
         </div>
 
         <div class="section">
             <div class="section-label">Управление</div>
             <div class="row">
-                <button class="btn-primary" onclick="startReplay()" id="replayBtn">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <button class="btn-primary" onclick="startReplay(); closeMenuIfMobile()" id="replayBtn">
+                    <svg class="icon" style="width:18px;height:18px;" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                     Показать
                 </button>
-                <button class="btn-secondary btn-danger" onclick="fullClear()">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                <button class="btn-secondary btn-danger" onclick="fullClear(); closeMenuIfMobile()">
+                    <svg class="icon" style="width:18px;height:18px;" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                 </button>
             </div>
         </div>
@@ -220,20 +246,14 @@
         <div class="section">
             <div class="section-label">Экспорт</div>
             <div class="row">
-                <button class="btn-secondary" onclick="downloadImage()">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
-                    Фото
-                </button>
-                <button class="btn-secondary" onclick="recordVideo()" id="recordBtn">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-                    Видео
-                </button>
+                <button class="btn-secondary" onclick="downloadImage()">Фото</button>
+                <button class="btn-secondary" onclick="recordVideo()" id="recordBtn">Видео</button>
             </div>
         </div>
 
         <div class="section">
             <div class="section-label">Лист</div>
-            <select id="bgSelect" onchange="onBackgroundChange()">
+            <select id="bgSelect" onchange="onBackgroundChange(); closeMenuIfMobile()">
                 <option value="propisi" selected>Косая линейка (1 класс)</option>
                 <option value="lines">Обычная линейка</option>
                 <option value="grid">Клетка</option>
@@ -256,8 +276,17 @@
         </div>
 
         <div class="section">
-            <div class="section-label">Скорость показа</div>
+            <div class="section-label">Скорость</div>
             <input type="range" id="speed" min="1" max="10" value="5">
+        </div>
+
+        <div class="section" style="margin-top: auto; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 20px;">
+            <div class="section-label">Понравилось?</div>
+            <a href="https://pay.cloudtips.ru/p/YOUR_LINK" target="_blank" style="text-decoration: none;">
+                <button class="btn-primary" style="background-color: #FFCC00; color: #000; width: 100%;">
+                    ☕ Поддержать автора
+                </button>
+            </a>
         </div>
     </div>
 
@@ -270,6 +299,8 @@
     <script>
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.querySelector('.overlay');
         
         let isDrawing = false;
         let allPaths = [];
@@ -279,11 +310,25 @@
 
         window.onload = function() { redrawAll(); };
 
-        // --- ГРАФИКА И ФОНЫ ---
-        
-        // ИСПРАВЛЕНИЕ 1: Функция смены фона из списка
+        // --- МОБИЛЬНОЕ МЕНЮ ---
+        function toggleMenu() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        function closeMenu() {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        }
+
+        function closeMenuIfMobile() {
+            if (window.innerWidth <= 850) {
+                closeMenu();
+            }
+        }
+
+        // --- ФОНЫ ---
         function onBackgroundChange() {
-            // Если мы меняем фон через селект, мы удаляем загруженную картинку
             uploadedImageObj = null;
             redrawAll();
         }
@@ -293,25 +338,20 @@
             const w = canvas.width;
             const h = canvas.height;
 
-            // Белый фон
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, w, h);
 
-            // Если картинка загружена, рисуем её и выходим
             if (uploadedImageObj) {
                 ctx.drawImage(uploadedImageObj, 0, 0, w, h);
                 return;
             }
 
-            // Рисуем сетки
             ctx.lineWidth = 1;
 
             if (type === 'lines') {
                 ctx.beginPath();
                 ctx.strokeStyle = '#999999';
-                for (let y = 40; y < h; y += 40) {
-                    ctx.moveTo(0, y); ctx.lineTo(w, y);
-                }
+                for (let y = 40; y < h; y += 40) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
                 ctx.stroke();
             } 
             else if (type === 'grid') {
@@ -322,7 +362,6 @@
                 ctx.stroke();
             } 
             else if (type === 'propisi') {
-                // Косая сетка
                 ctx.beginPath();
                 ctx.strokeStyle = '#d1d1d1';
                 const slantOffset = 280; 
@@ -378,28 +417,31 @@
                     const img = new Image();
                     img.onload = () => {
                         uploadedImageObj = img;
-                        // Сбрасываем значение селекта, чтобы визуально было понятно, что это кастомный фон
                         document.getElementById('bgSelect').value = 'none';
                         redrawAll();
+                        closeMenuIfMobile();
                     };
                     img.src = e.target.result;
                 };
                 reader.readAsDataURL(input.files[0]);
-                
-                // ИСПРАВЛЕНИЕ 2: Сбрасываем значение инпута, чтобы можно было загрузить тот же файл повторно
                 input.value = '';
             }
         }
 
-        // --- УПРАВЛЕНИЕ ВВОДОМ ---
+        // --- ВВОД (МЫШЬ + ТАЧ) ---
         function getPos(e) {
             const rect = canvas.getBoundingClientRect();
-            // Масштабирование координат
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
 
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            let clientX, clientY;
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
             
             return { 
                 x: (clientX - rect.left) * scaleX, 
@@ -409,6 +451,8 @@
 
         function startPath(e) {
             if (isReplaying) return;
+            if (e.target.closest('.menu-btn')) return;
+
             e.preventDefault();
             isDrawing = true;
             const point = getPos(e);
@@ -453,6 +497,7 @@
         canvas.addEventListener('mousemove', movePath);
         canvas.addEventListener('mouseup', endPath);
         canvas.addEventListener('mouseleave', endPath);
+        
         canvas.addEventListener('touchstart', startPath, { passive: false });
         canvas.addEventListener('touchmove', movePath, { passive: false });
         canvas.addEventListener('touchend', endPath);
@@ -460,15 +505,13 @@
         function fullClear() {
             if(confirm('Очистить весь лист?')) {
                 allPaths = [];
-                // При очистке мы также удаляем загруженную картинку
                 uploadedImageObj = null;
-                // И возвращаем дефолтный фон (косая линейка)
                 document.getElementById('bgSelect').value = 'propisi';
                 redrawAll();
             }
         }
 
-        // --- PLAYBACK / EXPORT ---
+        // --- ВОСПРОИЗВЕДЕНИЕ ---
         function startReplay(onComplete) {
             if (allPaths.length === 0 || isReplaying) return;
             isReplaying = true;
@@ -522,10 +565,13 @@
             link.download = 'propisi-art.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
+            closeMenuIfMobile();
         }
 
         function recordVideo() {
             if (allPaths.length === 0) { alert("Сначала напишите что-нибудь!"); return; }
+            closeMenuIfMobile();
+            
             const btn = document.getElementById('recordBtn');
             const originalContent = btn.innerHTML;
             btn.innerHTML = 'Запись...';
@@ -553,17 +599,4 @@
         }
     </script>
 </body>
-    <!-- Yandex.Metrika counter -->
-<script type="text/javascript">
-    (function(m,e,t,r,i,k,a){
-        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-        m[i].l=1*new Date();
-        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=106467293', 'ym');
-
-    ym(106467293, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
-</script>
-<noscript><div><img src="https://mc.yandex.ru/watch/106467293" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-<!-- /Yandex.Metrika counter -->
 </html>

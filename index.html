@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Рисование (v10.3 Lines)</title>
+    <title>Рисование (v10.5 Zoom 500%)</title>
 
     <meta name="yandex-verification" content="zoqf7gn5mwyntin5" />
     <script type="text/javascript" >
@@ -137,7 +137,7 @@
     <div class="sidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Интерактивная доска v10.3</p>
+            <p class="app-subtitle">Интерактивная доска v10.5</p>
         </div>
 
         <div class="nav-tabs">
@@ -149,9 +149,8 @@
             <div class="section-label">1. Подложка</div>
             <select id="bgSelect" onchange="changeBackground()">
                 <option value="propisi_often" selected>Частая косая (1 класс)</option>
-                <option value="propisi_rare">Редкая косая</option>
-                <option value="propisi_lines">Узкая линейка (Без косой)</option>
-                <option value="wide_lines">Широкая линейка (Стандарт)</option>
+                <option value="propisi_lines">Узкая линейка (2 класс)</option>
+                <option value="wide_lines">Широкая линейка (Старшие)</option>
                 <option value="cell">Клетка (5 мм)</option> 
                 <option value="white">Чистый лист</option>
                 <option value="custom">📁 Загрузить своё фото...</option>
@@ -324,7 +323,7 @@
 
             // --- ШИРОКАЯ ЛИНЕЙКА (Обычная) ---
             if (type === 'wide_lines') {
-                const lineStep = 9 * MM; // 9 мм
+                const lineStep = 9 * MM; 
                 bgCtx.lineWidth = 2;
                 bgCtx.strokeStyle = '#5096F2';
                 bgCtx.beginPath();
@@ -335,14 +334,17 @@
                 return;
             }
 
-            // --- УЗКАЯ ЛИНЕЙКА / ПРОПИСИ ---
+            // --- УЗКАЯ ЛИНЕЙКА / ПРОПИСИ (Без редкой косой) ---
             const totalH = ROW_H + GAP_H;
             let y = MT;
             
-            let slantStep = 0; let drawSlant = false;
-            if (type === 'propisi_often') { drawSlant = true; slantStep = 25 * MM; }
-            else if (type === 'propisi_rare') { drawSlant = true; slantStep = 150 * MM; }
-            // propisi_lines - просто пропускаем наклон
+            let drawSlant = false;
+            let slantStep = 0;
+            
+            if (type === 'propisi_often') { 
+                drawSlant = true; 
+                slantStep = 25 * MM; 
+            }
 
             bgCtx.lineWidth = 2;
             while(y < h - MT) {
@@ -435,7 +437,8 @@
         }
         function changeZoom(delta) {
             let newZoom = Math.round((zoom + delta) * 10) / 10;
-            if (newZoom < 0.2) newZoom = 0.2; if (newZoom > 3.0) newZoom = 3.0;
+            if (newZoom < 0.2) newZoom = 0.2; 
+            if (newZoom > 5.0) newZoom = 5.0; // ЛИМИТ 500%
             setZoom(newZoom);
         }
         function setZoom(z) {

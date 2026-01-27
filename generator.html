@@ -6,15 +6,6 @@
     <title>Генератор прописей</title>
 
     <meta name="yandex-verification" content="zoqf7gn5mwyntin5" />
-    <script type="text/javascript" >
-       (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-       m[i].l=1*new Date();
-       for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-       k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-       (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-       ym(106467293, "init", {clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true});
-    </script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
@@ -65,7 +56,6 @@
         .app-title { font-size: 22px; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
         .app-subtitle { font-size: 13px; color: var(--text-secondary); margin: 0; }
 
-        /* Вкладки */
         .nav-tabs {
             display: flex;
             background: #F2F2F7;
@@ -91,7 +81,6 @@
         .section { display: flex; flex-direction: column; gap: 8px; }
         .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px; }
 
-        /* Поля ввода */
         select, textarea {
             width: 100%; padding: 12px;
             border-radius: var(--radius-M); border: 1px solid #E5E5EA;
@@ -110,7 +99,6 @@
         }
         button.btn-primary:active { opacity: 0.8; }
 
-        /* ОБЛАСТЬ ПРЕВЬЮ */
         .main-area {
             flex-grow: 1;
             background-color: var(--app-bg);
@@ -121,7 +109,6 @@
             overflow-y: auto;
         }
         
-        /* Контейнер листа А4 */
         .a4-container {
             width: 100%;
             max-width: 800px;
@@ -137,7 +124,6 @@
             display: block;
         }
 
-        /* Адаптив */
         @media (max-width: 900px) {
             body { flex-direction: column; height: auto; overflow-y: auto; }
             .sidebar { width: 100%; min-width: 0; height: auto; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); }
@@ -150,7 +136,7 @@
     <div class="sidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Генератор PDF • v3.9</p>
+            <p class="app-subtitle">Генератор PDF • v4.0</p>
         </div>
 
         <div class="nav-tabs">
@@ -170,10 +156,10 @@
 
         <div class="section">
             <div class="section-label">2. Текст задания</div>
-            <textarea id="textInput" oninput="updatePreview()" placeholder="Введите текст...
-Например:
-Мама мыла раму
-А а Б б В в"></textarea>
+            <textarea id="textInput" oninput="handleInput()" placeholder="Введите текст..."></textarea>
+            <div style="font-size: 10px; color: #8E8E93; margin-top: -4px;">
+                * Английские буквы автоматически заменяются на русские.
+            </div>
         </div>
 
         <div class="section">
@@ -207,19 +193,16 @@
         let fontBase64 = null;
         let isFontLoaded = false;
 
-        // --- НАСТРОЙКИ (КОНСТАНТЫ) ---
-        const MM_TO_PX = 11.81; // 1 мм = 11.81 пикселей (для 300 DPI)
-        const ROW_H_MM = 4; // Высота узкой строки (мм)
-        const GAP_H_MM = 8; // Высота межстрочного интервала (мм)
+        // --- НАСТРОЙКИ (HARDCODED) ---
+        const MM_TO_PX = 11.81; 
+        const ROW_H_MM = 4;
+        const GAP_H_MM = 8;
         const MARGIN_TOP_MM = 20;
         const MARGIN_LEFT_MM = 20;
 
-        // --- КАЛИБРОВКА (HARDCODED) ---
-        const FONT_SIZE_PX = 116; // Подобранный размер для Canvas
-        const OFFSET_PX = 0;      // Подобранный сдвиг для Canvas
-        
-        // Коэффициент для PDF (Размер шрифта в PDF / Размер в PX)
-        // 116px * 0.27 ≈ 31.3 pt
+        // Калибровка из версии 3.8
+        const FONT_SIZE_PX = 116; 
+        const OFFSET_PX = 0;      
         const FONT_SIZE_PDF = 31.3; 
 
         window.onload = async function() {
@@ -250,6 +233,43 @@
             }
         };
 
+        // --- АВТОЗАМЕНА ЛАТИНИЦЫ НА КИРИЛЛИЦУ ---
+        function handleInput() {
+            const input = document.getElementById('textInput');
+            let text = input.value;
+            
+            // Таблица замен (похожие буквы)
+            const replacements = {
+                'a': 'а', 'A': 'А',
+                'B': 'В', 
+                'c': 'с', 'C': 'С',
+                'e': 'е', 'E': 'Е',
+                'H': 'Н',
+                'k': 'к', 'K': 'К',
+                'm': 'м', 'M': 'М',
+                'o': 'о', 'O': 'О',
+                'p': 'р', 'P': 'Р',
+                'T': 'Т',
+                'x': 'х', 'X': 'Х',
+                'y': 'у', 
+            };
+
+            let newText = '';
+            for (let char of text) {
+                newText += replacements[char] || char;
+            }
+
+            // Если была замена, обновляем поле
+            if (newText !== text) {
+                const start = input.selectionStart;
+                const end = input.selectionEnd;
+                input.value = newText;
+                input.setSelectionRange(start, end);
+            }
+            
+            updatePreview();
+        }
+
         function updatePreview() {
             const w = canvas.width;
             const h = canvas.height;
@@ -261,74 +281,61 @@
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, w, h);
 
-            // Перевод размеров в пиксели
             const rowH = ROW_H_MM * MM_TO_PX;
             const gapH = GAP_H_MM * MM_TO_PX;
             const mt = MARGIN_TOP_MM * MM_TO_PX;
             const ml = MARGIN_LEFT_MM * MM_TO_PX;
 
-            // --- 1. РИСУЕМ ФОН ---
+            // --- ФОН ---
             if (type !== 'white') {
-                // Поля (Розовая линия)
+                // Поля (Розовая)
                 ctx.beginPath();
-                ctx.strokeStyle = '#FF8080'; 
-                ctx.lineWidth = 4;
-                ctx.moveTo(ml, 0); ctx.lineTo(ml, h);
-                ctx.stroke();
+                ctx.strokeStyle = '#FF8080'; ctx.lineWidth = 4;
+                ctx.moveTo(ml, 0); ctx.lineTo(ml, h); ctx.stroke();
 
                 let slantStep = 0;
                 let drawSlant = false;
-
                 if (type === 'propisi_often') { drawSlant = true; slantStep = 25 * MM_TO_PX; }
                 else if (type === 'propisi_rare') { drawSlant = true; slantStep = 150 * MM_TO_PX; }
 
                 // Линейки (Голубые)
                 const totalH = rowH + gapH;
                 let y = mt;
-                
                 ctx.lineWidth = 2;
 
                 while (y < h - mt) {
-                    ctx.beginPath();
-                    ctx.strokeStyle = '#5096F2'; // Голубой
+                    ctx.beginPath(); ctx.strokeStyle = '#5096F2'; 
+                    ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
                     
-                    // Верхняя линия строки
-                    ctx.moveTo(0, y); ctx.lineTo(w, y);
-                    // Нижняя линия строки (Базовая)
-                    ctx.moveTo(0, y + rowH); ctx.lineTo(w, y + rowH);
-                    
-                    ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(0, y + rowH); ctx.lineTo(w, y + rowH); ctx.stroke();
                     y += totalH;
                 }
 
                 // Косая сетка
                 if (drawSlant) {
-                    ctx.beginPath();
-                    ctx.strokeStyle = '#D1D1D6'; // Светло-серый
-                    const tan = 0.466; // 65 градусов
+                    ctx.beginPath(); ctx.strokeStyle = '#D1D1D6';
+                    const tan = 0.466; 
                     const totalShift = h * tan;
                     for (let x = -totalShift; x < w; x += slantStep) {
-                        ctx.moveTo(x + totalShift, 0);
-                        ctx.lineTo(x, h);
+                        ctx.moveTo(x + totalShift, 0); ctx.lineTo(x, h);
                     }
                     ctx.stroke();
                 }
             }
 
-            // --- 2. РИСУЕМ ТЕКСТ ---
+            // --- ТЕКСТ ---
             if (text) {
                 ctx.font = `${FONT_SIZE_PX}px "${isFontLoaded ? fontName : 'cursive'}"`;
                 
                 if (colorStyle === 'pale') ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
                 else ctx.fillStyle = 'black';
 
-                ctx.textBaseline = 'alphabetic'; // Важно!
+                ctx.textBaseline = 'alphabetic'; 
 
                 const lines = text.split('\n');
                 const fullRowH = rowH + gapH;
 
                 lines.forEach((line, i) => {
-                    // Y = Отступ + номер строки * цикл + высота рабочей строки + КАЛИБРОВКА
                     let y = mt + (i * fullRowH) + rowH + OFFSET_PX;
                     ctx.fillText(line, ml + 20, y);
                 });
@@ -346,7 +353,6 @@
             doc.setFont("Primo");
 
             const savedText = document.getElementById('textInput').value;
-            // Скрываем текст, делаем снимок фона
             document.getElementById('textInput').value = ""; 
             updatePreview(); 
             const bgImage = canvas.toDataURL("image/jpeg", 0.85);
@@ -360,18 +366,14 @@
                 if (colorStyle === 'pale') doc.setTextColor(180, 180, 180);
                 else doc.setTextColor(0, 0, 0);
 
-                // Используем откалиброванный размер для PDF
                 doc.setFontSize(FONT_SIZE_PDF);
 
                 const lines = savedText.split('\n');
                 const fullRowH = ROW_H_MM + GAP_H_MM;
-                
-                // Перевод сдвига в мм (если он есть, в нашем случае 0)
                 const offsetMM = OFFSET_PX / MM_TO_PX;
 
                 lines.forEach((line, i) => {
                     let y = MARGIN_TOP_MM + (i * fullRowH) + ROW_H_MM + offsetMM;
-                    // Небольшая коррекция PDF движка
                     y += 0.5; 
                     doc.text(line, MARGIN_LEFT_MM + 2, y);
                 });

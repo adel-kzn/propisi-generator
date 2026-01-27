@@ -5,17 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Генератор прописей</title>
 
-    <meta name="yandex-verification" content="zoqf7gn5mwyntin5" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
-        /* Подключение шрифта Paratype */
-        @font-face {
-            font-family: 'PropisiParatype';
-            src: url('Propisi Regular.otf') format('opentype');
-            font-display: swap;
-        }
-
         :root {
             --app-bg: #Eef2F5;
             --sidebar-bg: #FFFFFF;
@@ -25,92 +17,28 @@
             --radius-M: 10px;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            margin: 0; padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--app-bg);
-            color: var(--text-primary);
-            height: 100vh;
-            display: flex;
-            overflow: hidden;
-        }
-
-        .sidebar {
-            width: 360px;
-            min-width: 360px;
-            height: 100%;
-            background: var(--sidebar-bg);
-            border-right: 1px solid rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            padding: 24px;
-            gap: 20px;
-            overflow-y: auto;
-            z-index: 10;
-        }
-
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--app-bg); height: 100vh; display: flex; overflow: hidden; }
+        .sidebar { width: 360px; min-width: 360px; background: var(--sidebar-bg); border-right: 1px solid rgba(0,0,0,0.1); display: flex; flex-direction: column; padding: 20px; gap: 15px; overflow-y: auto; z-index: 10; }
         .app-header { margin-bottom: 5px; }
-        .app-title { font-size: 22px; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
+        .app-title { font-size: 22px; font-weight: 700; margin: 0; }
         .app-subtitle { font-size: 13px; color: var(--text-secondary); margin: 0; }
-
-        .nav-tabs {
-            display: flex;
-            background: #F2F2F7;
-            padding: 4px;
-            border-radius: 10px;
-        }
-        .nav-tab {
-            flex: 1;
-            text-align: center;
-            padding: 8px 12px;
-            font-size: 13px;
-            font-weight: 500;
-            text-decoration: none;
-            color: var(--text-primary);
-            border-radius: 7px;
-            transition: all 0.2s;
-        }
+        
+        .nav-tabs { display: flex; background: #F2F2F7; padding: 4px; border-radius: 10px; }
+        .nav-tab { flex: 1; text-align: center; padding: 8px 12px; font-size: 13px; font-weight: 500; text-decoration: none; color: var(--text-primary); border-radius: 7px; transition: all 0.2s; }
         .nav-tab.active { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
         .section { display: flex; flex-direction: column; gap: 8px; }
         .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px; }
 
-        select, textarea {
-            width: 100%; padding: 12px;
-            border-radius: var(--radius-M); border: 1px solid #E5E5EA;
-            background-color: white;
-            font-size: 15px; color: var(--text-primary); outline: none;
-            font-family: inherit; resize: none;
-        }
+        select, textarea { width: 100%; padding: 12px; border-radius: var(--radius-M); border: 1px solid #E5E5EA; background-color: white; font-size: 15px; outline: none; resize: none; font-family: inherit; }
         textarea { height: 140px; line-height: 1.4; }
 
-        button.btn-primary {
-            border: none; height: 48px; border-radius: var(--radius-M);
-            font-size: 17px; font-weight: 600; cursor: pointer;
-            background-color: var(--accent); color: white; 
-            width: 100%; transition: opacity 0.2s;
-            display: flex; align-items: center; justify-content: center;
-        }
+        button.btn-primary { border: none; height: 48px; border-radius: var(--radius-M); font-size: 17px; font-weight: 600; cursor: pointer; background-color: var(--accent); color: white; width: 100%; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; }
         button.btn-primary:active { opacity: 0.8; }
 
-        .main-area {
-            flex-grow: 1;
-            background-color: var(--app-bg);
-            padding: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            overflow-y: auto;
-        }
-        
-        .a4-container {
-            width: 100%; max-width: 800px;
-            aspect-ratio: 210 / 297;
-            background: white;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-        }
+        .main-area { flex-grow: 1; background-color: var(--app-bg); padding: 40px; display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; }
+        .a4-container { width: 100%; max-width: 800px; aspect-ratio: 210 / 297; background: white; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
         canvas { width: 100%; height: 100%; display: block; }
 
         @media (max-width: 900px) {
@@ -125,7 +53,7 @@
     <div class="sidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Генератор PDF • v4.4</p>
+            <p class="app-subtitle">Генератор PDF • v5.0 (SVG Engine)</p>
         </div>
 
         <div class="nav-tabs">
@@ -144,9 +72,9 @@
         </div>
 
         <div class="section">
-            <div class="section-label">2. Текст задания</div>
+            <div class="section-label">2. Текст (Авто-перенос)</div>
             <textarea id="textInput" oninput="handleInput()" placeholder="Введите текст..."></textarea>
-            <div style="font-size: 10px; color: #8E8E93;">* Автозамена англ. букв на русские.</div>
+            <div style="font-size: 10px; color: #8E8E93;">* Англ. буквы заменяются на русские.</div>
         </div>
 
         <div class="section">
@@ -158,7 +86,7 @@
         </div>
         
         <div class="section" style="margin-top: auto;">
-             <button class="btn-primary" onclick="generateImagePDF()" id="downloadBtn">
+             <button class="btn-primary" onclick="generatePDF()" id="downloadBtn">
                 Скачать PDF
             </button>
             <div id="status" style="text-align: center; font-size: 12px; color: #8E8E93; margin-top: 10px;">
@@ -176,38 +104,43 @@
     <script>
         const canvas = document.getElementById('previewCanvas');
         const ctx = canvas.getContext('2d');
-        const fontName = 'PropisiParatype';
         const fontFile = 'Propisi Regular.otf';
-        let isFontLoaded = false;
+        let fontBase64 = null; // Здесь будет храниться шрифт для SVG
 
-        // --- НАСТРОЙКИ ---
+        // --- КОНСТАНТЫ ---
         const MM_TO_PX = 11.81; 
-        const ROW_H_MM = 4;
-        const GAP_H_MM = 8;
-        const MARGIN_TOP_MM = 20;
-        const MARGIN_LEFT_MM = 20;
-
+        const ROW_H = 4 * MM_TO_PX;
+        const GAP_H = 8 * MM_TO_PX;
+        const MARGIN_TOP = 20 * MM_TO_PX;
+        const MARGIN_LEFT = 20 * MM_TO_PX;
+        const MARGIN_RIGHT = 10 * MM_TO_PX;
+        
         const FONT_SIZE_PX = 150; 
-        const OFFSET_PX = 0;      
+        const OFFSET_PX = 0; // Калибровка
 
         window.onload = async function() {
-            updatePreview();
             try {
-                const fontFace = new FontFace(fontName, `url("${fontFile}")`);
-                await fontFace.load();
-                document.fonts.add(fontFace);
-                isFontLoaded = true;
-                document.getElementById('status').innerText = 'Готов к работе';
-                updatePreview(); 
+                // Загружаем шрифт как бинарные данные, чтобы встроить в SVG
+                const response = await fetch(fontFile);
+                if (!response.ok) throw new Error("Нет файла");
+                const blob = await response.blob();
+                
+                const reader = new FileReader();
+                reader.onloadend = function() {
+                    fontBase64 = reader.result; // data:font/otf;base64,....
+                    document.getElementById('status').innerText = 'Готов к работе';
+                    updatePreview();
+                };
+                reader.readAsDataURL(blob);
             } catch (e) {
-                console.error(e);
-                document.getElementById('status').innerText = 'Ошибка: нет файла ' + fontFile;
+                document.getElementById('status').innerText = 'Ошибка: положите файл ' + fontFile;
             }
         };
 
         function handleInput() {
             const input = document.getElementById('textInput');
             let text = input.value;
+            // Автозамена латиницы
             const replacements = {
                 'a':'а','A':'А','B':'В','c':'с','C':'С','e':'е','E':'Е','H':'Н','k':'к','K':'К','m':'м','M':'М','o':'о','O':'О','p':'р','P':'Р','T':'Т','x':'х','X':'Х','y':'у'
             };
@@ -222,92 +155,153 @@
             updatePreview();
         }
 
+        // --- ЛОГИКА ПЕРЕНОСА СТРОК ---
+        function getLines(text, maxWidth) {
+            // Для измерения ширины используем временный контекст
+            ctx.font = `${FONT_SIZE_PX}px PropisiParatype`; 
+            
+            const words = text.replace(/\n/g, " \n ").split(" ");
+            const lines = [];
+            let currentLine = words[0];
+
+            for (let i = 1; i < words.length; i++) {
+                let word = words[i];
+                if (word === "\n") {
+                    lines.push(currentLine);
+                    currentLine = words[++i] || ""; // Skip \n and take next
+                    continue;
+                }
+                
+                let width = ctx.measureText(currentLine + " " + word).width;
+                if (width < maxWidth) {
+                    currentLine += " " + word;
+                } else {
+                    lines.push(currentLine);
+                    currentLine = word;
+                }
+            }
+            lines.push(currentLine);
+            return lines;
+        }
+
         function updatePreview() {
+            if (!fontBase64) return; // Ждем загрузки шрифта
+
             const w = canvas.width;
             const h = canvas.height;
             const type = document.getElementById('bgSelect').value;
-            let text = document.getElementById('textInput').value;
+            const rawText = document.getElementById('textInput').value;
             const colorStyle = document.getElementById('colorStyle').value;
+            const textColor = colorStyle === 'pale' ? 'rgba(0,0,0,0.25)' : 'black';
 
-            // Очистка
+            // 1. Рисуем фон на Canvas (быстро и четко)
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, w, h);
+            drawBackground(w, h, type);
 
-            const rowH = ROW_H_MM * MM_TO_PX;
-            const gapH = GAP_H_MM * MM_TO_PX;
-            const mt = MARGIN_TOP_MM * MM_TO_PX;
-            const ml = MARGIN_LEFT_MM * MM_TO_PX;
+            if (!rawText) return;
 
-            // --- ФОН ---
-            if (type !== 'white') {
-                ctx.beginPath(); ctx.strokeStyle = '#FF8080'; ctx.lineWidth = 4;
-                ctx.moveTo(ml, 0); ctx.lineTo(ml, h); ctx.stroke();
+            // 2. Рассчитываем строки с переносом
+            // Максимальная ширина = Ширина холста - Поля
+            const maxTextWidth = w - MARGIN_LEFT - MARGIN_RIGHT;
+            // Для правильного расчета ширины нужно загрузить шрифт в DOM
+            // Но мы используем SVG, поэтому расчет будет приблизительным на Canvas, 
+            // но достаточно точным для переноса.
+            
+            // ВАЖНО: Создаем FontFace для Canvas, чтобы measureText работал корректно
+            // (Хак: используем уже загруженный base64)
+            const f = new FontFace('PropisiParatype', `url(${fontBase64})`);
+            f.load().then(loadedFace => {
+                document.fonts.add(loadedFace);
+                
+                const lines = getLines(rawText, maxTextWidth);
+                drawTextViaSVG(lines, w, h, textColor);
+            });
+        }
 
-                let slantStep = 0;
-                let drawSlant = false;
-                if (type === 'propisi_often') { drawSlant = true; slantStep = 25 * MM_TO_PX; }
-                else if (type === 'propisi_rare') { drawSlant = true; slantStep = 150 * MM_TO_PX; }
+        function drawBackground(w, h, type) {
+            if (type === 'white') return;
 
-                const totalH = rowH + gapH;
-                let y = mt;
-                ctx.lineWidth = 2;
-                while (y < h - mt) {
-                    ctx.beginPath(); ctx.strokeStyle = '#5096F2'; 
-                    ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-                    ctx.beginPath(); ctx.moveTo(0, y + rowH); ctx.lineTo(w, y + rowH); ctx.stroke();
-                    y += totalH;
-                }
+            ctx.beginPath(); ctx.strokeStyle = '#FF8080'; ctx.lineWidth = 4;
+            ctx.moveTo(MARGIN_LEFT, 0); ctx.lineTo(MARGIN_LEFT, h); ctx.stroke();
 
-                if (drawSlant) {
-                    ctx.beginPath(); ctx.strokeStyle = '#D1D1D6';
-                    const tan = 0.466; 
-                    const totalShift = h * tan;
-                    for (let x = -totalShift; x < w; x += slantStep) {
-                        ctx.moveTo(x + totalShift, 0); ctx.lineTo(x, h);
-                    }
-                    ctx.stroke();
-                }
+            const totalH = ROW_H + GAP_H;
+            let y = MARGIN_TOP;
+            ctx.lineWidth = 2;
+
+            let slantStep = 0;
+            let drawSlant = false;
+            if (type === 'propisi_often') { drawSlant = true; slantStep = 25 * MM_TO_PX; }
+            else if (type === 'propisi_rare') { drawSlant = true; slantStep = 150 * MM_TO_PX; }
+
+            while (y < h - MARGIN_TOP) {
+                ctx.beginPath(); ctx.strokeStyle = '#5096F2'; 
+                ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, y + ROW_H); ctx.lineTo(w, y + ROW_H); ctx.stroke();
+                y += totalH;
             }
 
-            // --- ТЕКСТ С "УМНЫМИ" РАЗРЫВАМИ ---
-            if (text) {
-                ctx.font = `${FONT_SIZE_PX}px "${isFontLoaded ? fontName : 'cursive'}"`;
-                
-                // Включаем функции OpenType
-                // "liga" - лигатуры (стандартные соединения)
-                // "calt" - контекстные альтернативы (меняет букву в зависимости от соседей)
-                // "fina" - финальные формы (буквы в конце слова)
-                canvas.style.fontFeatureSettings = '"liga" 1, "calt" 1, "fina" 1';
-                
-                if (colorStyle === 'pale') ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-                else ctx.fillStyle = 'black';
-
-                ctx.textBaseline = 'alphabetic'; 
-
-                // --- МАГИЯ ZWNJ (Zero Width Non-Joiner) ---
-                // Мы заменяем каждый пробел на "ZWNJ + Пробел".
-                // ZWNJ (\u200c) говорит шрифту: "Здесь соединение разорвано".
-                // Шрифт видит разрыв и рисует финальный хвостик для предыдущей буквы.
-                text = text.replace(/ /g, '\u200c ');
-
-                const lines = text.split('\n');
-                const fullRowH = rowH + gapH;
-
-                lines.forEach((line, i) => {
-                    // Добавляем ZWNJ в самый конец строки, чтобы последняя буква тоже была красивой
-                    let safeLine = line + '\u200c';
-                    
-                    let y = mt + (i * fullRowH) + rowH + OFFSET_PX;
-                    ctx.fillText(safeLine, ml + 20, y);
-                });
+            if (drawSlant) {
+                ctx.beginPath(); ctx.strokeStyle = '#D1D1D6';
+                const tan = 0.466; 
+                const totalShift = h * tan;
+                for (let x = -totalShift; x < w; x += slantStep) {
+                    ctx.moveTo(x + totalShift, 0); ctx.lineTo(x, h);
+                }
+                ctx.stroke();
             }
         }
 
-        function generateImagePDF() {
-            if (!isFontLoaded) { alert("Шрифт еще не загрузился!"); return; }
+        // --- ГЛАВНАЯ МАГИЯ: Рендеринг текста через SVG ---
+        function drawTextViaSVG(lines, w, h, color) {
+            const fullRowH = ROW_H + GAP_H;
+            
+            // Собираем TSPAN для каждой строки
+            let tspans = '';
+            lines.forEach((line, i) => {
+                // Координата Y базовой линии
+                const y = MARGIN_TOP + (i * fullRowH) + ROW_H + OFFSET_PX;
+                tspans += `<text x="${MARGIN_LEFT}" y="${y}">${line}</text>`;
+            });
+
+            // Формируем SVG-картинку
+            // Мы внедряем шрифт Base64 прямо внутрь, чтобы SVG знал, как рисовать
+            const svgData = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
+                <defs>
+                    <style>
+                        @font-face {
+                            font-family: 'PropisiParatype';
+                            src: url('${fontBase64}') format('opentype');
+                        }
+                        text {
+                            font-family: 'PropisiParatype';
+                            font-size: ${FONT_SIZE_PX}px;
+                            fill: ${color};
+                            /* ВКЛЮЧАЕМ УМНЫЕ ФУНКЦИИ ШРИФТА */
+                            font-feature-settings: "calt" 1, "liga" 1, "clig" 1, "kern" 1; 
+                        }
+                    </style>
+                </defs>
+                ${tspans}
+            </svg>`;
+
+            const img = new Image();
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0);
+            };
+            // Конвертируем SVG XML в Blob URL, чтобы загрузить как картинку
+            const blob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+            const url = URL.createObjectURL(blob);
+            img.src = url;
+        }
+
+        function generatePDF() {
+            if (!fontBase64) { alert("Шрифт не загружен!"); return; }
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-
+            
+            // Берем готовый канвас как картинку (там уже идеальный текст из SVG)
             const imgData = canvas.toDataURL('image/jpeg', 0.85);
             doc.addImage(imgData, 'JPEG', 0, 0, 210, 297);
             doc.save("propisi.pdf");

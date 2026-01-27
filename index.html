@@ -92,13 +92,14 @@
 
         /* --- КНОПКИ И КОНТРОЛЫ --- */
         .row { display: flex; gap: 10px; }
-        .row > * { flex: 1; }
-
+        /* .row > * { flex: 1; } Убрал жесткое выравнивание, чтобы кнопки были красивее */
+        
         button {
             border: none; height: 40px; border-radius: var(--radius-M);
             font-size: 15px; font-weight: 500; cursor: pointer;
             display: flex; align-items: center; justify-content: center; gap: 8px;
             transition: transform 0.1s, opacity 0.2s;
+            flex-grow: 1; /* Растягиваем кнопки */
         }
         button:active { transform: scale(0.96); }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -263,7 +264,7 @@
         <div class="sidebar-header">
             <div>
                 <h1 class="app-title">Прописи</h1>
-                <p class="app-subtitle">Тренажер письма v3.1</p>
+                <p class="app-subtitle">Тренажер письма v3.2</p>
             </div>
             <button class="close-btn" onclick="closeMenu()">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
@@ -273,11 +274,14 @@
         <div class="section">
             <div class="section-label">Управление</div>
             <div class="row">
-                <button class="btn-primary" onclick="startReplay(); closeMenuIfMobile()" id="replayBtn">
+                <button class="btn-primary" onclick="startReplay(); closeMenuIfMobile()" id="replayBtn" style="flex: 2;">
                     <svg class="icon" style="width:18px;height:18px;" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                     Показать
                 </button>
-                <button class="btn-secondary btn-danger" onclick="fullClear(); closeMenuIfMobile()">
+                <button class="btn-secondary" onclick="undoLastAction()" title="Отменить последнее действие" style="flex: 1;">
+                    <svg class="icon" style="width:20px;height:20px;" viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
+                </button>
+                <button class="btn-secondary btn-danger" onclick="fullClear(); closeMenuIfMobile()" title="Очистить всё" style="flex: 1;">
                     <svg class="icon" style="width:18px;height:18px;" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                 </button>
             </div>
@@ -367,6 +371,14 @@
             redrawAll();
             updateZoomDisplay();
         };
+
+        // --- НОВАЯ ФУНКЦИЯ: ОТМЕНИТЬ (UNDO) ---
+        function undoLastAction() {
+            if (allPaths.length > 0) {
+                allPaths.pop(); // Удаляем последний элемент из массива
+                redrawAll();    // Перерисовываем
+            }
+        }
 
         // --- ЗУМ ЛОГИКА ---
         function changeZoom(delta) {

@@ -421,24 +421,20 @@
 
         function drawBackground() {
             const type = document.getElementById('bgSelect').value;
-            // Учитываем зум: вычисляем реальные размеры холста в текущем масштабе
+            // Учитываем зум
             const w = canvas.width / currentZoom;
             const h = canvas.height / currentZoom;
 
-            // Заливаем белым фоном
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, w, h);
 
-            // Если загружена картинка, рисуем её
             if (uploadedImageObj) {
                 ctx.drawImage(uploadedImageObj, 0, 0, canvas.width, canvas.height);
                 return;
             }
 
-            // Настройки линий
-            // Делаем линии тонкими (1px) вне зависимости от зума
-            const lineWidth = 1 / currentZoom; 
-            ctx.lineWidth = lineWidth;
+            // Тонкие линии при любом зуме
+            ctx.lineWidth = 1 / currentZoom;
 
             if (type === 'lines') {
                 ctx.beginPath();
@@ -454,24 +450,24 @@
                 ctx.stroke();
             } 
             else if (type === 'propisi') {
-                // --- НАСТРОЙКИ ПОД ВАШ ШАБЛОН ---
-                const rowHeight = 25;   // Высота рабочей строки (узкая)
-                const rowGap = 50;      // Высота межстрочного интервала (широкая)
-                const slantStep = 25;   // Шаг наклонной линии (частая косая)
-                const totalRow = rowHeight + rowGap; // Полный цикл строки
+                // --- НАСТРОЙКИ (РЕДКАЯ КОСАЯ) ---
+                const rowHeight = 25;   // Высота рабочей строки
+                const rowGap = 50;      // Межстрочный интервал
                 
-                // Цвет линий (серый, как на скане)
+                // ИЗМЕНЕНИЕ ЗДЕСЬ: Увеличили шаг с 25 до 80 (редкие линии)
+                const slantStep = 80;   
+                
+                const totalRow = rowHeight + rowGap;
+                
+                // Цвет линий
                 ctx.strokeStyle = '#6e6e6e'; 
                 
-                // 1. Рисуем наклонные линии (Косая сетка)
-                // Расчет угла 65 градусов. Тангенс угла наклона от вертикали (25 град) ≈ 0.466
-                // Сдвиг по горизонтали на всю высоту холста
+                // 1. Рисуем наклонные линии
+                // Угол 65 градусов (сдвиг ≈ 0.46 от высоты)
                 const slantShift = h * 0.4663; 
                 
                 ctx.beginPath();
-                // Начинаем рисовать с "минуса", чтобы закрыть левый нижний угол при наклоне
                 for (let x = -slantShift; x < w + slantStep; x += slantStep) {
-                    // Координаты: (x + сдвиг, 0) -> (x, низ)
                     ctx.moveTo(x + slantShift, 0); 
                     ctx.lineTo(x, h);
                 }
@@ -479,20 +475,16 @@
 
                 // 2. Рисуем горизонтальные линии
                 ctx.beginPath();
-                // Можно сделать их чуть темнее или другого оттенка, если нужно
-                // ctx.strokeStyle = '#505050'; 
-                
                 let y = 50; // Отступ сверху
                 while (y < h) {
-                    // Верхняя линия рабочей строки
+                    // Верхняя линия строки
                     ctx.moveTo(0, y);
                     ctx.lineTo(w, y);
                     
-                    // Нижняя линия рабочей строки (базовая)
+                    // Нижняя линия строки
                     ctx.moveTo(0, y + rowHeight);
                     ctx.lineTo(w, y + rowHeight);
 
-                    // Переход к следующей строке
                     y += totalRow;
                 }
                 ctx.stroke();

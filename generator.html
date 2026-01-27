@@ -21,8 +21,8 @@
         body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--app-bg); height: 100vh; display: flex; overflow: hidden; }
         .sidebar { width: 360px; min-width: 360px; background: var(--sidebar-bg); border-right: 1px solid rgba(0,0,0,0.1); display: flex; flex-direction: column; padding: 20px; gap: 15px; overflow-y: auto; z-index: 10; }
         .app-header { margin-bottom: 5px; }
-        .app-title { font-size: 22px; font-weight: 700; margin: 0; }
-        .app-subtitle { font-size: 13px; color: var(--text-secondary); margin: 0; }
+        .app-title { font-size: 20px; font-weight: 700; margin: 0; }
+        .app-subtitle { font-size: 12px; color: var(--text-secondary); margin: 0; }
         
         .nav-tabs { display: flex; background: #F2F2F7; padding: 4px; border-radius: 10px; }
         .nav-tab { flex: 1; text-align: center; padding: 8px 12px; font-size: 13px; font-weight: 500; text-decoration: none; color: var(--text-primary); border-radius: 7px; transition: all 0.2s; }
@@ -41,6 +41,10 @@
         .a4-container { width: 100%; max-width: 800px; aspect-ratio: 210 / 297; background: white; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
         canvas { width: 100%; height: 100%; display: block; }
 
+        /* Чекбоксы для отладки */
+        .checkbox-row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+        .checkbox-row input { margin: 0; }
+
         @media (max-width: 900px) {
             body { flex-direction: column; height: auto; overflow-y: auto; }
             .sidebar { width: 100%; min-width: 0; height: auto; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); }
@@ -53,7 +57,7 @@
     <div class="sidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Генератор PDF • v5.0 (SVG Engine)</p>
+            <p class="app-subtitle">Генератор PDF • v5.1 (No Tails)</p>
         </div>
 
         <div class="nav-tabs">
@@ -72,17 +76,29 @@
         </div>
 
         <div class="section">
-            <div class="section-label">2. Текст (Авто-перенос)</div>
+            <div class="section-label">2. Текст</div>
             <textarea id="textInput" oninput="handleInput()" placeholder="Введите текст..."></textarea>
-            <div style="font-size: 10px; color: #8E8E93;">* Англ. буквы заменяются на русские.</div>
+            <div style="font-size: 10px; color: #8E8E93;">* Автозамена англ. букв и авто-перенос.</div>
         </div>
 
         <div class="section">
-            <div class="section-label">3. Вид шрифта</div>
+            <div class="section-label">3. Настройки шрифта</div>
             <select id="colorStyle" onchange="updatePreview()">
                 <option value="pale">Серый (для обводки)</option>
                 <option value="black">Черный (для примера)</option>
             </select>
+            
+            <div class="section" style="background: #F2F2F7; padding: 10px; border-radius: 8px;">
+                <div class="section-label" style="margin-bottom: 5px;">Лечение хвостов:</div>
+                <div class="checkbox-row">
+                    <input type="checkbox" id="checkZWNJ" checked onchange="updatePreview()"> 
+                    <label for="checkZWNJ">Разрывать слова (ZWNJ)</label>
+                </div>
+                <div class="checkbox-row">
+                    <input type="checkbox" id="checkFina" checked onchange="updatePreview()"> 
+                    <label for="checkFina">Финальные формы (fina)</label>
+                </div>
+            </div>
         </div>
         
         <div class="section" style="margin-top: auto;">
@@ -105,7 +121,7 @@
         const canvas = document.getElementById('previewCanvas');
         const ctx = canvas.getContext('2d');
         const fontFile = 'Propisi Regular.otf';
-        let fontBase64 = null; // Здесь будет храниться шрифт для SVG
+        let fontBase64 = null;
 
         // --- КОНСТАНТЫ ---
         const MM_TO_PX = 11.81; 
@@ -113,21 +129,20 @@
         const GAP_H = 8 * MM_TO_PX;
         const MARGIN_TOP = 20 * MM_TO_PX;
         const MARGIN_LEFT = 20 * MM_TO_PX;
-        const MARGIN_RIGHT = 10 * MM_TO_PX;
+        const MARGIN_RIGHT = 15 * MM_TO_PX; // Правое поле для переноса
         
         const FONT_SIZE_PX = 150; 
-        const OFFSET_PX = 0; // Калибровка
+        const OFFSET_PX = 0; 
 
         window.onload = async function() {
             try {
-                // Загружаем шрифт как бинарные данные, чтобы встроить в SVG
                 const response = await fetch(fontFile);
                 if (!response.ok) throw new Error("Нет файла");
                 const blob = await response.blob();
                 
                 const reader = new FileReader();
                 reader.onloadend = function() {
-                    fontBase64 = reader.result; // data:font/otf;base64,....
+                    fontBase64 = reader.result;
                     document.getElementById('status').innerText = 'Готов к работе';
                     updatePreview();
                 };
@@ -140,7 +155,6 @@
         function handleInput() {
             const input = document.getElementById('textInput');
             let text = input.value;
-            // Автозамена латиницы
             const replacements = {
                 'a':'а','A':'А','B':'В','c':'с','C':'С','e':'е','E':'Е','H':'Н','k':'к','K':'К','m':'м','M':'М','o':'о','O':'О','p':'р','P':'Р','T':'Т','x':'х','X':'Х','y':'у'
             };
@@ -155,9 +169,9 @@
             updatePreview();
         }
 
-        // --- ЛОГИКА ПЕРЕНОСА СТРОК ---
+        // --- ПЕРЕНОС СТРОК ---
         function getLines(text, maxWidth) {
-            // Для измерения ширины используем временный контекст
+            // Временный контекст для измерения (без ZWNJ, чисто текст)
             ctx.font = `${FONT_SIZE_PX}px PropisiParatype`; 
             
             const words = text.replace(/\n/g, " \n ").split(" ");
@@ -168,11 +182,13 @@
                 let word = words[i];
                 if (word === "\n") {
                     lines.push(currentLine);
-                    currentLine = words[++i] || ""; // Skip \n and take next
+                    currentLine = words[++i] || "";
                     continue;
                 }
                 
+                // Измеряем ширину
                 let width = ctx.measureText(currentLine + " " + word).width;
+                
                 if (width < maxWidth) {
                     currentLine += " " + word;
                 } else {
@@ -180,12 +196,12 @@
                     currentLine = word;
                 }
             }
-            lines.push(currentLine);
+            if (currentLine) lines.push(currentLine);
             return lines;
         }
 
         function updatePreview() {
-            if (!fontBase64) return; // Ждем загрузки шрифта
+            if (!fontBase64) return;
 
             const w = canvas.width;
             const h = canvas.height;
@@ -194,27 +210,23 @@
             const colorStyle = document.getElementById('colorStyle').value;
             const textColor = colorStyle === 'pale' ? 'rgba(0,0,0,0.25)' : 'black';
 
-            // 1. Рисуем фон на Canvas (быстро и четко)
+            // 1. Рисуем фон
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, w, h);
             drawBackground(w, h, type);
 
             if (!rawText) return;
 
-            // 2. Рассчитываем строки с переносом
-            // Максимальная ширина = Ширина холста - Поля
-            const maxTextWidth = w - MARGIN_LEFT - MARGIN_RIGHT;
-            // Для правильного расчета ширины нужно загрузить шрифт в DOM
-            // Но мы используем SVG, поэтому расчет будет приблизительным на Canvas, 
-            // но достаточно точным для переноса.
-            
-            // ВАЖНО: Создаем FontFace для Canvas, чтобы measureText работал корректно
-            // (Хак: используем уже загруженный base64)
+            // 2. Загружаем шрифт в Canvas API для расчетов
             const f = new FontFace('PropisiParatype', `url(${fontBase64})`);
             f.load().then(loadedFace => {
                 document.fonts.add(loadedFace);
                 
+                // Считаем перенос строк
+                const maxTextWidth = w - MARGIN_LEFT - MARGIN_RIGHT;
                 const lines = getLines(rawText, maxTextWidth);
+                
+                // Рисуем через SVG
                 drawTextViaSVG(lines, w, h, textColor);
             });
         }
@@ -252,20 +264,36 @@
             }
         }
 
-        // --- ГЛАВНАЯ МАГИЯ: Рендеринг текста через SVG ---
+        // --- SVG TEXT ENGINE ---
         function drawTextViaSVG(lines, w, h, color) {
             const fullRowH = ROW_H + GAP_H;
             
-            // Собираем TSPAN для каждой строки
+            // Настройки "лечения" хвостов
+            const useZWNJ = document.getElementById('checkZWNJ').checked;
+            const useFina = document.getElementById('checkFina').checked;
+            
+            // Собираем CSS Features
+            let features = '"calt" 1, "liga" 1';
+            if (useFina) features += ', "fina" 1, "isol" 1';
+
+            // Генерация строк
             let tspans = '';
             lines.forEach((line, i) => {
-                // Координата Y базовой линии
+                // Координата Y
                 const y = MARGIN_TOP + (i * fullRowH) + ROW_H + OFFSET_PX;
-                tspans += `<text x="${MARGIN_LEFT}" y="${y}">${line}</text>`;
+                
+                // Вставка ZWNJ (&zwnj;) для разрыва лигатур
+                let safeLine = line;
+                if (useZWNJ) {
+                    // Вставляем ZWNJ перед каждым пробелом и в конце строки
+                    // Это заставит букву перед пробелом принять "финальную" форму
+                    safeLine = safeLine.replace(/ /g, '&#8204; '); 
+                    safeLine += '&#8204;'; 
+                }
+
+                tspans += `<text x="${MARGIN_LEFT}" y="${y}">${safeLine}</text>`;
             });
 
-            // Формируем SVG-картинку
-            // Мы внедряем шрифт Base64 прямо внутрь, чтобы SVG знал, как рисовать
             const svgData = `
             <svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
                 <defs>
@@ -278,8 +306,8 @@
                             font-family: 'PropisiParatype';
                             font-size: ${FONT_SIZE_PX}px;
                             fill: ${color};
-                            /* ВКЛЮЧАЕМ УМНЫЕ ФУНКЦИИ ШРИФТА */
-                            font-feature-settings: "calt" 1, "liga" 1, "clig" 1, "kern" 1; 
+                            font-feature-settings: ${features};
+                            white-space: pre;
                         }
                     </style>
                 </defs>
@@ -290,7 +318,6 @@
             img.onload = function() {
                 ctx.drawImage(img, 0, 0);
             };
-            // Конвертируем SVG XML в Blob URL, чтобы загрузить как картинку
             const blob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
             const url = URL.createObjectURL(blob);
             img.src = url;
@@ -301,7 +328,6 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
             
-            // Берем готовый канвас как картинку (там уже идеальный текст из SVG)
             const imgData = canvas.toDataURL('image/jpeg', 0.85);
             doc.addImage(imgData, 'JPEG', 0, 0, 210, 297);
             doc.save("propisi.pdf");

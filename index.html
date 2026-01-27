@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Тренажер письма</title>
-<meta name="yandex-verification" content="zoqf7gn5mwyntin5" />
+
+    <meta name="yandex-verification" content="zoqf7gn5mwyntin5" />
+
     <script type="text/javascript">
         (function(m,e,t,r,i,k,a){
             m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -33,6 +35,7 @@
             --z-sidebar: 1000;
             --z-overlay: 900;
             --z-menu-btn: 800;
+            --z-zoom: 500;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -129,6 +132,28 @@
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #E5E5EA; border-radius: 2px; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); margin-top: -8px; cursor: pointer; }
 
+        /* --- ZOOM CONTROLS --- */
+        .zoom-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: var(--z-zoom);
+        }
+        .zoom-btn {
+            width: 44px;
+            height: 44px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-size: 22px;
+            color: var(--accent);
+            padding: 0;
+        }
+        .zoom-btn:hover { background: #f0f0f0; }
+
         /* --- КНОПКА МЕНЮ (ГАМБУРГЕР) --- */
         .menu-btn {
             position: absolute;
@@ -207,6 +232,8 @@
             .close-btn { display: block; }
 
             .main-area { padding: 10px; }
+            
+            .zoom-controls { bottom: 60px; right: 10px; } /* Поднимаем зум чуть выше на мобилках */
         }
 
     </style>
@@ -223,7 +250,7 @@
         <div class="sidebar-header">
             <div>
                 <h1 class="app-title">Прописи</h1>
-                <p class="app-subtitle">Тренажер письма v2.5</p>
+                <p class="app-subtitle">Тренажер письма v2.8</p>
             </div>
             <button class="close-btn" onclick="closeMenu()">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
@@ -279,11 +306,33 @@
             <div class="section-label">Скорость</div>
             <input type="range" id="speed" min="1" max="10" value="5">
         </div>
+
+        <div class="section" style="margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.05);">
+            <div class="section-label">Полезное</div>
+            <a href="https://market.yandex.ru/cc/8djm9v" rel="sponsored" target="_blank" style="text-decoration: none; color: inherit;">
+                <div style="background: white; border-radius: 12px; padding: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 12px; transition: transform 0.2s; border: 1px solid rgba(0,0,0,0.03);">
+                    <div style="min-width: 44px; height: 44px; background: #FFCC00; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                        🛍️
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <span style="font-size: 13px; font-weight: 600; line-height: 1.2;">Товары для школы</span>
+                        <span style="font-size: 11px; color: #8E8E93;">Выгодные цены</span>
+                        <span style="font-size: 11px; color: #007AFF; font-weight: 500; margin-top: 2px;">Купить на Маркете &rarr;</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
     </div>
 
     <div class="main-area">
         <div class="canvas-container">
             <canvas id="drawingCanvas" width="800" height="600"></canvas>
+            
+            <div class="zoom-controls">
+                <button class="zoom-btn" onclick="changeZoom(0.1)">+</button>
+                <button class="zoom-btn" onclick="changeZoom(-0.1)">−</button>
+            </div>
         </div>
     </div>
 
@@ -298,8 +347,19 @@
         let currentPath = [];
         let isReplaying = false;
         let uploadedImageObj = null;
+        let currentZoom = 1.0;
 
         window.onload = function() { redrawAll(); };
+
+        // --- ЗУМ ЛОГИКА ---
+        function changeZoom(delta) {
+            const newZoom = currentZoom + delta;
+            // Ограничиваем зум от 0.5x до 3.0x
+            if (newZoom >= 0.5 && newZoom <= 3.0) {
+                currentZoom = newZoom;
+                redrawAll();
+            }
+        }
 
         // --- МОБИЛЬНОЕ МЕНЮ ---
         function toggleMenu() {
@@ -326,8 +386,9 @@
 
         function drawBackground() {
             const type = document.getElementById('bgSelect').value;
-            const w = canvas.width;
-            const h = canvas.height;
+            // Учитываем зум при заливке фона, чтобы покрыть всю видимую область
+            const w = canvas.width / currentZoom;
+            const h = canvas.height / currentZoom;
 
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, w, h);
@@ -357,6 +418,7 @@
                 ctx.strokeStyle = '#d1d1d1';
                 const slantOffset = 280; 
                 const step = 55;
+                // Рисуем с запасом, чтобы при зуме и сдвиге линии не кончались
                 for (let x = -slantOffset; x < w + slantOffset; x += step) {
                     ctx.moveTo(x + slantOffset, 0); ctx.lineTo(x, h);
                 }
@@ -375,9 +437,22 @@
         }
 
         function redrawAll() {
-            if (isReplaying) return;
-            drawBackground();
-            allPaths.forEach(path => drawSinglePath(path));
+            // Очищаем ВЕСЬ холст перед новой отрисовкой
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Сохраняем состояние контекста
+            ctx.save();
+            // Применяем масштаб
+            ctx.scale(currentZoom, currentZoom);
+            
+            // Если воспроизводим анимацию, фон уже нарисован в animate, тут не мешаем
+            if (!isReplaying) {
+                drawBackground();
+                allPaths.forEach(path => drawSinglePath(path));
+            }
+            
+            // Восстанавливаем состояние (чтобы scale не накапливался)
+            ctx.restore();
         }
 
         function drawSinglePath(path) {
@@ -422,8 +497,9 @@
         // --- ВВОД (МЫШЬ + ТАЧ) ---
         function getPos(e) {
             const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
+            // Реальный масштаб отображения в браузере (CSS-размер vs реальные пиксели)
+            const cssScaleX = canvas.width / rect.width;
+            const cssScaleY = canvas.height / rect.height;
 
             let clientX, clientY;
             if (e.touches && e.touches.length > 0) {
@@ -434,15 +510,21 @@
                 clientY = e.clientY;
             }
             
+            // Базовая координата в пикселях холста
+            const rawX = (clientX - rect.left) * cssScaleX;
+            const rawY = (clientY - rect.top) * cssScaleY;
+
+            // Корректируем на текущий ЗУМ, чтобы сохранить координату в "виртуальном" 100% размере
             return { 
-                x: (clientX - rect.left) * scaleX, 
-                y: (clientY - rect.top) * scaleY 
+                x: rawX / currentZoom, 
+                y: rawY / currentZoom 
             };
         }
 
         function startPath(e) {
             if (isReplaying) return;
             if (e.target.closest('.menu-btn')) return;
+            if (e.target.closest('.zoom-controls')) return; // Не рисуем, если жмем на зум
 
             e.preventDefault();
             isDrawing = true;
@@ -452,10 +534,15 @@
                 width: document.getElementById('width').value,
                 points: [point]
             };
+            
+            // Рисуем точку прямо сейчас (с учетом зума)
+            ctx.save();
+            ctx.scale(currentZoom, currentZoom);
             ctx.beginPath();
             ctx.fillStyle = currentPath.color;
             ctx.arc(point.x, point.y, currentPath.width / 2, 0, Math.PI * 2);
             ctx.fill();
+            ctx.restore();
         }
 
         function movePath(e) {
@@ -467,6 +554,10 @@
             const points = currentPath.points;
             if (points.length > 1) {
                 const prev = points[points.length - 2];
+                
+                // Рисуем линию (с учетом зума)
+                ctx.save();
+                ctx.scale(currentZoom, currentZoom);
                 ctx.beginPath();
                 ctx.lineWidth = currentPath.width;
                 ctx.lineCap = 'round'; ctx.lineJoin = 'round';
@@ -474,6 +565,7 @@
                 ctx.moveTo(prev.x, prev.y);
                 ctx.lineTo(point.x, point.y);
                 ctx.stroke();
+                ctx.restore();
             }
         }
 
@@ -507,7 +599,17 @@
             if (allPaths.length === 0 || isReplaying) return;
             isReplaying = true;
             document.getElementById('replayBtn').disabled = true;
-            drawBackground(); 
+            
+            // Перед стартом анимации сбрасываем холст и рисуем фон
+            // Важно: фон рисуем с учетом зума
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.scale(currentZoom, currentZoom);
+            drawBackground();
+            // Возвращаем контекст, так как animate() сам будет делать scale?
+            // Нет, лучше animate делать внутри scale
+            // Но animate асинхронный...
+            ctx.restore();
 
             const speedInput = document.getElementById('speed');
             let pathIndex = 0;
@@ -518,9 +620,16 @@
                     isReplaying = false;
                     document.getElementById('replayBtn').disabled = false;
                     if (onComplete) onComplete();
+                    // Финальная перерисовка чтобы все было чисто
+                    redrawAll();
                     return;
                 }
                 const path = allPaths[pathIndex];
+                
+                // Включаем зум для рисования
+                ctx.save();
+                ctx.scale(currentZoom, currentZoom);
+                
                 ctx.lineWidth = path.width;
                 ctx.lineCap = 'round'; ctx.lineJoin = 'round';
                 ctx.strokeStyle = path.color;
@@ -540,10 +649,12 @@
                     ctx.lineTo(p2.x, p2.y);
                     ctx.stroke();
                     pointIndex++;
+                    ctx.restore(); // Выходим из зума перед таймаутом
                     setTimeout(animate, 25 / parseInt(speedInput.value));
                 } else {
                     pathIndex++;
                     pointIndex = 1;
+                    ctx.restore();
                     setTimeout(animate, 200 / parseInt(speedInput.value)); 
                 }
             }
@@ -568,7 +679,10 @@
             btn.innerHTML = 'Запись...';
             btn.disabled = true;
             
-            drawBackground();
+            // Для видео временно сбрасываем зум в 100%, чтобы видео было стандартным?
+            // Или записываем как есть? Логичнее записывать то, что видит пользователь (зум).
+            // Оставим текущий зум.
+            redrawAll();
 
             const stream = canvas.captureStream(30);
             const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });

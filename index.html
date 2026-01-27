@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Рисование (v10.1 Full)</title>
+    <title>Рисование (v10.2 Fix Upload)</title>
 
     <meta name="yandex-verification" content="zoqf7gn5mwyntin5" />
     <script type="text/javascript" >
@@ -94,6 +94,7 @@
         button.btn-action {
             border: none; height: 40px; border-radius: 8px; font-weight: 600; font-size: 13px;
             cursor: pointer; background: #F2F2F7; color: var(--text-primary); transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; width: 100%;
         }
         button.btn-action:hover { background: #E5E5EA; }
         button.btn-primary { background: var(--accent); color: white; }
@@ -136,7 +137,7 @@
     <div class="sidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Интерактивная доска v10.1</p>
+            <p class="app-subtitle">Интерактивная доска v10.2</p>
         </div>
 
         <div class="nav-tabs">
@@ -153,6 +154,11 @@
                 <option value="white">Чистый лист</option>
                 <option value="custom">📁 Загрузить своё фото...</option>
             </select>
+            
+            <button id="btnUploadBg" class="btn-action" style="display:none; margin-top:8px; background:#E5E5EA;" onclick="document.getElementById('fileInput').click()">
+                📂 Выбрать файл
+            </button>
+            
             <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="handleImageUpload()">
         </div>
 
@@ -192,8 +198,8 @@
             </div>
 
             <div class="action-grid" style="margin-top:8px;">
-                 <button class="btn-action" id="btnExport" onclick="playRecording(true)">📹 Записать Видео</button>
-                 <button class="btn-action" onclick="downloadImage()">📷 Скачать Фото</button>
+                 <button class="btn-action" id="btnExport" onclick="playRecording(true)">📹 Видео</button>
+                 <button class="btn-action" onclick="downloadImage()">📷 Фото</button>
             </div>
         </div>
 
@@ -258,16 +264,21 @@
         // --- ФОН ---
         function changeBackground() {
             const val = document.getElementById('bgSelect').value;
+            const btn = document.getElementById('btnUploadBg');
+            
             if (val === 'custom') {
-                document.getElementById('fileInput').click();
+                btn.style.display = 'flex'; // Показываем кнопку
+                document.getElementById('fileInput').click(); // Пытаемся открыть диалог
             } else {
+                btn.style.display = 'none'; // Прячем кнопку
                 customImage = null;
                 drawBackground();
             }
         }
 
         function handleImageUpload() {
-            const file = document.getElementById('fileInput').files[0];
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -276,6 +287,8 @@
                     img.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
+                // Сбрасываем value, чтобы можно было выбрать тот же файл снова
+                fileInput.value = '';
             }
         }
 
@@ -449,7 +462,6 @@
             let recorder = null;
             
             if (forExport) {
-                // Захватываем поток с ВИДИМОГО КАНВАСА
                 const stream = drawCanvas.captureStream(30);
                 recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
                 const chunks = [];
@@ -479,9 +491,7 @@
                 if (!isReplaying) return;
 
                 if (forExport) {
-                    // ХАК: РИСУЕМ ФОН ПРЯМО НА СЛОЙ РИСОВАНИЯ КАЖДЫЙ КАДР
                     drawCtx.drawImage(bgCanvas, 0, 0);
-                    // Затем перерисовываем все старые линии поверх фона
                     for(let i=0; i<actionIdx; i++) {
                         drawStroke(actions[i]);
                     }
@@ -493,7 +503,6 @@
                 }
 
                 if (!forExport) {
-                     // ОБЫЧНЫЙ ПРОСМОТР (Без перерисовки фона, он и так снизу)
                      const act = actions[actionIdx];
                      if (pointIdx === 0) {
                         drawCtx.beginPath();

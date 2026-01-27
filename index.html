@@ -7,14 +7,14 @@
     <style>
         /* --- APPLE / MACOS STYLE SYSTEM --- */
         :root {
-            --app-bg: #F2F2F7;         /* Светло-серый фон iOS/macOS */
-            --sidebar-bg: rgba(255, 255, 255, 0.75); /* Полупрозрачный белый */
+            --app-bg: #F2F2F7;
+            --sidebar-bg: rgba(255, 255, 255, 0.75);
             --sidebar-border: rgba(0, 0, 0, 0.05);
             --text-primary: #1C1C1E;
             --text-secondary: #8E8E93;
-            --accent: #007AFF;         /* Apple Blue */
+            --accent: #007AFF;
             --accent-hover: #0062cc;
-            --danger: #FF3B30;         /* Apple Red */
+            --danger: #FF3B30;
             --radius-L: 16px;
             --radius-M: 10px;
             --shadow-card: 0 8px 40px rgba(0, 0, 0, 0.12);
@@ -29,7 +29,7 @@
             color: var(--text-primary);
             height: 100vh;
             display: flex;
-            overflow: hidden; /* Чтобы не было скролла всей страницы */
+            overflow: hidden;
         }
 
         /* --- ЛЕВАЯ ПАНЕЛЬ (SIDEBAR) --- */
@@ -38,14 +38,14 @@
             min-width: 320px;
             height: 100%;
             background: var(--sidebar-bg);
-            backdrop-filter: blur(25px); /* Эффект матового стекла */
+            backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
             border-right: 1px solid var(--sidebar-border);
             display: flex;
             flex-direction: column;
             padding: 24px 20px;
             gap: 24px;
-            overflow-y: auto; /* Скролл внутри меню, если экран низкий */
+            overflow-y: auto;
             z-index: 10;
         }
 
@@ -61,7 +61,6 @@
             margin: 0;
         }
 
-        /* Секции настроек */
         .section { display: flex; flex-direction: column; gap: 10px; }
         .section-label {
             font-size: 11px;
@@ -73,10 +72,8 @@
         }
 
         /* --- КНОПКИ И КОНТРОЛЫ --- */
-        
-        /* Ряды кнопок */
         .row { display: flex; gap: 10px; }
-        .row > * { flex: 1; } /* Растягиваем элементы */
+        .row > * { flex: 1; }
 
         button {
             border: none;
@@ -94,7 +91,6 @@
         button:active { transform: scale(0.96); }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* Типы кнопок */
         .btn-primary { background-color: var(--accent); color: white; box-shadow: 0 2px 8px rgba(0,122,255,0.25); }
         .btn-primary:hover { background-color: var(--accent-hover); }
 
@@ -104,7 +100,6 @@
         .btn-danger { background-color: rgba(255, 59, 48, 0.1); color: var(--danger); }
         .btn-danger:hover { background-color: rgba(255, 59, 48, 0.15); }
 
-        /* Выпадающий список (Select) - Стиль iOS */
         select {
             width: 100%;
             height: 40px;
@@ -122,7 +117,6 @@
             background-size: 10px auto;
         }
 
-        /* Инпут файла (скрытый, стилизованный через лейбл) */
         .file-input-wrapper {
             position: relative;
             overflow: hidden;
@@ -137,7 +131,6 @@
             background: white; border: 1px dashed #ccc; color: var(--accent);
         }
 
-        /* Инструменты (цвет, толщина) */
         .tool-panel {
             background: white;
             padding: 10px;
@@ -157,7 +150,6 @@
             width: 50px; border: none; text-align: right; font-size: 16px; font-weight: 600; color: var(--text-primary); outline: none;
         }
 
-        /* Слайдер (Range) */
         input[type=range] {
             width: 100%; -webkit-appearance: none; background: transparent;
         }
@@ -184,10 +176,9 @@
             width: 800px;
             height: 600px;
             background: white;
-            border-radius: 4px; /* Лист бумаги острый или чуть скругленный */
+            border-radius: 4px; 
             box-shadow: var(--shadow-card);
             position: relative;
-            /* Чтобы холст масштабировался на маленьких экранах, но сохранял пропорции */
             max-width: 100%;
             max-height: 100%;
             aspect-ratio: 4/3; 
@@ -201,7 +192,6 @@
             touch-action: none;
         }
 
-        /* Иконки SVG */
         .icon { width: 18px; height: 18px; fill: currentColor; }
 
     </style>
@@ -211,7 +201,7 @@
     <div class="sidebar">
         <div>
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Тренажер для письма v2.0</p>
+            <p class="app-subtitle">Тренажер для письма v2.1</p>
         </div>
 
         <div class="section">
@@ -243,7 +233,7 @@
 
         <div class="section">
             <div class="section-label">Лист</div>
-            <select id="bgSelect" onchange="redrawAll()">
+            <select id="bgSelect" onchange="onBackgroundChange()">
                 <option value="propisi" selected>Косая линейка (1 класс)</option>
                 <option value="lines">Обычная линейка</option>
                 <option value="grid">Клетка</option>
@@ -290,6 +280,14 @@
         window.onload = function() { redrawAll(); };
 
         // --- ГРАФИКА И ФОНЫ ---
+        
+        // ИСПРАВЛЕНИЕ 1: Функция смены фона из списка
+        function onBackgroundChange() {
+            // Если мы меняем фон через селект, мы удаляем загруженную картинку
+            uploadedImageObj = null;
+            redrawAll();
+        }
+
         function drawBackground() {
             const type = document.getElementById('bgSelect').value;
             const w = canvas.width;
@@ -299,11 +297,13 @@
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, w, h);
 
+            // Если картинка загружена, рисуем её и выходим
             if (uploadedImageObj) {
                 ctx.drawImage(uploadedImageObj, 0, 0, w, h);
                 return;
             }
 
+            // Рисуем сетки
             ctx.lineWidth = 1;
 
             if (type === 'lines') {
@@ -322,7 +322,7 @@
                 ctx.stroke();
             } 
             else if (type === 'propisi') {
-                // Косая сетка (как просили в прошлый раз)
+                // Косая сетка
                 ctx.beginPath();
                 ctx.strokeStyle = '#d1d1d1';
                 const slantOffset = 280; 
@@ -378,19 +378,23 @@
                     const img = new Image();
                     img.onload = () => {
                         uploadedImageObj = img;
+                        // Сбрасываем значение селекта, чтобы визуально было понятно, что это кастомный фон
                         document.getElementById('bgSelect').value = 'none';
                         redrawAll();
                     };
                     img.src = e.target.result;
                 };
                 reader.readAsDataURL(input.files[0]);
+                
+                // ИСПРАВЛЕНИЕ 2: Сбрасываем значение инпута, чтобы можно было загрузить тот же файл повторно
+                input.value = '';
             }
         }
 
         // --- УПРАВЛЕНИЕ ВВОДОМ ---
         function getPos(e) {
             const rect = canvas.getBoundingClientRect();
-            // Масштабирование координат, если холст визуально уменьшился (на мобилках)
+            // Масштабирование координат
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
 
@@ -456,7 +460,10 @@
         function fullClear() {
             if(confirm('Очистить весь лист?')) {
                 allPaths = [];
+                // При очистке мы также удаляем загруженную картинку
                 uploadedImageObj = null;
+                // И возвращаем дефолтный фон (косая линейка)
+                document.getElementById('bgSelect').value = 'propisi';
                 redrawAll();
             }
         }

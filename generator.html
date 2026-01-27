@@ -125,7 +125,7 @@
     <div class="sidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Генератор PDF • v4.3</p>
+            <p class="app-subtitle">Генератор PDF • v4.4</p>
         </div>
 
         <div class="nav-tabs">
@@ -145,11 +145,8 @@
 
         <div class="section">
             <div class="section-label">2. Текст задания</div>
-            <textarea id="textInput" oninput="handleInput()" placeholder="Введите текст...
-Например:
-Мама мыла раму
-А а Б б В в"></textarea>
-            <div style="font-size: 10px; color: #8E8E93;">* Англ. буквы автоматически заменяются на русские.</div>
+            <textarea id="textInput" oninput="handleInput()" placeholder="Введите текст..."></textarea>
+            <div style="font-size: 10px; color: #8E8E93;">* Автозамена англ. букв на русские.</div>
         </div>
 
         <div class="section">
@@ -183,14 +180,13 @@
         const fontFile = 'Propisi Regular.otf';
         let isFontLoaded = false;
 
-        // --- НАСТРОЙКИ (HARDCODED) ---
+        // --- НАСТРОЙКИ ---
         const MM_TO_PX = 11.81; 
         const ROW_H_MM = 4;
         const GAP_H_MM = 8;
         const MARGIN_TOP_MM = 20;
         const MARGIN_LEFT_MM = 20;
 
-        // Финальные калиброванные значения
         const FONT_SIZE_PX = 150; 
         const OFFSET_PX = 0;      
 
@@ -209,7 +205,6 @@
             }
         };
 
-        // Автозамена латиницы
         function handleInput() {
             const input = document.getElementById('textInput');
             let text = input.value;
@@ -231,7 +226,7 @@
             const w = canvas.width;
             const h = canvas.height;
             const type = document.getElementById('bgSelect').value;
-            const text = document.getElementById('textInput').value;
+            let text = document.getElementById('textInput').value;
             const colorStyle = document.getElementById('colorStyle').value;
 
             // Очистка
@@ -245,7 +240,6 @@
 
             // --- ФОН ---
             if (type !== 'white') {
-                // Поля
                 ctx.beginPath(); ctx.strokeStyle = '#FF8080'; ctx.lineWidth = 4;
                 ctx.moveTo(ml, 0); ctx.lineTo(ml, h); ctx.stroke();
 
@@ -254,7 +248,6 @@
                 if (type === 'propisi_often') { drawSlant = true; slantStep = 25 * MM_TO_PX; }
                 else if (type === 'propisi_rare') { drawSlant = true; slantStep = 150 * MM_TO_PX; }
 
-                // Линейки
                 const totalH = rowH + gapH;
                 let y = mt;
                 ctx.lineWidth = 2;
@@ -265,7 +258,6 @@
                     y += totalH;
                 }
 
-                // Косая сетка
                 if (drawSlant) {
                     ctx.beginPath(); ctx.strokeStyle = '#D1D1D6';
                     const tan = 0.466; 
@@ -277,34 +269,40 @@
                 }
             }
 
-            // --- ТЕКСТ ---
+            // --- ТЕКСТ С "УМНЫМИ" РАЗРЫВАМИ ---
             if (text) {
                 ctx.font = `${FONT_SIZE_PX}px "${isFontLoaded ? fontName : 'cursive'}"`;
                 
-                // Включаем умные лигатуры Paratype
-                canvas.style.fontFeatureSettings = '"liga" 1, "calt" 1';
+                // Включаем функции OpenType
+                // "liga" - лигатуры (стандартные соединения)
+                // "calt" - контекстные альтернативы (меняет букву в зависимости от соседей)
+                // "fina" - финальные формы (буквы в конце слова)
+                canvas.style.fontFeatureSettings = '"liga" 1, "calt" 1, "fina" 1';
                 
-                // Режим смешивания для чистоты (опционально, с Paratype обычно не нужно, но для надежности оставим)
-                // ctx.globalCompositeOperation = 'multiply'; 
-
                 if (colorStyle === 'pale') ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
                 else ctx.fillStyle = 'black';
 
                 ctx.textBaseline = 'alphabetic'; 
 
+                // --- МАГИЯ ZWNJ (Zero Width Non-Joiner) ---
+                // Мы заменяем каждый пробел на "ZWNJ + Пробел".
+                // ZWNJ (\u200c) говорит шрифту: "Здесь соединение разорвано".
+                // Шрифт видит разрыв и рисует финальный хвостик для предыдущей буквы.
+                text = text.replace(/ /g, '\u200c ');
+
                 const lines = text.split('\n');
                 const fullRowH = rowH + gapH;
 
                 lines.forEach((line, i) => {
+                    // Добавляем ZWNJ в самый конец строки, чтобы последняя буква тоже была красивой
+                    let safeLine = line + '\u200c';
+                    
                     let y = mt + (i * fullRowH) + rowH + OFFSET_PX;
-                    ctx.fillText(line, ml + 20, y);
+                    ctx.fillText(safeLine, ml + 20, y);
                 });
-                
-                // ctx.globalCompositeOperation = 'source-over';
             }
         }
 
-        // --- ГЕНЕРАЦИЯ PDF (Image-based для сохранения шрифтов) ---
         function generateImagePDF() {
             if (!isFontLoaded) { alert("Шрифт еще не загрузился!"); return; }
             const { jsPDF } = window.jspdf;

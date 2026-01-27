@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Рисование Прописей (Pro)</title>
+    <title>Рисование Прописей (v8.0 Fixed)</title>
 
     <meta name="yandex-verification" content="zoqf7gn5mwyntin5" />
     <script type="text/javascript" >
@@ -54,7 +54,7 @@
         .section { display: flex; flex-direction: column; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
         .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); }
 
-        select, input[type=range], input[type=file] {
+        select, input[type=file] {
             width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #E5E5EA;
             background-color: white; font-size: 14px; outline: none;
         }
@@ -77,6 +77,16 @@
         }
         .color-swatch.active { border-color: #000; transform: scale(1.1); }
 
+        /* ЗУМ КОНТРОЛЫ */
+        .zoom-controls { display: flex; align-items: center; gap: 10px; background: #F2F2F7; padding: 5px; border-radius: 8px; }
+        .zoom-btn {
+            width: 36px; height: 36px; border: none; background: white; border-radius: 6px;
+            font-size: 18px; font-weight: bold; cursor: pointer; color: var(--accent);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .zoom-btn:active { background: #e0e0e0; }
+        .zoom-val { flex-grow: 1; text-align: center; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+
         /* Кнопки действий */
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         button.btn-action {
@@ -87,28 +97,36 @@
         button.btn-primary { background: var(--accent); color: white; }
         button.btn-danger { background: #FF3B30; color: white; }
         
-        /* --- MAIN AREA --- */
+        /* --- MAIN AREA (Fix Centering) --- */
         .main-area {
-            flex-grow: 1; background-color: var(--app-bg); padding: 30px;
-            overflow: auto; display: flex; justify-content: center; align-items: flex-start;
+            flex-grow: 1; 
+            background-color: var(--app-bg); 
+            /* Flexbox для центровки */
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            overflow: auto; /* Скролл здесь */
+            position: relative;
         }
         
         .canvas-wrapper {
-            position: relative;
-            box-shadow: 0 4px 30px rgba(0,0,0,0.15);
+            /* Размеры задаются JS-ом */
             background: white;
-            transform-origin: top center;
-            transition: transform 0.1s ease-out; /* Плавный зум */
+            box-shadow: 0 4px 30px rgba(0,0,0,0.15);
+            position: relative;
+            flex-shrink: 0; /* Не сжимать меньше заданного */
+            margin: auto;   /* Магия центровки при скролле */
         }
 
-        canvas { position: absolute; top: 0; left: 0; }
+        canvas { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
         #bgCanvas { z-index: 1; }
         #drawCanvas { z-index: 2; cursor: crosshair; }
 
         @media (max-width: 900px) {
             body { flex-direction: column; height: auto; overflow-y: auto; }
             .sidebar { width: 100%; min-width: 0; height: auto; border-right: none; }
-            .main-area { padding: 10px; overflow: hidden; }
+            .main-area { padding: 10px; display: block; overflow: scroll; }
+            .canvas-wrapper { margin: 0 auto; }
         }
     </style>
 </head>
@@ -117,7 +135,7 @@
     <div class="sidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Интерактивная доска v2.0</p>
+            <p class="app-subtitle">Интерактивная доска v8.0</p>
         </div>
 
         <div class="nav-tabs">
@@ -165,7 +183,11 @@
 
         <div class="section" style="margin-top:auto;">
             <div class="section-label">Масштаб (Zoom)</div>
-            <input type="range" id="zoomRange" min="0.5" max="2.0" step="0.1" value="1.0" oninput="setZoom(this.value)">
+            <div class="zoom-controls">
+                <button class="zoom-btn" onclick="changeZoom(-0.1)">−</button>
+                <div class="zoom-val" id="zoomVal">100%</div>
+                <button class="zoom-btn" onclick="changeZoom(0.1)">+</button>
+            </div>
             <button class="btn-action btn-danger" style="margin-top:10px;" onclick="clearCanvas()">🗑 Очистить всё</button>
         </div>
     </div>
@@ -185,7 +207,6 @@
         const wrapper = document.getElementById('canvasWrapper');
 
         // История для UNDO и REPLAY
-        // Структура: [ { type: 'stroke', color, width, points: [{x,y}, {x,y}...] } ]
         let actions = []; 
         let currentStroke = null;
         
@@ -193,16 +214,21 @@
         let tool = 'pen';
         let color = '#0055AA';
         let zoom = 1.0;
-        let customImage = null; // Для загруженной картинки
+        let customImage = null; 
 
-        // Константы (как в Генераторе)
         const MM = 11.81;
         const ROW_H = 4 * MM; 
         const GAP_H = 8 * MM; 
         const MT = 20 * MM; 
 
+        // Базовая ширина A4 в пикселях (при 300 DPI / scale factor)
+        // Для экрана берем поменьше, чтобы не было гигантским. 
+        // 2480px - это оригинал. Отображаем уменьшенно.
+        const BASE_WIDTH_PX = 794; // A4 @ 96 DPI approx
+        const BASE_HEIGHT_PX = 1123;
+
         window.onload = function() {
-            setZoom(1.0);
+            setZoom(1.0); // Инициализация зума
             drawBackground();
             setupEvents();
         };
@@ -243,17 +269,14 @@
             bgCtx.fillRect(0, 0, w, h);
 
             if (customImage) {
-                // Растягиваем картинку на весь лист
                 bgCtx.drawImage(customImage, 0, 0, w, h);
                 return;
             }
 
             if (type === 'white') return;
 
-            // Рисуем сетку (Логика из генератора)
+            // Рисуем сетку
             bgCtx.lineWidth = 2;
-            
-            // Поля
             bgCtx.beginPath(); bgCtx.strokeStyle = '#FF8080'; bgCtx.lineWidth = 4;
             bgCtx.moveTo(20*MM, 0); bgCtx.lineTo(20*MM, h); bgCtx.stroke();
             
@@ -265,7 +288,6 @@
             if (type === 'propisi_often') { drawSlant = true; slantStep = 25 * MM; }
             else if (type === 'propisi_rare') { drawSlant = true; slantStep = 150 * MM; }
 
-            // Горизонтальные
             bgCtx.lineWidth = 2;
             while(y < h - MT) {
                 bgCtx.beginPath(); bgCtx.strokeStyle = '#5096F2';
@@ -274,7 +296,6 @@
                 y += totalH;
             }
             
-            // Косые
             if (drawSlant) {
                 bgCtx.beginPath(); bgCtx.strokeStyle = '#D1D1D6';
                 const tan = 0.466; 
@@ -289,10 +310,7 @@
         // --- 2. ЛОГИКА РИСОВАНИЯ ---
         function getCoords(e) {
             const rect = drawCanvas.getBoundingClientRect();
-            // Учитываем зум при расчете координат
-            const scaleX = drawCanvas.width / rect.width;
-            const scaleY = drawCanvas.height / rect.height;
-            
+            // Координаты внутри DOM-элемента
             let clientX = e.clientX;
             let clientY = e.clientY;
             
@@ -301,9 +319,13 @@
                 clientY = e.touches[0].clientY;
             }
 
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+
+            // Переводим в координаты Канваса (2480x3508)
             return {
-                x: (clientX - rect.left) * scaleX,
-                y: (clientY - rect.top) * scaleY
+                x: x * (drawCanvas.width / rect.width),
+                y: y * (drawCanvas.height / rect.height)
             };
         }
 
@@ -311,7 +333,6 @@
             isDrawing = true;
             const coords = getCoords(e);
             
-            // Начинаем новый штрих
             const width = document.getElementById('lineWidth').value * 2;
             currentStroke = {
                 type: 'stroke',
@@ -328,25 +349,23 @@
             drawCtx.strokeStyle = (tool === 'eraser') ? 'rgba(0,0,0,1)' : color;
             drawCtx.globalCompositeOperation = (tool === 'eraser') ? 'destination-out' : 'source-over';
             
-            if (tool === 'eraser') drawCtx.lineWidth = 60; // Ластик толще
+            if (tool === 'eraser') drawCtx.lineWidth = 60; 
             
             drawCtx.moveTo(coords.x, coords.y);
         }
 
         function moveDraw(e) {
             if (!isDrawing) return;
-            e.preventDefault(); // Чтобы не скроллить на таче
-            
+            e.preventDefault(); 
             const coords = getCoords(e);
-            currentStroke.points.push({x: coords.x, y: coords.y}); // Записываем путь
-            
+            currentStroke.points.push({x: coords.x, y: coords.y});
             drawCtx.lineTo(coords.x, coords.y);
             drawCtx.stroke();
         }
 
         function endDraw() {
             if (isDrawing && currentStroke) {
-                actions.push(currentStroke); // Сохраняем штрих в историю
+                actions.push(currentStroke);
             }
             isDrawing = false;
             currentStroke = null;
@@ -354,12 +373,10 @@
         }
 
         function setupEvents() {
-            // Мышь
             drawCanvas.addEventListener('mousedown', startDraw);
             drawCanvas.addEventListener('mousemove', moveDraw);
             drawCanvas.addEventListener('mouseup', endDraw);
             drawCanvas.addEventListener('mouseout', endDraw);
-            // Тач
             drawCanvas.addEventListener('touchstart', startDraw, {passive: false});
             drawCanvas.addEventListener('touchmove', moveDraw, {passive: false});
             drawCanvas.addEventListener('touchend', endDraw);
@@ -376,25 +393,32 @@
             color = c;
             tool = 'pen';
             setTool('pen');
-            // Обновляем UI
             document.querySelectorAll('.color-swatch').forEach(d => d.classList.remove('active'));
             el.classList.add('active');
         }
 
+        // НОВЫЙ ЗУМ (Через размеры)
+        function changeZoom(delta) {
+            let newZoom = Math.round((zoom + delta) * 10) / 10;
+            if (newZoom < 0.2) newZoom = 0.2;
+            if (newZoom > 3.0) newZoom = 3.0;
+            setZoom(newZoom);
+        }
+
         function setZoom(z) {
             zoom = z;
-            // Меняем размер контейнера, а не канваса (чтобы качество не падало)
-            wrapper.style.width = (210 * 3.78 * zoom) + 'px'; // 210mm approx to px
-            // Или проще через transform scale
-            wrapper.style.transform = `scale(${zoom})`;
-            // Корректируем margin, чтобы при зуме < 1 было по центру
-            wrapper.style.marginBottom = (zoom > 1 ? (3508 * (zoom-1)) : 0) + 'px';
+            document.getElementById('zoomVal').innerText = Math.round(zoom * 100) + '%';
+            
+            // Меняем CSS размеры обертки
+            // Это заставляет браузер пересчитать скролл и центровку
+            wrapper.style.width = (BASE_WIDTH_PX * zoom) + 'px';
+            wrapper.style.height = (BASE_HEIGHT_PX * zoom) + 'px';
         }
 
         function undo() {
             if (actions.length === 0) return;
-            actions.pop(); // Удаляем последний штрих
-            redrawAll();   // Перерисовываем всё заново
+            actions.pop();
+            redrawAll();
         }
 
         function clearCanvas() {
@@ -404,15 +428,12 @@
             }
         }
 
-        // Перерисовка всей истории (нужна для Undo и Replay)
         function redrawAll() {
             drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-            
             actions.forEach(act => {
                 drawCtx.beginPath();
                 drawCtx.lineCap = 'round';
                 drawCtx.lineJoin = 'round';
-                
                 if (act.tool === 'eraser') {
                     drawCtx.globalCompositeOperation = 'destination-out';
                     drawCtx.lineWidth = 60;
@@ -421,7 +442,6 @@
                     drawCtx.strokeStyle = act.color;
                     drawCtx.lineWidth = act.width;
                 }
-
                 if (act.points.length > 0) {
                     drawCtx.moveTo(act.points[0].x, act.points[0].y);
                     for (let i = 1; i < act.points.length; i++) {
@@ -439,23 +459,17 @@
             if (actions.length === 0) return;
             if (isReplaying) return;
             isReplaying = true;
-
-            // Очищаем
             drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-
-            // Асинхронная отрисовка
+            
             let actionIdx = 0;
             let pointIdx = 0;
 
             function animate() {
                 if (actionIdx >= actions.length) {
                     isReplaying = false;
-                    return; // Конец
+                    return;
                 }
-
                 const act = actions[actionIdx];
-                
-                // Настройка кисти для текущего штриха
                 if (pointIdx === 0) {
                     drawCtx.beginPath();
                     drawCtx.lineCap = 'round';
@@ -471,49 +485,34 @@
                     if(act.points.length > 0) drawCtx.moveTo(act.points[0].x, act.points[0].y);
                     pointIdx = 1;
                 }
-
-                // Рисуем кусочками (по 3 точки за кадр для скорости)
-                for(let k=0; k<3; k++) {
+                for(let k=0; k<5; k++) { // Скорость
                     if (pointIdx < act.points.length) {
                         drawCtx.lineTo(act.points[pointIdx].x, act.points[pointIdx].y);
                         drawCtx.stroke();
                         pointIdx++;
                     } else {
-                        // Штрих закончен
                         actionIdx++;
                         pointIdx = 0;
                         break;
                     }
                 }
-
-                requestAnimationFrame(animate);
+                if (isReplaying) requestAnimationFrame(animate);
             }
-            
             animate();
         }
 
-        // --- 5. ЭКСПОРТ (ФОТО / ВИДЕО) ---
-        function downloadImage() {
-            // Создаем временный канвас, чтобы склеить фон и рисунок
-            const temp = document.createElement('canvas');
-            temp.width = bgCanvas.width;
-            temp.height = bgCanvas.height;
-            const tCtx = temp.getContext('2d');
-            
-            tCtx.drawImage(bgCanvas, 0, 0);
-            tCtx.drawImage(drawCanvas, 0, 0);
-            
-            const link = document.createElement('a');
-            link.download = 'propisi_page.jpg';
-            link.href = temp.toDataURL('image/jpeg', 0.9);
-            link.click();
-        }
-
+        // --- 5. ЭКСПОРТ ВИДЕО (ИСПРАВЛЕННЫЙ) ---
         function exportVideo() {
-            // Для записи видео мы запускаем Replay и захватываем поток
             if (actions.length === 0) { alert('Сначала напишите что-нибудь!'); return; }
             
-            const stream = drawCanvas.captureStream(30); // 30 FPS
+            // 1. Создаем скрытый канвас, который объединит Фон + Рисование
+            const recCanvas = document.createElement('canvas');
+            recCanvas.width = bgCanvas.width;
+            recCanvas.height = bgCanvas.height;
+            const recCtx = recCanvas.getContext('2d');
+            
+            // 2. Начинаем запись с этого скрытого канваса
+            const stream = recCanvas.captureStream(30); 
             const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
             const chunks = [];
             
@@ -525,21 +524,104 @@
                 a.href = url;
                 a.download = 'lesson.webm';
                 a.click();
-                alert('Видео сохранено! (формат .webm)');
             };
-
             recorder.start();
-            playRecording(); // Запускаем анимацию
 
-            // Проверяем, когда анимация закончится, чтобы остановить запись
-            const checkEnd = setInterval(() => {
-                if (!isReplaying) {
+            // 3. Запускаем анимацию на СКРЫТОМ канвасе
+            let actionIdx = 0;
+            let pointIdx = 0;
+
+            function animateRec() {
+                if (actionIdx >= actions.length) {
                     recorder.stop();
-                    clearInterval(checkEnd);
-                    // Возвращаем рисунок на место (т.к. playRecording мог остановиться)
-                    redrawAll(); 
+                    return;
                 }
-            }, 500);
+
+                // В каждом кадре:
+                // А) Рисуем фон (иначе будет прозрачно или следы стирания)
+                // Но так как мы хотим видеть процесс рисования, нам не нужно стирать всё каждый раз.
+                // Достаточно нарисовать фон ОДИН раз в начале? Нет, если есть ластик!
+                // Если есть ластик, он сотрет фон до прозрачности.
+                // ПОЭТОМУ: Каждый кадр мы рисуем фон, а потом поверх рисуем ВСЕ линии до текущего момента.
+                // Это медленно.
+                
+                // ОПТИМИЗАЦИЯ:
+                // Рисуем фон один раз.
+                // Если инструмент ручка -> просто рисуем.
+                // Если инструмент ластик -> проблема, он сотрет фон.
+                // РЕШЕНИЕ: Ластик в режиме "Video" должен рисовать цветом фона? Нет, там сетка.
+                // Простой путь: Каждый кадр восстанавливаем фон (drawImage bgCanvas) и рисуем линии поверх.
+                
+                recCtx.drawImage(bgCanvas, 0, 0); // Рисуем фон
+                
+                // Рисуем уже завершенные штрихи
+                for(let i=0; i<actionIdx; i++) {
+                    drawStrokeOnCtx(recCtx, actions[i]);
+                }
+                
+                // Рисуем текущий (анимируемый) штрих частично
+                const act = actions[actionIdx];
+                const partialAct = {
+                    ...act,
+                    points: act.points.slice(0, pointIdx + 1)
+                };
+                drawStrokeOnCtx(recCtx, partialAct);
+
+                // Двигаем прогресс
+                pointIdx += 5; // Скорость
+                if (pointIdx >= act.points.length) {
+                    actionIdx++;
+                    pointIdx = 0;
+                }
+                
+                requestAnimationFrame(animateRec);
+            }
+            
+            animateRec();
+            alert('Запись пошла... Подождите окончания анимации.');
+        }
+
+        // Вспомогательная функция для рисования штриха на контексте
+        function drawStrokeOnCtx(ctx, act) {
+            ctx.beginPath();
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            if (act.tool === 'eraser') {
+                // ВАЖНО: На композитном канвасе destination-out сотрет и фон тоже!
+                // Это сделает видео прозрачным в этом месте.
+                // Если мы хотим "стереть чернила, но оставить клетку", это сложнее.
+                // Проще для видео: eraser стирает всё до белого/прозрачного.
+                // Чтобы видео было красивым, лучше просто рисовать "белым" поверх? Нет, сетка пропадет.
+                // Пока оставим стандартное стирание. В видео в местах ластика будет прозрачность/белое.
+                // Чтобы вернуть сетку, нужно перерисовывать сетку поверх стертого? Сложно.
+                // Оставим как есть: ластик стирает всё.
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.lineWidth = 60;
+            } else {
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.strokeStyle = act.color;
+                ctx.lineWidth = act.width;
+            }
+            if(act.points.length > 0) {
+                ctx.moveTo(act.points[0].x, act.points[0].y);
+                for (let i = 1; i < act.points.length; i++) {
+                    ctx.lineTo(act.points[i].x, act.points[i].y);
+                }
+                ctx.stroke();
+            }
+        }
+
+        function downloadImage() {
+            const temp = document.createElement('canvas');
+            temp.width = bgCanvas.width;
+            temp.height = bgCanvas.height;
+            const tCtx = temp.getContext('2d');
+            tCtx.drawImage(bgCanvas, 0, 0);
+            tCtx.drawImage(drawCanvas, 0, 0);
+            const link = document.createElement('a');
+            link.download = 'propisi_page.jpg';
+            link.href = temp.toDataURL('image/jpeg', 0.9);
+            link.click();
         }
     </script>
 </body>

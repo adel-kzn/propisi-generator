@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Рисование Прописей (v9.1 Stable)</title>
+    <title>Рисование Прописей (v10.0 Grid)</title>
 
     <meta name="yandex-verification" content="zoqf7gn5mwyntin5" />
     <script type="text/javascript" >
@@ -136,7 +136,7 @@
     <div class="sidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Интерактивная доска v9.1</p>
+            <p class="app-subtitle">Интерактивная доска v10.0</p>
         </div>
 
         <div class="nav-tabs">
@@ -148,8 +148,7 @@
             <div class="section-label">1. Подложка</div>
             <select id="bgSelect" onchange="changeBackground()">
                 <option value="propisi_often" selected>Частая косая (1 класс)</option>
-                <option value="propisi_rare">Редкая косая</option>
-                <option value="lines">Обычная линейка</option>
+                <option value="cell">Клетка (5 мм)</option> <option value="lines">Обычная линейка</option>
                 <option value="white">Чистый лист</option>
                 <option value="custom">📁 Загрузить своё фото...</option>
             </select>
@@ -289,16 +288,42 @@
             if (customImage) { bgCtx.drawImage(customImage, 0, 0, w, h); return; }
             if (type === 'white') return;
 
+            // 1. ПОЛЯ (Красная черта) - во всех режимах
             bgCtx.lineWidth = 2;
             bgCtx.beginPath(); bgCtx.strokeStyle = '#FF8080'; bgCtx.lineWidth = 4;
             bgCtx.moveTo(20*MM, 0); bgCtx.lineTo(20*MM, h); bgCtx.stroke();
             
+            // --- РЕЖИМ КЛЕТКИ (CELL) ---
+            if (type === 'cell') {
+                const cellSize = 5 * MM; // 5 мм
+                bgCtx.lineWidth = 1;
+                bgCtx.strokeStyle = '#5096F2'; // Бледно-голубой
+                
+                bgCtx.beginPath();
+                // Вертикальные
+                for (let x = 0; x < w; x += cellSize) {
+                    bgCtx.moveTo(x, 0); bgCtx.lineTo(x, h);
+                }
+                // Горизонтальные
+                for (let y = 0; y < h; y += cellSize) {
+                    bgCtx.moveTo(0, y); bgCtx.lineTo(w, y);
+                }
+                bgCtx.stroke();
+                
+                // Перерисовываем поля поверх сетки, чтобы было красиво
+                bgCtx.beginPath(); bgCtx.strokeStyle = '#FF8080'; bgCtx.lineWidth = 4;
+                bgCtx.moveTo(20*MM, 0); bgCtx.lineTo(20*MM, h); bgCtx.stroke();
+                
+                return;
+            }
+
+            // --- РЕЖИМЫ КОСОЙ И ЛИНЕЙКИ ---
             const totalH = ROW_H + GAP_H;
             let y = MT;
             
             let slantStep = 0; let drawSlant = false;
             if (type === 'propisi_often') { drawSlant = true; slantStep = 25 * MM; }
-            else if (type === 'propisi_rare') { drawSlant = true; slantStep = 150 * MM; }
+            else if (type === 'propisi_rare') { drawSlant = true; slantStep = 150 * MM; } // Этого режима больше нет в селекте, но логику можно оставить
 
             bgCtx.lineWidth = 2;
             while(y < h - MT) {
@@ -413,20 +438,17 @@
             }
         }
 
-        // --- ВОСПРОИЗВЕДЕНИЕ И ЭКСПОРТ (ОДНА ФУНКЦИЯ) ---
+        // --- ВОСПРОИЗВЕДЕНИЕ И ЭКСПОРТ ---
         function playRecording(forExport) {
             if (actions.length === 0) { alert('Сначала напишите что-нибудь!'); return; }
             if (isReplaying) return;
 
             isReplaying = true;
-            toggleButtons(false); // Блокируем кнопки
+            toggleButtons(false); 
 
             let recorder = null;
             
-            // Если нужен экспорт - настраиваем рекордер
             if (forExport) {
-                // Захватываем VISIBLE CANVAS (drawCanvas)
-                // Но так как он прозрачный, мы должны РИСОВАТЬ ФОН на нем каждый кадр
                 const stream = drawCanvas.captureStream(30);
                 recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
                 const chunks = [];
@@ -438,7 +460,6 @@
                     a.href = url;
                     a.download = 'lesson.webm';
                     a.click();
-                    // Восстанавливаем состояние после записи
                     redrawAll(); 
                 };
                 recorder.start();
@@ -449,7 +470,6 @@
             
             let actionIdx = 0;
             let pointIdx = 0;
-            // Скорость
             const speed = parseInt(document.getElementById('speedRange').value); 
             let pointsPerFrame = speed;
             if (speed > 6) pointsPerFrame = (speed - 4) * 5;
@@ -457,16 +477,11 @@
             function animate() {
                 if (!isReplaying) return;
 
-                // ЕСЛИ ЗАПИСЬ ВИДЕО: РИСУЕМ ФОН КАЖДЫЙ КАДР ПРЯМО НА ХОЛСТ РИСОВАНИЯ
-                // Это "грязный хак", но это единственный способ записать слои в одно видео
                 if (forExport) {
-                    // Рисуем фон
                     drawCtx.drawImage(bgCanvas, 0, 0);
-                    // Рисуем ВСЕ предыдущие завершенные линии заново поверх фона
                     for(let i=0; i<actionIdx; i++) {
                         drawStroke(actions[i]);
                     }
-                    // Рисуем текущий штрих до текущей точки
                      const act = actions[actionIdx];
                      if (act) {
                          const partial = {...act, points: act.points.slice(0, pointIdx+1)};
@@ -474,32 +489,26 @@
                      }
                 }
 
-                // ЕСЛИ ПРОСТО ПРОСМОТР: Фон и так виден (через прозрачность)
-                // Нам нужно рисовать только новые сегменты линий
                 if (!forExport) {
                      const act = actions[actionIdx];
                      if (pointIdx === 0) {
-                        // Начало штриха
                         drawCtx.beginPath();
                         setupCtxStyle(act);
                         if(act.points.length > 0) drawCtx.moveTo(act.points[0].x, act.points[0].y);
                         pointIdx = 1;
                      }
-                     
                      for(let k=0; k < pointsPerFrame; k++) {
                         if (pointIdx < act.points.length) {
                             drawCtx.lineTo(act.points[pointIdx].x, act.points[pointIdx].y);
                             drawCtx.stroke();
                             pointIdx++;
                         } else {
-                            // Штрих готов
                             actionIdx++;
                             pointIdx = 0;
                             break;
                         }
                     }
                 } else {
-                    // Логика счетчика для видео (мы перерисовываем всё, поэтому просто двигаем индексы)
                     const act = actions[actionIdx];
                     pointIdx += pointsPerFrame;
                     if (pointIdx >= act.points.length) {
@@ -508,24 +517,19 @@
                     }
                 }
 
-                // ПРОВЕРКА ОКОНЧАНИЯ
                 if (actionIdx >= actions.length) {
                     isReplaying = false;
                     toggleButtons(true);
                     if (forExport && recorder) {
                         recorder.stop();
-                    } else {
-                        // Если просто просмотр - ничего не делаем, рисунок остается
-                    }
+                    } 
                 } else {
                     requestAnimationFrame(animate);
                 }
             }
-            
             animate();
         }
 
-        // Вспомогательные функции рисования
         function setupCtxStyle(act) {
             drawCtx.lineCap = 'round'; drawCtx.lineJoin = 'round';
             if (act.tool === 'eraser') {

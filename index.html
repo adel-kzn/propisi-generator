@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Рисование Прописей (v9.0 Speed Control)</title>
+    <title>Рисование Прописей (v9.1 Stable)</title>
 
     <meta name="yandex-verification" content="zoqf7gn5mwyntin5" />
     <script type="text/javascript" >
@@ -98,8 +98,9 @@
         button.btn-action:hover { background: #E5E5EA; }
         button.btn-primary { background: var(--accent); color: white; }
         button.btn-danger { background: #FF3B30; color: white; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
         
-        /* --- MAIN AREA (Fix Centering) --- */
+        /* --- MAIN AREA --- */
         .main-area {
             flex-grow: 1; 
             background-color: var(--app-bg); 
@@ -135,7 +136,7 @@
     <div class="sidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Интерактивная доска v9.0</p>
+            <p class="app-subtitle">Интерактивная доска v9.1</p>
         </div>
 
         <div class="nav-tabs">
@@ -164,7 +165,11 @@
             </div>
             
             <div class="color-palette" id="palette">
-                <div class="color-swatch active" style="background:#0055AA" onclick="setColor('#0055AA', this)"></div> <div class="color-swatch" style="background:#FF3B30" onclick="setColor('#FF3B30', this)"></div> <div class="color-swatch" style="background:#34C759" onclick="setColor('#34C759', this)"></div> <div class="color-swatch" style="background:#000000" onclick="setColor('#000000', this)"></div> </div>
+                <div class="color-swatch active" style="background:#0055AA" onclick="setColor('#0055AA', this)"></div>
+                <div class="color-swatch" style="background:#FF3B30" onclick="setColor('#FF3B30', this)"></div>
+                <div class="color-swatch" style="background:#34C759" onclick="setColor('#34C759', this)"></div>
+                <div class="color-swatch" style="background:#000000" onclick="setColor('#000000', this)"></div>
+            </div>
             
             <div style="margin-top:5px;">
                 <div class="section-label">Толщина линии</div>
@@ -174,7 +179,7 @@
 
         <div class="section">
             <div class="section-label">3. Запись урока</div>
-            <button class="btn-action btn-primary" onclick="playRecording()">▶️ Проиграть (Как учитель)</button>
+            <button class="btn-action btn-primary" id="btnPlay" onclick="playRecording(false)">▶️ Проиграть (Как учитель)</button>
             
             <div style="margin-top:5px;">
                 <div class="section-label">Скорость воспроизведения</div>
@@ -187,8 +192,8 @@
             </div>
 
             <div class="action-grid" style="margin-top:8px;">
-                 <button class="btn-action" onclick="exportVideo()">📹 Видео</button>
-                 <button class="btn-action" onclick="downloadImage()">📷 Фото</button>
+                 <button class="btn-action" id="btnExport" onclick="playRecording(true)">📹 Записать Видео</button>
+                 <button class="btn-action" onclick="downloadImage()">📷 Скачать Фото</button>
             </div>
         </div>
 
@@ -220,13 +225,13 @@
         let actions = []; 
         let currentStroke = null;
         let isDrawing = false;
+        let isReplaying = false;
         let tool = 'pen';
         let color = '#0055AA';
         let zoom = 1.0;
         let customImage = null; 
         
-        // Переменная скорости
-        let playbackSpeed = 5; // 1 to 10
+        let playbackSpeed = 5;
 
         const MM = 11.81;
         const ROW_H = 4 * MM; 
@@ -242,19 +247,15 @@
             setupEvents();
         };
 
-        // --- СКОРОСТЬ ---
         function updateSpeedDisp() {
             playbackSpeed = parseInt(document.getElementById('speedRange').value);
-            // Превращаем 1..10 в множитель скорости (0.5x .. 3.0x)
-            // 1->0.5, 5->1.0, 10->3.0
             let factor = 1.0;
             if (playbackSpeed < 5) factor = 0.5 + (playbackSpeed-1)*0.125;
             else factor = 1.0 + (playbackSpeed-5)*0.4;
-            
             document.getElementById('speedVal').innerText = factor.toFixed(1) + 'x';
         }
 
-        // --- 1. ЛОГИКА ФОНА ---
+        // --- ФОН ---
         function changeBackground() {
             const val = document.getElementById('bgSelect').value;
             if (val === 'custom') {
@@ -271,10 +272,7 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const img = new Image();
-                    img.onload = function() {
-                        customImage = img;
-                        drawBackground();
-                    };
+                    img.onload = function() { customImage = img; drawBackground(); };
                     img.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
@@ -285,15 +283,10 @@
             const w = bgCanvas.width;
             const h = bgCanvas.height;
             const type = document.getElementById('bgSelect').value;
-            
             bgCtx.fillStyle = 'white';
             bgCtx.fillRect(0, 0, w, h);
 
-            if (customImage) {
-                bgCtx.drawImage(customImage, 0, 0, w, h);
-                return;
-            }
-
+            if (customImage) { bgCtx.drawImage(customImage, 0, 0, w, h); return; }
             if (type === 'white') return;
 
             bgCtx.lineWidth = 2;
@@ -303,8 +296,7 @@
             const totalH = ROW_H + GAP_H;
             let y = MT;
             
-            let slantStep = 0; 
-            let drawSlant = false;
+            let slantStep = 0; let drawSlant = false;
             if (type === 'propisi_often') { drawSlant = true; slantStep = 25 * MM; }
             else if (type === 'propisi_rare') { drawSlant = true; slantStep = 150 * MM; }
 
@@ -315,7 +307,6 @@
                 bgCtx.beginPath(); bgCtx.moveTo(0, y+ROW_H); bgCtx.lineTo(w, y+ROW_H); bgCtx.stroke();
                 y += totalH;
             }
-            
             if (drawSlant) {
                 bgCtx.beginPath(); bgCtx.strokeStyle = '#D1D1D6';
                 const tan = 0.466; 
@@ -327,7 +318,7 @@
             }
         }
 
-        // --- 2. ЛОГИКА РИСОВАНИЯ ---
+        // --- РИСОВАНИЕ ---
         function getCoords(e) {
             const rect = drawCanvas.getBoundingClientRect();
             let clientX = e.clientX;
@@ -345,21 +336,15 @@
         }
 
         function startDraw(e) {
+            if (isReplaying) return;
             isDrawing = true;
             const coords = getCoords(e);
-            
             const width = document.getElementById('lineWidth').value * 2;
             currentStroke = {
-                type: 'stroke',
-                tool: tool,
-                color: color,
-                width: width,
-                points: [ {x: coords.x, y: coords.y} ]
+                type: 'stroke', tool: tool, color: color, width: width, points: [ {x: coords.x, y: coords.y} ]
             };
-
             drawCtx.beginPath();
-            drawCtx.lineCap = 'round';
-            drawCtx.lineJoin = 'round';
+            drawCtx.lineCap = 'round'; drawCtx.lineJoin = 'round';
             drawCtx.lineWidth = width;
             drawCtx.strokeStyle = (tool === 'eraser') ? 'rgba(0,0,0,1)' : color;
             drawCtx.globalCompositeOperation = (tool === 'eraser') ? 'destination-out' : 'source-over';
@@ -377,9 +362,7 @@
         }
 
         function endDraw() {
-            if (isDrawing && currentStroke) {
-                actions.push(currentStroke);
-            }
+            if (isDrawing && currentStroke) actions.push(currentStroke);
             isDrawing = false;
             currentStroke = null;
             drawCtx.beginPath();
@@ -395,227 +378,186 @@
             drawCanvas.addEventListener('touchend', endDraw);
         }
 
-        // --- 3. ИНСТРУМЕНТЫ ---
+        // --- UI ---
         function setTool(t) {
             tool = t;
             document.getElementById('btnPen').classList.toggle('active', t==='pen');
             document.getElementById('btnEraser').classList.toggle('active', t==='eraser');
         }
-
         function setColor(c, el) {
-            color = c;
-            tool = 'pen';
-            setTool('pen');
+            color = c; tool = 'pen'; setTool('pen');
             document.querySelectorAll('.color-swatch').forEach(d => d.classList.remove('active'));
             el.classList.add('active');
         }
-
         function changeZoom(delta) {
             let newZoom = Math.round((zoom + delta) * 10) / 10;
-            if (newZoom < 0.2) newZoom = 0.2;
-            if (newZoom > 3.0) newZoom = 3.0;
+            if (newZoom < 0.2) newZoom = 0.2; if (newZoom > 3.0) newZoom = 3.0;
             setZoom(newZoom);
         }
-
         function setZoom(z) {
             zoom = z;
             document.getElementById('zoomVal').innerText = Math.round(zoom * 100) + '%';
             wrapper.style.width = (BASE_WIDTH_PX * zoom) + 'px';
             wrapper.style.height = (BASE_HEIGHT_PX * zoom) + 'px';
         }
-
         function undo() {
-            if (actions.length === 0) return;
+            if (actions.length === 0 || isReplaying) return;
             actions.pop();
             redrawAll();
         }
-
         function clearCanvas() {
+            if (isReplaying) return;
             if(confirm('Удалить все записи?')) {
                 actions = [];
                 drawCtx.clearRect(0,0, drawCanvas.width, drawCanvas.height);
             }
         }
 
-        function redrawAll() {
-            drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-            actions.forEach(act => {
-                drawCtx.beginPath();
-                drawCtx.lineCap = 'round';
-                drawCtx.lineJoin = 'round';
-                if (act.tool === 'eraser') {
-                    drawCtx.globalCompositeOperation = 'destination-out';
-                    drawCtx.lineWidth = 60;
-                } else {
-                    drawCtx.globalCompositeOperation = 'source-over';
-                    drawCtx.strokeStyle = act.color;
-                    drawCtx.lineWidth = act.width;
-                }
-                if (act.points.length > 0) {
-                    drawCtx.moveTo(act.points[0].x, act.points[0].y);
-                    for (let i = 1; i < act.points.length; i++) {
-                        drawCtx.lineTo(act.points[i].x, act.points[i].y);
-                    }
-                    drawCtx.stroke();
-                }
-            });
-        }
-
-        // --- 4. МАГИЯ: ПОВТОР (REPLAY) ---
-        let isReplaying = false;
-
-        function playRecording() {
-            if (actions.length === 0) return;
+        // --- ВОСПРОИЗВЕДЕНИЕ И ЭКСПОРТ (ОДНА ФУНКЦИЯ) ---
+        function playRecording(forExport) {
+            if (actions.length === 0) { alert('Сначала напишите что-нибудь!'); return; }
             if (isReplaying) return;
+
             isReplaying = true;
+            toggleButtons(false); // Блокируем кнопки
+
+            let recorder = null;
+            
+            // Если нужен экспорт - настраиваем рекордер
+            if (forExport) {
+                // Захватываем VISIBLE CANVAS (drawCanvas)
+                // Но так как он прозрачный, мы должны РИСОВАТЬ ФОН на нем каждый кадр
+                const stream = drawCanvas.captureStream(30);
+                recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+                const chunks = [];
+                recorder.ondataavailable = e => chunks.push(e.data);
+                recorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'video/webm' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'lesson.webm';
+                    a.click();
+                    // Восстанавливаем состояние после записи
+                    redrawAll(); 
+                };
+                recorder.start();
+                alert("Запись пошла! Не переключайте вкладку.");
+            }
+
             drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
             
             let actionIdx = 0;
             let pointIdx = 0;
-            
-            // Получаем скорость из ползунка
-            const speed = parseInt(document.getElementById('speedRange').value); // 1 to 10
+            // Скорость
+            const speed = parseInt(document.getElementById('speedRange').value); 
+            let pointsPerFrame = speed;
+            if (speed > 6) pointsPerFrame = (speed - 4) * 5;
 
             function animate() {
-                if (actionIdx >= actions.length) {
-                    isReplaying = false;
-                    return;
-                }
-                const act = actions[actionIdx];
-                if (pointIdx === 0) {
-                    drawCtx.beginPath();
-                    drawCtx.lineCap = 'round';
-                    drawCtx.lineJoin = 'round';
-                    if (act.tool === 'eraser') {
-                        drawCtx.globalCompositeOperation = 'destination-out';
-                        drawCtx.lineWidth = 60;
-                    } else {
-                        drawCtx.globalCompositeOperation = 'source-over';
-                        drawCtx.strokeStyle = act.color;
-                        drawCtx.lineWidth = act.width;
-                    }
-                    if(act.points.length > 0) drawCtx.moveTo(act.points[0].x, act.points[0].y);
-                    pointIdx = 1;
-                }
-                
-                // Рисуем порциями в зависимости от скорости
-                // 1 -> по 1 точке, 5 -> по 5 точек, 10 -> по 20 точек
-                let pointsPerFrame = speed;
-                if (speed > 7) pointsPerFrame = (speed - 5) * 5; 
+                if (!isReplaying) return;
 
-                for(let k=0; k < pointsPerFrame; k++) {
-                    if (pointIdx < act.points.length) {
-                        drawCtx.lineTo(act.points[pointIdx].x, act.points[pointIdx].y);
-                        drawCtx.stroke();
-                        pointIdx++;
-                    } else {
+                // ЕСЛИ ЗАПИСЬ ВИДЕО: РИСУЕМ ФОН КАЖДЫЙ КАДР ПРЯМО НА ХОЛСТ РИСОВАНИЯ
+                // Это "грязный хак", но это единственный способ записать слои в одно видео
+                if (forExport) {
+                    // Рисуем фон
+                    drawCtx.drawImage(bgCanvas, 0, 0);
+                    // Рисуем ВСЕ предыдущие завершенные линии заново поверх фона
+                    for(let i=0; i<actionIdx; i++) {
+                        drawStroke(actions[i]);
+                    }
+                    // Рисуем текущий штрих до текущей точки
+                     const act = actions[actionIdx];
+                     if (act) {
+                         const partial = {...act, points: act.points.slice(0, pointIdx+1)};
+                         drawStroke(partial);
+                     }
+                }
+
+                // ЕСЛИ ПРОСТО ПРОСМОТР: Фон и так виден (через прозрачность)
+                // Нам нужно рисовать только новые сегменты линий
+                if (!forExport) {
+                     const act = actions[actionIdx];
+                     if (pointIdx === 0) {
+                        // Начало штриха
+                        drawCtx.beginPath();
+                        setupCtxStyle(act);
+                        if(act.points.length > 0) drawCtx.moveTo(act.points[0].x, act.points[0].y);
+                        pointIdx = 1;
+                     }
+                     
+                     for(let k=0; k < pointsPerFrame; k++) {
+                        if (pointIdx < act.points.length) {
+                            drawCtx.lineTo(act.points[pointIdx].x, act.points[pointIdx].y);
+                            drawCtx.stroke();
+                            pointIdx++;
+                        } else {
+                            // Штрих готов
+                            actionIdx++;
+                            pointIdx = 0;
+                            break;
+                        }
+                    }
+                } else {
+                    // Логика счетчика для видео (мы перерисовываем всё, поэтому просто двигаем индексы)
+                    const act = actions[actionIdx];
+                    pointIdx += pointsPerFrame;
+                    if (pointIdx >= act.points.length) {
                         actionIdx++;
                         pointIdx = 0;
-                        break;
                     }
                 }
-                if (isReplaying) requestAnimationFrame(animate);
+
+                // ПРОВЕРКА ОКОНЧАНИЯ
+                if (actionIdx >= actions.length) {
+                    isReplaying = false;
+                    toggleButtons(true);
+                    if (forExport && recorder) {
+                        recorder.stop();
+                    } else {
+                        // Если просто просмотр - ничего не делаем, рисунок остается
+                    }
+                } else {
+                    requestAnimationFrame(animate);
+                }
             }
+            
             animate();
         }
 
-        // --- 5. ЭКСПОРТ ВИДЕО (С ФОНОМ!) ---
-        function exportVideo() {
-            if (actions.length === 0) { alert('Сначала напишите что-нибудь!'); return; }
-            
-            const recCanvas = document.createElement('canvas');
-            recCanvas.width = bgCanvas.width;
-            recCanvas.height = bgCanvas.height;
-            const recCtx = recCanvas.getContext('2d');
-            
-            const stream = recCanvas.captureStream(30); 
-            const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-            const chunks = [];
-            
-            recorder.ondataavailable = e => chunks.push(e.data);
-            recorder.onstop = () => {
-                const blob = new Blob(chunks, { type: 'video/webm' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'lesson.webm';
-                a.click();
-            };
-            recorder.start();
-
-            // Берем ту же скорость
-            const speed = parseInt(document.getElementById('speedRange').value);
-            let actionIdx = 0;
-            let pointIdx = 0;
-
-            function animateRec() {
-                if (actionIdx >= actions.length) {
-                    recorder.stop();
-                    return;
-                }
-
-                // ВАЖНО: Рисуем фон + уже готовые линии + текущий штрих
-                // 1. Рисуем фон
-                recCtx.drawImage(bgCanvas, 0, 0); 
-                
-                // 2. Рисуем все предыдущие штрихи
-                for(let i=0; i<actionIdx; i++) {
-                    drawStrokeOnCtx(recCtx, actions[i]);
-                }
-                
-                // 3. Рисуем текущий штрих частично
-                const act = actions[actionIdx];
-                const partialAct = {
-                    ...act,
-                    points: act.points.slice(0, pointIdx + 1)
-                };
-                drawStrokeOnCtx(recCtx, partialAct);
-
-                // Скорость записи
-                let pointsPerFrame = speed;
-                if (speed > 7) pointsPerFrame = (speed - 5) * 5;
-
-                pointIdx += pointsPerFrame;
-                if (pointIdx >= act.points.length) {
-                    actionIdx++;
-                    pointIdx = 0;
-                }
-                
-                requestAnimationFrame(animateRec);
+        // Вспомогательные функции рисования
+        function setupCtxStyle(act) {
+            drawCtx.lineCap = 'round'; drawCtx.lineJoin = 'round';
+            if (act.tool === 'eraser') {
+                drawCtx.globalCompositeOperation = 'destination-out';
+                drawCtx.lineWidth = 60;
+            } else {
+                drawCtx.globalCompositeOperation = 'source-over';
+                drawCtx.strokeStyle = act.color;
+                drawCtx.lineWidth = act.width;
             }
-            
-            animateRec();
-            alert('Идет запись видео... (Учитывается скорость)');
         }
 
-        function drawStrokeOnCtx(ctx, act) {
-            ctx.beginPath();
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            if (act.tool === 'eraser') {
-                // Ластик в видео стирает до фона (но так как мы каждый кадр рисуем фон заново,
-                // то стирание просто не рисует предыдущие линии.
-                // Чтобы ластик работал визуально, нам нужно рисовать БЕЛЫМ или ЦВЕТОМ ФОНА?
-                // Нет, глобал композит 'destination-out' сотрет и только что нарисованный фон.
-                // Решение для видео с фоном: 
-                // Мы рисуем фон на слой 0. Рисуем линии на слое 1. 
-                // Но у нас один слой recCtx.
-                // Простейший хак: Ластик рисует цветом фона (белым). Сетка пропадет, но это не страшно.
-                // Либо оставляем destination-out, тогда видео будет прозрачным в местах стирания (виден черный/белый плеер).
-                ctx.globalCompositeOperation = 'destination-out'; // Стирает всё до прозрачности
-                ctx.lineWidth = 60;
-            } else {
-                ctx.globalCompositeOperation = 'source-over';
-                ctx.strokeStyle = act.color;
-                ctx.lineWidth = act.width;
-            }
+        function drawStroke(act) {
+            drawCtx.beginPath();
+            setupCtxStyle(act);
             if(act.points.length > 0) {
-                ctx.moveTo(act.points[0].x, act.points[0].y);
+                drawCtx.moveTo(act.points[0].x, act.points[0].y);
                 for (let i = 1; i < act.points.length; i++) {
-                    ctx.lineTo(act.points[i].x, act.points[i].y);
+                    drawCtx.lineTo(act.points[i].x, act.points[i].y);
                 }
-                ctx.stroke();
+                drawCtx.stroke();
             }
+        }
+
+        function redrawAll() {
+            drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+            actions.forEach(act => drawStroke(act));
+        }
+
+        function toggleButtons(enable) {
+            document.getElementById('btnPlay').disabled = !enable;
+            document.getElementById('btnExport').disabled = !enable;
         }
 
         function downloadImage() {

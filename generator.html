@@ -18,7 +18,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
-        /* Подключаем шрифт Primo. Файл должен лежать РЯДОМ с этим html */
         @font-face {
             font-family: 'Primo';
             src: url('primo.ttf') format('truetype');
@@ -47,7 +46,6 @@
             overflow: hidden;
         }
 
-        /* ЛЕВАЯ ПАНЕЛЬ */
         .sidebar {
             width: 340px;
             min-width: 340px;
@@ -65,7 +63,6 @@
         .app-title { font-size: 22px; font-weight: 700; margin: 0; }
         .app-subtitle { font-size: 13px; color: var(--text-secondary); margin: 0; }
 
-        /* Вкладки */
         .nav-tabs {
             display: flex;
             background: rgba(118, 118, 128, 0.12);
@@ -90,7 +87,6 @@
         .section { display: flex; flex-direction: column; gap: 8px; }
         .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px; }
 
-        /* Поля ввода */
         select, textarea {
             width: 100%; padding: 12px;
             border-radius: var(--radius-M); border: 1px solid rgba(0,0,0,0.1);
@@ -109,22 +105,20 @@
         }
         button.btn-primary:active { opacity: 0.8; }
 
-        /* ОБЛАСТЬ ПРЕВЬЮ */
         .main-area {
             flex-grow: 1;
             background-color: var(--app-bg);
             padding: 40px;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Прижимаем к верху, но с отступом */
+            align-items: flex-start;
             overflow-y: auto;
         }
         
-        /* Контейнер листа А4 */
         .a4-container {
             width: 100%;
-            max-width: 800px; /* Ограничиваем ширину на больших экранах */
-            aspect-ratio: 210 / 297; /* Пропорции A4 */
+            max-width: 800px;
+            aspect-ratio: 210 / 297;
             background: white;
             box-shadow: var(--shadow-card);
             position: relative;
@@ -136,7 +130,6 @@
             display: block;
         }
 
-        /* Адаптив */
         @media (max-width: 900px) {
             body { flex-direction: column; height: auto; overflow-y: auto; }
             .sidebar { width: 100%; min-width: 0; height: auto; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); }
@@ -149,7 +142,7 @@
     <div class="sidebar">
         <div>
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Генератор PDF • v3.5</p>
+            <p class="app-subtitle">Генератор PDF • v3.6</p>
         </div>
 
         <div class="nav-tabs">
@@ -208,13 +201,17 @@
         let fontBase64 = null;
         let isFontLoaded = false;
 
-        const DPI = 300;
-        const MM_TO_PX = 11.81;
-        const A4_WIDTH_MM = 210;
-        const A4_HEIGHT_MM = 297;
+        // Константы для A4 при 300 DPI
+        const MM_TO_PX = 11.81; // 1 мм = 11.81 пикселей
+        
+        // Размеры в ММ (как в ГОСТ)
+        const ROW_H_MM = 4; // Узкая строка
+        const GAP_H_MM = 8; // Широкая строка (межстрочная)
+        const MARGIN_TOP_MM = 20;
+        const MARGIN_LEFT_MM = 15;
 
         window.onload = async function() {
-            updatePreview(); 
+            updatePreview();
 
             try {
                 const response = await fetch('primo.ttf');
@@ -237,7 +234,7 @@
                 
             } catch (e) {
                 console.error(e);
-                document.getElementById('status').innerText = 'Ошибка: положите primo.ttf рядом с html!';
+                document.getElementById('status').innerText = 'Ошибка: положите primo.ttf рядом!';
             }
         };
 
@@ -248,54 +245,58 @@
             const text = document.getElementById('textInput').value;
             const colorStyle = document.getElementById('colorStyle').value;
 
+            // Очистка
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, w, h);
 
-            // Параметры разлиновки (в мм)
-            let rowHeightMM = 4; 
-            let gapHeightMM = 8; 
-            
-            const marginTopMM = 15;
-            const marginLeftMM = 15;
+            // Перевод размеров в пиксели
+            const rowH = ROW_H_MM * MM_TO_PX;
+            const gapH = GAP_H_MM * MM_TO_PX;
+            const mt = MARGIN_TOP_MM * MM_TO_PX;
+            const ml = MARGIN_LEFT_MM * MM_TO_PX;
 
-            const rowH = rowHeightMM * MM_TO_PX;
-            const gapH = gapHeightMM * MM_TO_PX;
-            const mt = marginTopMM * MM_TO_PX;
-            const ml = marginLeftMM * MM_TO_PX;
+            ctx.lineWidth = 2; 
 
-            ctx.lineWidth = 3;
-            
             // --- РИСУЕМ ФОН ---
             if (type === 'propisi_often') {
-                drawPropisiGrid(w, h, rowH, gapH, mt, true, 25 * MM_TO_PX); 
+                drawPropisiGrid(w, h, rowH, gapH, mt, true, 25 * MM_TO_PX);
             } else if (type === 'propisi_rare') {
-                drawPropisiGrid(w, h, rowH, gapH, mt, true, 150 * MM_TO_PX); 
+                drawPropisiGrid(w, h, rowH, gapH, mt, true, 150 * MM_TO_PX);
             } else if (type === 'lines') {
                 drawPropisiGrid(w, h, rowH, gapH, mt, false, 0);
             } else if (type === 'grid') {
-                drawSquareGrid(w, h, 5 * MM_TO_PX, mt); 
+                drawSquareGrid(w, h, 5 * MM_TO_PX, mt);
             }
 
             // --- РИСУЕМ ТЕКСТ ---
             if (text) {
-                // ИЗМЕНЕНИЕ 1: Сильно увеличили размер шрифта (было 180px, стало 420px)
-                // Это нужно, чтобы заглавные буквы заполнили верхний пробел
-                ctx.font = isFontLoaded ? `420px "${fontName}"` : `180px cursive`; 
+                // Расчет размера шрифта.
+                // Чтобы строчная буква ("а") была высотой 4 мм (47px), 
+                // для шрифта Primo размер должен быть примерно 160px.
+                // (Это связано с тем, что шрифт содержит еще и длинные выносные элементы).
+                const fontSize = isFontLoaded ? 160 : 60; 
+                ctx.font = `${fontSize}px "${fontName}", cursive`;
                 
                 if (colorStyle === 'pale') ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
                 else if (colorStyle === 'dotted') ctx.fillStyle = 'black'; 
                 else ctx.fillStyle = 'black';
 
+                // ВАЖНО: Рисуем от НИЖНЕЙ линии (Baseline)
+                // Так буквы будут "стоять" на строке
+                ctx.textBaseline = 'alphabetic'; 
+
                 const lines = text.split('\n');
-                const fullRowH = rowH + gapH;
-                
-                // ИЗМЕНЕНИЕ 2: Калибровка базовой линии.
-                // Из-за огромного шрифта его нужно сильно "прижать" вниз.
-                // +20 пикселей - эмпирический сдвиг вниз для Canvas.
-                const baselineShiftPX = 20; 
+                const fullRowH = rowH + gapH; // Полный цикл (узкая + широкая)
 
                 lines.forEach((line, i) => {
-                    const y = mt + (i * fullRowH) + rowH + baselineShiftPX;
+                    // Координата Y - это НИЖНЯЯ линия узкой рабочей строки
+                    // Y = Отступ + (i * полная высота) + высота узкой строки
+                    let y = mt + (i * fullRowH) + rowH;
+
+                    // Небольшая поправка, так как у Primo baseline чуть сдвинут визуально
+                    // +3 пикселя "сажают" букву идеально на линию
+                    y += 3; 
+
                     ctx.fillText(line, ml, y);
                 });
             }
@@ -306,19 +307,23 @@
             let y = marginTop;
 
             ctx.beginPath();
-            ctx.strokeStyle = '#d1d1d1';
+            ctx.strokeStyle = '#999999'; // Серый цвет линеек
             
             while (y < h - marginTop) {
+                // Верхняя линия рабочей строки
                 ctx.moveTo(0, y); ctx.lineTo(w, y);
+                
+                // Нижняя линия рабочей строки (Базовая)
                 ctx.moveTo(0, y + rowH); ctx.lineTo(w, y + rowH);
+                
                 y += totalH;
             }
             ctx.stroke();
 
             if (drawSlant) {
                 ctx.beginPath();
-                ctx.strokeStyle = '#e0e0e0';
-                const tan = 0.466;
+                ctx.strokeStyle = '#d0d0d0'; // Наклонные светлее
+                const tan = 0.466; // ~65 градусов
                 const totalShift = h * tan;
                 for (let x = -totalShift; x < w; x += slantStep) {
                     ctx.moveTo(x + totalShift, 0);
@@ -339,7 +344,7 @@
         // --- ГЕНЕРАЦИЯ PDF ---
         async function generatePDF() {
             if (!fontBase64) {
-                alert("Ошибка: файл primo.ttf не загружен. Проверьте папку с сайтом.");
+                alert("Ошибка: шрифт primo.ttf не загружен.");
                 return;
             }
 
@@ -354,6 +359,7 @@
             document.getElementById('textInput').value = ""; 
             updatePreview(); 
             const bgImage = canvas.toDataURL("image/jpeg", 0.8);
+            
             doc.addImage(bgImage, 'JPEG', 0, 0, 210, 297);
 
             document.getElementById('textInput').value = savedText;
@@ -364,23 +370,22 @@
                 if (colorStyle === 'pale') doc.setTextColor(200, 200, 200);
                 else doc.setTextColor(0, 0, 0);
 
-                // ИЗМЕНЕНИЕ 3: Увеличили шрифт для PDF (было 55, стало 130 пунктов)
-                doc.setFontSize(130); 
+                // Расчет размера для PDF (в пунктах, pt)
+                // Опытным путем: ~48-50pt дает высоту строчной буквы 4мм
+                doc.setFontSize(48); 
 
                 const lines = savedText.split('\n');
-                const rowHeightMM = 4;
-                const gapHeightMM = 8;
-                const fullRowH = rowHeightMM + gapHeightMM;
-                const marginTop = 15;
-                const marginLeft = 15;
+                const fullRowH = ROW_H_MM + GAP_H_MM;
                 
-                // ИЗМЕНЕНИЕ 4: Калибровка базовой линии для PDF.
-                // +1.5 мм - эмпирический сдвиг вниз для PDF.
-                const baselineShiftMM = 1.5;
-
                 lines.forEach((line, i) => {
-                    const y = marginTop + (i * fullRowH) + rowHeightMM + baselineShiftMM; 
-                    doc.text(line, marginLeft, y);
+                    // Координата Y в PDF - это Baseline.
+                    // Ставим её на нижнюю линию узкой строки.
+                    let y = MARGIN_TOP_MM + (i * fullRowH) + ROW_H_MM;
+                    
+                    // Микрокоррекция для PDF (чтобы не висела в воздухе)
+                    y += 0.5;
+
+                    doc.text(line, MARGIN_LEFT_MM, y);
                 });
             }
 

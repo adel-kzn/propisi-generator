@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Генератор прописей</title>
+    <title>Генератор прописей (Калибровка New)</title>
 
     <meta name="yandex-verification" content="zoqf7gn5mwyntin5" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
+        /* ПОДКЛЮЧАЕМ НОВЫЙ ШРИФТ */
         @font-face {
-            font-family: 'Primo';
-            src: url('primo.ttf') format('truetype');
+            font-family: 'PropisiParatype';
+            src: url('Propisi Regular.otf') format('opentype');
             font-display: swap;
         }
 
@@ -22,150 +23,77 @@
             --text-secondary: #8E8E93;
             --accent: #007AFF;
             --radius-M: 10px;
-            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            margin: 0; padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--app-bg);
-            color: var(--text-primary);
-            height: 100vh;
-            display: flex;
-            overflow: hidden;
-        }
-
-        .sidebar {
-            width: 360px;
-            min-width: 360px;
-            height: 100%;
-            background: var(--sidebar-bg);
-            border-right: 1px solid rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            gap: 15px;
-            overflow-y: auto;
-            z-index: 10;
-        }
-
-        .app-header { margin-bottom: 5px; }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--app-bg); height: 100vh; display: flex; overflow: hidden; }
+        .sidebar { width: 360px; min-width: 360px; background: var(--sidebar-bg); border-right: 1px solid rgba(0,0,0,0.1); display: flex; flex-direction: column; padding: 20px; gap: 15px; overflow-y: auto; }
         .app-title { font-size: 20px; font-weight: 700; margin: 0; }
-        .app-subtitle { font-size: 12px; color: var(--text-secondary); margin: 0; }
-
-        .nav-tabs {
-            display: flex;
-            background: #F2F2F7;
-            padding: 3px;
-            border-radius: 8px;
-        }
-        .nav-tab {
-            flex: 1;
-            text-align: center;
-            padding: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            text-decoration: none;
-            color: var(--text-primary);
-            border-radius: 6px;
-        }
-        .nav-tab.active { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-
         .section { display: flex; flex-direction: column; gap: 6px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
         .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); }
-
-        select, textarea, input[type=text] {
-            width: 100%; 
-            border-radius: 8px; border: 1px solid #E5E5EA;
-            background-color: white;
-            font-size: 14px; color: var(--text-primary); outline: none;
-        }
+        select, textarea, input[type=range] { width: 100%; border-radius: 8px; border: 1px solid #E5E5EA; background-color: white; font-size: 14px; outline: none; }
         select { padding: 10px; height: 40px; }
         textarea { padding: 10px; height: 100px; resize: none; font-family: inherit; }
-
-        .range-wrap { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-secondary); }
-        input[type=range] { flex-grow: 1; }
-
-        button.btn-primary {
-            border: none; height: 44px; border-radius: var(--radius-M);
-            font-size: 16px; font-weight: 600; cursor: pointer;
-            background-color: var(--accent); color: white; 
-            width: 100%; display: flex; align-items: center; justify-content: center;
-        }
-        button.btn-primary:active { opacity: 0.8; }
-
-        .main-area {
-            flex-grow: 1;
-            background-color: var(--app-bg);
-            padding: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            overflow-y: auto;
-        }
-        
-        .a4-container {
-            width: 100%; max-width: 800px;
-            aspect-ratio: 210 / 297;
-            background: white;
-            box-shadow: var(--shadow-card);
-        }
+        .main-area { flex-grow: 1; background-color: var(--app-bg); padding: 30px; display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; }
+        .a4-container { width: 100%; max-width: 800px; aspect-ratio: 210 / 297; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
         canvas { width: 100%; height: 100%; display: block; }
-
-        @media (max-width: 900px) {
-            body { flex-direction: column; height: auto; overflow-y: auto; }
-            .sidebar { width: 100%; min-width: 0; height: auto; }
-            .main-area { padding: 15px; }
+        
+        /* Debug Box Style */
+        .debug-box {
+            background: #FFF8C5; border: 1px solid #E0D060; color: #554400;
+            padding: 10px; border-radius: 8px; font-family: monospace; font-size: 14px;
+            text-align: center; margin-top: 10px;
         }
+        .debug-val { font-weight: bold; font-size: 16px; color: #000; }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <div class="app-header">
-            <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Генератор PDF • v4.1 (Raster)</p>
-        </div>
-
-        <div class="nav-tabs">
-            <a href="index.html" class="nav-tab">Рисование</a>
-            <a href="generator.html" class="nav-tab active">Генератор</a>
-        </div>
+        <div><h1 class="app-title">Калибровка (Paratype)</h1></div>
 
         <div class="section">
-            <div class="section-label">1. Разлиновка</div>
+            <div class="section-label">Разлиновка</div>
             <select id="bgSelect" onchange="updatePreview()">
-                <option value="propisi_often" selected>Частая косая (1 класс)</option>
-                <option value="propisi_rare">Редкая косая (Стандарт)</option>
+                <option value="propisi_often" selected>Частая косая</option>
+                <option value="propisi_rare">Редкая косая</option>
                 <option value="lines">Обычная линейка</option>
-                <option value="white">Чистый лист</option>
             </select>
         </div>
 
         <div class="section">
-            <div class="section-label">2. Текст</div>
-            <textarea id="textInput" oninput="handleInput()" placeholder="Введите текст..."></textarea>
-            <div style="font-size: 10px; color: #8E8E93;">*Автозамена англ. букв на русские</div>
+            <div class="section-label">Текст</div>
+            <textarea id="textInput" oninput="updatePreview()">ааа ббб
+АБВ Где</textarea>
         </div>
 
-        <div class="section">
-            <div class="section-label">3. Настройки шрифта</div>
-            <select id="colorStyle" onchange="updatePreview()">
-                <option value="pale">Серый (обводка)</option>
-                <option value="black">Черный</option>
-            </select>
+        <div class="section" style="background: #F2F2F7; padding: 10px; border-radius: 10px;">
+            <div class="section-label" style="color: #007AFF;">Настройки (Двигай ползунки!)</div>
             
-            <div class="range-wrap">
-                <span>Интервал:</span>
-                <input type="range" id="spacingRange" min="-10" max="20" value="0" oninput="updatePreview()">
+            <div style="margin-top: 10px;">
+                <label>Размер шрифта:</label>
+                <input type="range" id="fontSizeRange" min="50" max="400" value="150" oninput="updatePreview()">
+            </div>
+            
+            <div style="margin-top: 10px;">
+                <label>Сдвиг (Вверх/Вниз):</label>
+                <input type="range" id="offsetRange" min="-100" max="100" value="0" oninput="updatePreview()">
+            </div>
+            
+            <div style="margin-top: 10px;">
+                 <label>Интервал букв:</label>
+                 <input type="range" id="spacingRange" min="-10" max="20" value="0" oninput="updatePreview()">
             </div>
         </div>
+
+        <div class="debug-box">
+            Сообщи мне эти числа:<br>
+            Размер: <span id="outSize" class="debug-val">150</span><br>
+            Сдвиг: <span id="outOffset" class="debug-val">0</span>
+        </div>
         
-        <div class="section" style="margin-top: auto; border: none;">
-             <button class="btn-primary" onclick="generateImagePDF()" id="downloadBtn">Скачать PDF</button>
-             <div id="status" style="text-align: center; font-size: 11px; color: #8E8E93; margin-top: 5px;">Загрузка...</div>
+         <div class="section">
+             <div id="status" style="text-align: center; font-size: 11px; color: #8E8E93; margin-top: 5px;">Загрузка шрифта...</div>
         </div>
     </div>
 
@@ -178,142 +106,104 @@
     <script>
         const canvas = document.getElementById('previewCanvas');
         const ctx = canvas.getContext('2d');
-        const fontName = 'Primo';
-        let isFontLoaded = false;
-
-        // Константы
-        const MM_TO_PX = 11.81; 
-        const ROW_H_MM = 4;
-        const GAP_H_MM = 8;
-        const MARGIN_TOP_MM = 20;
-        const MARGIN_LEFT_MM = 20;
+        // Используем новое имя
+        const fontName = 'PropisiParatype';
+        const fontFile = 'Propisi Regular.otf';
         
-        // Калибровка (v3.9)
-        const FONT_SIZE_PX = 116; 
-        const OFFSET_PX = 0;      
+        let currentFontSize = 150;
+        let currentOffset = 0;
 
         window.onload = async function() {
-            updatePreview();
             try {
-                const fontFace = new FontFace(fontName, `url(primo.ttf)`);
-                await fontFace.load();
-                document.fonts.add(fontFace);
-                isFontLoaded = true;
-                document.getElementById('status').innerText = 'Шрифт готов';
-                updatePreview(); 
-            } catch (e) {
-                document.getElementById('status').innerText = 'Ошибка: нет primo.ttf';
+                // Загружаем OTF
+                const f = new FontFace(fontName, `url("${fontFile}")`);
+                await f.load();
+                document.fonts.add(f);
+                document.getElementById('status').innerText = 'Шрифт Paratype загружен!';
+                updatePreview();
+            } catch(e) { 
+                console.log(e); 
+                document.getElementById('status').innerText = 'Ошибка: положите файл ' + fontFile + ' рядом!';
             }
         };
 
-        function handleInput() {
-            const input = document.getElementById('textInput');
-            let text = input.value;
-            // Автозамена латиницы на кириллицу
-            const replacements = {
-                'a':'а','A':'А','B':'В','c':'с','C':'С','e':'е','E':'Е','H':'Н','k':'к','K':'К','m':'м','M':'М','o':'о','O':'О','p':'р','P':'Р','T':'Т','x':'х','X':'Х','y':'у'
-            };
-            let newText = '';
-            for (let char of text) newText += replacements[char] || char;
-            
-            if (newText !== text) {
-                const start = input.selectionStart;
-                input.value = newText;
-                input.setSelectionRange(start, start);
-            }
-            updatePreview();
-        }
-
         function updatePreview() {
+            // 1. Считываем значения ползунков
+            currentFontSize = parseInt(document.getElementById('fontSizeRange').value);
+            currentOffset = parseInt(document.getElementById('offsetRange').value);
+            const letterSpacing = parseInt(document.getElementById('spacingRange').value);
+
+            // 2. Выводим их в желтое окошко
+            document.getElementById('outSize').innerText = currentFontSize;
+            document.getElementById('outOffset').innerText = currentOffset;
+
             const w = canvas.width;
             const h = canvas.height;
             const type = document.getElementById('bgSelect').value;
             const text = document.getElementById('textInput').value;
-            const colorStyle = document.getElementById('colorStyle').value;
-            const letterSpacing = parseInt(document.getElementById('spacingRange').value);
+
+            // Константы (в пикселях для Canvas 2480x3508)
+            const MM = 11.81;
+            const rowH = 4 * MM;
+            const gapH = 8 * MM;
+            const mt = 20 * MM;
+            const ml = 20 * MM;
 
             // Очистка
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, w, h);
 
-            const rowH = ROW_H_MM * MM_TO_PX;
-            const gapH = GAP_H_MM * MM_TO_PX;
-            const mt = MARGIN_TOP_MM * MM_TO_PX;
-            const ml = MARGIN_LEFT_MM * MM_TO_PX;
+            // Рисуем разлиновку
+            ctx.lineWidth = 2;
+            const totalH = rowH + gapH;
+            let y = mt;
+            
+            // Розовая черта полей
+            ctx.beginPath(); ctx.strokeStyle = '#FF8080'; ctx.lineWidth = 4;
+            ctx.moveTo(ml, 0); ctx.lineTo(ml, h); ctx.stroke();
 
-            // --- ФОН ---
-            if (type !== 'white') {
-                // Поля
-                ctx.beginPath(); ctx.strokeStyle = '#FF8080'; ctx.lineWidth = 4;
-                ctx.moveTo(ml, 0); ctx.lineTo(ml, h); ctx.stroke();
-
-                let slantStep = 0;
-                let drawSlant = false;
-                if (type === 'propisi_often') { drawSlant = true; slantStep = 25 * MM_TO_PX; }
-                else if (type === 'propisi_rare') { drawSlant = true; slantStep = 150 * MM_TO_PX; }
-
-                // Линейки
-                const totalH = rowH + gapH;
-                let y = mt;
-                ctx.lineWidth = 2;
-                while (y < h - mt) {
-                    ctx.beginPath(); ctx.strokeStyle = '#5096F2'; 
-                    ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-                    ctx.beginPath(); ctx.moveTo(0, y + rowH); ctx.lineTo(w, y + rowH); ctx.stroke();
-                    y += totalH;
+            // Линейки
+            ctx.lineWidth = 2;
+            while (y < h - mt) {
+                // Верхняя (Голубая)
+                ctx.beginPath(); ctx.strokeStyle = '#5096F2'; 
+                ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+                
+                // Нижняя (Голубая)
+                ctx.beginPath(); ctx.moveTo(0, y + rowH); ctx.lineTo(w, y + rowH); ctx.stroke();
+                y += totalH;
+            }
+            
+            // Косая сетка
+            if (type.includes('propisi')) {
+                const step = (type === 'propisi_often' ? 25 : 150) * MM;
+                ctx.beginPath(); ctx.strokeStyle = '#D1D1D6';
+                const shift = h * 0.466;
+                for (let x = -shift; x < w; x += step) {
+                    ctx.moveTo(x + shift, 0); ctx.lineTo(x, h);
                 }
-
-                // Косая сетка
-                if (drawSlant) {
-                    ctx.beginPath(); ctx.strokeStyle = '#D1D1D6';
-                    const tan = 0.466; 
-                    const totalShift = h * tan;
-                    for (let x = -totalShift; x < w; x += slantStep) {
-                        ctx.moveTo(x + totalShift, 0); ctx.lineTo(x, h);
-                    }
-                    ctx.stroke();
-                }
+                ctx.stroke();
             }
 
-            // --- ТЕКСТ ---
+            // Рисуем текст
             if (text) {
-                ctx.font = `${FONT_SIZE_PX}px "${isFontLoaded ? fontName : 'cursive'}"`;
-                if (colorStyle === 'pale') ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-                else ctx.fillStyle = 'black';
+                ctx.font = `${currentFontSize}px "${fontName}"`;
+                ctx.fillStyle = 'black';
+                ctx.textBaseline = 'alphabetic';
                 
-                // Включаем умные функции шрифта (лигатуры)
+                // ВКЛЮЧАЕМ ЛИГАТУРЫ (если они есть в шрифте)
                 canvas.style.fontFeatureSettings = '"liga" 1, "calt" 1';
-                ctx.textBaseline = 'alphabetic'; 
-                // Устанавливаем межбуквенный интервал (работает в современных браузерах)
                 ctx.letterSpacing = `${letterSpacing}px`;
 
                 const lines = text.split('\n');
                 const fullRowH = rowH + gapH;
 
                 lines.forEach((line, i) => {
-                    let y = mt + (i * fullRowH) + rowH + OFFSET_PX;
-                    ctx.fillText(line, ml + 20, y);
+                    // Базовая позиция (нижняя линейка) + СДВИГ ИЗ ПОЛЗУНКА
+                    let lineY = mt + (i * fullRowH) + rowH + currentOffset;
+                    ctx.fillText(line, ml + 20, lineY);
                 });
             }
-        }
-
-        // --- НОВЫЙ МЕТОД ГЕНЕРАЦИИ (ФОТО-РЕЖИМ) ---
-        function generateImagePDF() {
-            if (!isFontLoaded) { alert("Шрифт еще не загрузился!"); return; }
-            
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-
-            // Мы берем ВЕСЬ холст как одну большую картинку.
-            // Браузер уже идеально отрисовал все соединения букв.
-            // Нам нужно просто вставить это в PDF.
-            
-            const imgData = canvas.toDataURL('image/jpeg', 0.85); // Качество 0.85 (хороший баланс)
-            
-            // A4 размеры: 210mm x 297mm
-            doc.addImage(imgData, 'JPEG', 0, 0, 210, 297);
-            
-            doc.save("propisi_final.pdf");
         }
     </script>
 </body>

@@ -301,6 +301,7 @@
                 <option value="propisi" selected>Косая линейка (1 класс)</option>
                 <option value="lines">Обычная линейка</option>
                 <option value="grid">Клетка</option>
+                <option value="music">Нотный стан</option>
                 <option value="none">Чистый лист</option>
             </select>
             
@@ -421,6 +422,7 @@
 
         function drawBackground() {
             const type = document.getElementById('bgSelect').value;
+            // Учитываем зум
             const w = canvas.width / currentZoom;
             const h = canvas.height / currentZoom;
 
@@ -432,7 +434,8 @@
                 return;
             }
 
-            ctx.lineWidth = 1;
+            // Тонкие линии при любом зуме
+            ctx.lineWidth = 1 / currentZoom;
 
             if (type === 'lines') {
                 ctx.beginPath();
@@ -446,29 +449,59 @@
                 for (let x = 20; x < w; x += 20) { ctx.moveTo(x, 0); ctx.lineTo(x, h); }
                 for (let y = 20; y < h; y += 20) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
                 ctx.stroke();
-            } 
-            else if (type === 'propisi') {
+            }
+            else if (type === 'music') {
+                // --- НОТНЫЙ СТАН ---
+                const lineGap = 15;      // Расстояние между линиями нотного стана
+                const staffGap = 60;     // Расстояние МЕЖДУ станами
+                
                 ctx.beginPath();
-                ctx.strokeStyle = '#d1d1d1';
-                const slantOffset = 280; 
-                const step = 55;
-                for (let x = -slantOffset; x < w + slantOffset; x += step) {
-                    ctx.moveTo(x + slantOffset, 0); ctx.lineTo(x, h);
+                ctx.strokeStyle = '#444444'; // Темно-серый цвет для контраста
+
+                let y = 50; // Начальный отступ сверху
+                
+                // Рисуем станы, пока влезают в экран
+                while (y + (lineGap * 4) < h) {
+                    // Рисуем 5 линий для одного стана
+                    for (let i = 0; i < 5; i++) {
+                        let currentY = y + (i * lineGap);
+                        ctx.moveTo(0, currentY);
+                        ctx.lineTo(w, currentY);
+                    }
+                    // Переходим к следующему стану
+                    y += (lineGap * 4) + staffGap;
+                }
+                ctx.stroke();
+            }
+            else if (type === 'propisi') {
+                // --- РЕДКАЯ КОСАЯ ---
+                const rowHeight = 25;   
+                const rowGap = 50;      
+                const slantStep = 80;   
+                const totalRow = rowHeight + rowGap;
+                
+                ctx.strokeStyle = '#6e6e6e'; 
+                const slantShift = h * 0.4663; 
+                
+                ctx.beginPath();
+                for (let x = -slantShift; x < w + slantStep; x += slantStep) {
+                    ctx.moveTo(x + slantShift, 0); 
+                    ctx.lineTo(x, h);
                 }
                 ctx.stroke();
 
                 ctx.beginPath();
-                ctx.strokeStyle = '#8c8c8c';
-                let y = 20;
+                let y = 50; 
                 while (y < h) {
-                    ctx.moveTo(0, y); ctx.lineTo(w, y);
-                    ctx.moveTo(0, y + 26); ctx.lineTo(w, y + 26);
-                    y += 80;
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(w, y);
+                    ctx.moveTo(0, y + rowHeight);
+                    ctx.lineTo(w, y + rowHeight);
+                    y += totalRow;
                 }
                 ctx.stroke();
             }
         }
-
         function redrawAll() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.save();

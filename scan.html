@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Сканер Primo</title>
+    <style>
+        @font-face { font-family: 'PrimoScan'; src: url('primo.ttf'); }
+        body { font-family: sans-serif; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; }
+        .card { border: 1px solid #ccc; padding: 5px; text-align: center; }
+        .glyph { font-family: 'PrimoScan'; font-size: 40px; display: block; margin-bottom: 5px; }
+        .code { font-size: 10px; color: #666; font-family: monospace; }
+        .highlight { background-color: #e0f7fa; border-color: #00acc1; }
+    </style>
+</head>
+<body>
+    <h2>Ищем спрятанные буквы (без хвостов)</h2>
+    <p>Прокрутите вниз и ищите буквы, у которых нет соединительного крючка справа.</p>
+    <div class="grid" id="grid"></div>
+    <script>
+        const container = document.getElementById('grid');
+        
+        // 1. Стандартная кириллица (для сравнения)
+        addRange(0x0410, 0x044F, "Стандарт");
+
+        // 2. Область PUA (Private Use Area) - здесь часто прячут альтернативы
+        addRange(0xE000, 0xE200, "Скрытые (PUA)");
+        
+        // 3. Дополнительные области, где могут быть спрятаны символы
+        addRange(0x0400, 0x04FF, "Вся кириллица");
+
+        function addRange(start, end, label) {
+            for (let i = start; i <= end; i++) {
+                const div = document.createElement('div');
+                div.className = 'card';
+                // Пропускаем совсем пустые, но в шрифтах могут быть пустышки
+                div.innerHTML = `
+                    <span class="glyph">&#${i};</span>
+                    <span class="code">U+${i.toString(16).toUpperCase()}</span>
+                `;
+                container.appendChild(div);
+            }
+        }
+    </script>
+</body>
+</html>

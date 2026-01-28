@@ -3,12 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Генератор (Калибровка Мазиной)</title>
+    <title>Генератор Прописей Онлайн | Скачать PDF (Частая косая)</title>
 
-    <meta name="description" content="Генератор прописей. Калибровка сетки.">
-    <meta name="robots" content="noindex">
+    <meta name="description" content="Бесплатный генератор прописей для 1 класса. Создайте и распечатайте прописи в частую косую, клетку или линейку. Шрифт Primo, пунктирный и контурный текст. Сохранение в PDF.">
+    <meta name="keywords" content="генератор прописей, создать прописи, прописи распечатать, частая косая, прописи пунктиром, шрифт primo, прописи PDF, 1 класс, обучение письму">
+    <meta name="author" content="Propisi.site">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Генератор Прописей Онлайн: Создать и Распечатать (PDF)">
+    <meta property="og:description" content="Создайте свои прописи за 1 минуту. Правильные соединения букв, пунктирный шрифт, частая косая линейка.">
+    <meta property="og:url" content="https://propisi.site/generator.html">
+    <meta property="og:image" content="https://propisi.site/preview_gen.jpg">
+
     <link rel="icon" type="image/png" href="favicon.png">
-    
+
     <script type="text/javascript" >
        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
        m[i].l=1*new Date();
@@ -32,7 +40,7 @@
             --sidebar-bg: #FFFFFF;
             --text-primary: #1C1C1E;
             --text-secondary: #8E8E93;
-            --accent: #FF3B30; /* Красный для теста */
+            --accent: #007AFF;
             --radius-M: 10px;
         }
 
@@ -74,10 +82,6 @@
         button.btn-primary { border: none; height: 48px; border-radius: var(--radius-M); font-size: 17px; font-weight: 600; cursor: pointer; background-color: var(--accent); color: white; width: 100%; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; }
         button.btn-primary:active { opacity: 0.8; }
 
-        /* Ползунок калибровки */
-        #calibrationBox { background: #FFF0F0; border: 1px solid #FFCDCD; padding: 10px; border-radius: 8px; display: none; margin-top: 5px; }
-        input[type=range] { width: 100%; }
-
         .sidebar-footer { font-size: 11px; color: #999; margin-top: 10px; line-height: 1.4; text-align: center; padding-top: 10px; border-top: 1px solid #f0f0f0; }
         .sidebar-footer a { color: #999; text-decoration: underline; }
 
@@ -102,7 +106,7 @@
     <div class="sidebar" id="appSidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">РЕЖИМ КАЛИБРОВКИ v9.8</p>
+            <p class="app-subtitle">Генератор прописей v10.0</p>
         </div>
 
         <div class="nav-tabs">
@@ -112,20 +116,13 @@
 
         <div class="section">
             <div class="section-label">1. Разлиновка</div>
-            <select id="bgSelect" onchange="checkMazina()">
+            <select id="bgSelect" onchange="updatePreview()">
                 <option value="propisi_often" selected>Частая косая (1 класс)</option>
-                <option value="mazina">Сетка Мазиной (Ритм)</option>
                 <option value="propisi_lines">Узкая линейка (2 класс)</option>
                 <option value="wide_lines">Широкая линейка (Старшие)</option>
                 <option value="cell">Клетка (5 мм)</option>
                 <option value="white">Чистый лист</option>
             </select>
-
-            <div id="calibrationBox">
-                <div class="section-label" style="color:#d00;">🛠 Ширина ячейки</div>
-                <input type="range" id="mazinaWidth" min="3" max="15" step="0.1" value="6.5" oninput="updateMazinaWidth(this.value)">
-                <div style="text-align:center; font-weight:bold; font-size:14px; margin-top:5px;" id="widthVal">6.5 мм</div>
-            </div>
         </div>
 
         <div class="section">
@@ -174,11 +171,10 @@
         const sidebar = document.getElementById('appSidebar');
         const fontFile = 'primo.ttf'; 
         let fontBase64 = null;
-        let currentMazinaWidthMM = 6.5; // Старт калибровки
 
         const MM_TO_PX = 11.81; 
-        const ROW_H = 4 * MM_TO_PX; // 4 мм
-        const GAP_H = 8 * MM_TO_PX; 
+        const ROW_H = 4 * MM_TO_PX;
+        const GAP_H = 8 * MM_TO_PX;
         const MARGIN_TOP = 20 * MM_TO_PX;
         const MARGIN_LEFT = 20 * MM_TO_PX;
         const MARGIN_RIGHT = 15 * MM_TO_PX;
@@ -186,24 +182,6 @@
         const OFFSET_PX = 0; 
 
         function toggleSidebar() { sidebar.classList.toggle('closed'); }
-
-        // Показ слайдера
-        function checkMazina() {
-            const val = document.getElementById('bgSelect').value;
-            const box = document.getElementById('calibrationBox');
-            if (val === 'mazina') {
-                box.style.display = 'block';
-            } else {
-                box.style.display = 'none';
-            }
-            updatePreview();
-        }
-
-        function updateMazinaWidth(val) {
-            currentMazinaWidthMM = parseFloat(val);
-            document.getElementById('widthVal').innerText = val + ' мм';
-            updatePreview();
-        }
 
         // --- ЛОГИКА NEKIN (PRIMO) ---
         function getHeadAndTail(char) {
@@ -354,8 +332,7 @@
                 reader.onloadend = function() {
                     fontBase64 = reader.result;
                     document.getElementById('status').innerText = 'Готов к работе';
-                    // ПРОВЕРКА ПРИ ЗАГРУЗКЕ
-                    checkMazina(); 
+                    updatePreview();
                 };
                 reader.readAsDataURL(blob);
             } catch (e) {
@@ -462,7 +439,6 @@
             }
 
             let lineHeight = ROW_H; 
-            
             const totalH = lineHeight + GAP_H;
             let y = MARGIN_TOP;
             
@@ -472,10 +448,11 @@
             if (type === 'propisi_often') { drawSlant = true; slantStep = 25 * MM_TO_PX; }
             if (type === 'mazina') { 
                 drawSlant = true; 
-                slantStep = currentMazinaWidthMM * MM_TO_PX; // Слайдер
+                slantStep = 0; // Заглушка, реально рисуется ниже через цикл
             } 
 
             while(y < h - MARGIN_TOP) {
+                // Строки
                 ctx.lineWidth = 2; ctx.strokeStyle = '#5096F2'; ctx.setLineDash([]);
                 ctx.beginPath(); 
                 ctx.moveTo(0, y); ctx.lineTo(w, y); 
@@ -485,38 +462,29 @@
                 ctx.moveTo(0, y + lineHeight); ctx.lineTo(w, y + lineHeight); 
                 ctx.stroke();
 
-                if (type === 'mazina') {
-                    // Пунктир 1 (Gap)
-                    const midGap = y + lineHeight + (GAP_H / 2);
-                    ctx.lineWidth = 1; ctx.strokeStyle = '#5096F2';
-                    ctx.setLineDash([5, 5]); 
-                    ctx.beginPath();
-                    ctx.moveTo(0, midGap); ctx.lineTo(w, midGap);
-                    ctx.stroke();
-
-                    // Пунктир 2 (Row)
-                    const midRow = y + (lineHeight / 2);
-                    ctx.beginPath();
-                    ctx.moveTo(0, midRow); ctx.lineTo(w, midRow);
-                    ctx.stroke();
-
-                    ctx.setLineDash([]); 
-                }
-
                 y += totalH;
             }
             if (drawSlant) {
-                ctx.save();
                 ctx.lineWidth = (type === 'mazina') ? 1 : 2;
                 ctx.strokeStyle = (type === 'mazina') ? '#BBBBBB' : '#D1D1D6';
                 ctx.beginPath(); 
                 const tan = 0.466; 
                 const totalShift = h * tan;
-                for (let x = -totalShift; x < w; x += slantStep) {
+                
+                // ШАГ НАКЛОНА
+                let step = slantStep;
+                if (type === 'mazina') {
+                    // Явная логика для мазиной из ползунка
+                    // Если ползунок вдруг не загрузился, берем дефолт 6.5
+                    const slider = document.getElementById('mazinaWidth');
+                    const val = slider ? parseFloat(slider.value) : 6.5;
+                    step = val * MM_TO_PX;
+                }
+
+                for (let x = -totalShift; x < w; x += step) {
                     ctx.moveTo(x + totalShift, 0); ctx.lineTo(x, h);
                 }
                 ctx.stroke();
-                ctx.restore();
             }
         }
 

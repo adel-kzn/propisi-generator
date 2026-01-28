@@ -105,7 +105,7 @@
     <div class="sidebar" id="appSidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Генератор прописей v9.4</p>
+            <p class="app-subtitle">Генератор прописей v9.6</p>
         </div>
 
         <div class="nav-tabs">
@@ -438,8 +438,8 @@
                 return;
             }
 
+            // Мазина тоже 4 мм (как и прописи)
             let lineHeight = ROW_H; 
-            if (type === 'mazina') lineHeight = 5 * MM_TO_PX; 
 
             const totalH = lineHeight + GAP_H;
             let y = MARGIN_TOP;
@@ -451,6 +451,7 @@
             if (type === 'mazina') { drawSlant = true; slantStep = 3.5 * MM_TO_PX; } 
 
             while(y < h - MARGIN_TOP) {
+                // Основные линии строки (верх/низ)
                 ctx.lineWidth = 2; ctx.strokeStyle = '#5096F2'; ctx.setLineDash([]);
                 ctx.beginPath(); 
                 ctx.moveTo(0, y); ctx.lineTo(w, y); 
@@ -461,13 +462,21 @@
                 ctx.stroke();
 
                 if (type === 'mazina') {
+                    // 1. Пунктир в межстрочном интервале (середина GAP)
                     const midGap = y + lineHeight + (GAP_H / 2);
                     ctx.lineWidth = 1; ctx.strokeStyle = '#5096F2';
                     ctx.setLineDash([5, 5]); 
                     ctx.beginPath();
                     ctx.moveTo(0, midGap); ctx.lineTo(w, midGap);
                     ctx.stroke();
-                    ctx.setLineDash([]);
+
+                    // 2. Пунктир внутри рабочей строки (середина ROW)
+                    const midRow = y + (lineHeight / 2);
+                    ctx.beginPath();
+                    ctx.moveTo(0, midRow); ctx.lineTo(w, midRow);
+                    ctx.stroke();
+
+                    ctx.setLineDash([]); // Сброс
                 }
 
                 y += totalH;
@@ -486,8 +495,7 @@
         }
 
         function drawTextViaSVG(lines, w, h, styleMode, bgType) {
-            let currentLineHeight = ROW_H; 
-            if (bgType === 'mazina') currentLineHeight = 5 * MM_TO_PX; 
+            let currentLineHeight = ROW_H; // Всегда 4мм
 
             const fullRowH = currentLineHeight + GAP_H;
             let tspans = '';

@@ -5,8 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Генератор (Калибровка Мазиной)</title>
 
-    <meta name="description" content="Генератор прописей. Калибровочная версия для настройки ширины ячейки Мазиной.">
-    <meta name="robots" content="noindex"> <link rel="icon" type="image/png" href="favicon.png">
+    <meta name="description" content="Генератор прописей. Калибровка сетки.">
+    <meta name="robots" content="noindex">
+    <link rel="icon" type="image/png" href="favicon.png">
+    
+    <script type="text/javascript" >
+       (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+       m[i].l=1*new Date();
+       for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+       k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+       (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+       ym(106467293, "init", {clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/106467293" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -21,7 +32,7 @@
             --sidebar-bg: #FFFFFF;
             --text-primary: #1C1C1E;
             --text-secondary: #8E8E93;
-            --accent: #FF3B30; /* Красный акцент, чтобы вы помнили, что это тест */
+            --accent: #FF3B30; /* Красный для теста */
             --radius-M: 10px;
         }
 
@@ -63,10 +74,8 @@
         button.btn-primary { border: none; height: 48px; border-radius: var(--radius-M); font-size: 17px; font-weight: 600; cursor: pointer; background-color: var(--accent); color: white; width: 100%; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; }
         button.btn-primary:active { opacity: 0.8; }
 
-        /* Стили для калибровочного ползунка */
-        #calibrationBox {
-            background: #FFF0F0; border: 1px solid #FFCDCD; padding: 10px; border-radius: 8px; display: none;
-        }
+        /* Ползунок калибровки */
+        #calibrationBox { background: #FFF0F0; border: 1px solid #FFCDCD; padding: 10px; border-radius: 8px; display: none; margin-top: 5px; }
         input[type=range] { width: 100%; }
 
         .sidebar-footer { font-size: 11px; color: #999; margin-top: 10px; line-height: 1.4; text-align: center; padding-top: 10px; border-top: 1px solid #f0f0f0; }
@@ -93,7 +102,7 @@
     <div class="sidebar" id="appSidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">РЕЖИМ КАЛИБРОВКИ v9.7</p>
+            <p class="app-subtitle">РЕЖИМ КАЛИБРОВКИ v9.8</p>
         </div>
 
         <div class="nav-tabs">
@@ -111,12 +120,11 @@
                 <option value="cell">Клетка (5 мм)</option>
                 <option value="white">Чистый лист</option>
             </select>
-            
+
             <div id="calibrationBox">
-                <div class="section-label" style="color:#d00;">🛠 Настройка ширины ячейки</div>
+                <div class="section-label" style="color:#d00;">🛠 Ширина ячейки</div>
                 <input type="range" id="mazinaWidth" min="3" max="15" step="0.1" value="6.5" oninput="updateMazinaWidth(this.value)">
                 <div style="text-align:center; font-weight:bold; font-size:14px; margin-top:5px;" id="widthVal">6.5 мм</div>
-                <div style="font-size:10px; color:#666; margin-top:5px;">Двигайте, пока буквы не встанут в ритм.</div>
             </div>
         </div>
 
@@ -166,9 +174,7 @@
         const sidebar = document.getElementById('appSidebar');
         const fontFile = 'primo.ttf'; 
         let fontBase64 = null;
-        
-        // Переменная для калибровки
-        let currentMazinaWidthMM = 6.5; 
+        let currentMazinaWidthMM = 6.5; // Старт калибровки
 
         const MM_TO_PX = 11.81; 
         const ROW_H = 4 * MM_TO_PX; // 4 мм
@@ -181,7 +187,7 @@
 
         function toggleSidebar() { sidebar.classList.toggle('closed'); }
 
-        // --- ЛОГИКА КАЛИБРОВКИ ---
+        // Показ слайдера
         function checkMazina() {
             const val = document.getElementById('bgSelect').value;
             const box = document.getElementById('calibrationBox');
@@ -348,7 +354,8 @@
                 reader.onloadend = function() {
                     fontBase64 = reader.result;
                     document.getElementById('status').innerText = 'Готов к работе';
-                    updatePreview();
+                    // ПРОВЕРКА ПРИ ЗАГРУЗКЕ
+                    checkMazina(); 
                 };
                 reader.readAsDataURL(blob);
             } catch (e) {
@@ -463,15 +470,12 @@
             let slantStep = 0;
             
             if (type === 'propisi_often') { drawSlant = true; slantStep = 25 * MM_TO_PX; }
-            
-            // --- ЛОГИКА КАЛИБРОВКИ МАЗИНОЙ ---
             if (type === 'mazina') { 
                 drawSlant = true; 
-                slantStep = currentMazinaWidthMM * MM_TO_PX; // Используем ползунок
+                slantStep = currentMazinaWidthMM * MM_TO_PX; // Слайдер
             } 
 
             while(y < h - MARGIN_TOP) {
-                // Основные линии строки (верх/низ)
                 ctx.lineWidth = 2; ctx.strokeStyle = '#5096F2'; ctx.setLineDash([]);
                 ctx.beginPath(); 
                 ctx.moveTo(0, y); ctx.lineTo(w, y); 
@@ -482,7 +486,7 @@
                 ctx.stroke();
 
                 if (type === 'mazina') {
-                    // 1. Пунктир в межстрочном (середина GAP)
+                    // Пунктир 1 (Gap)
                     const midGap = y + lineHeight + (GAP_H / 2);
                     ctx.lineWidth = 1; ctx.strokeStyle = '#5096F2';
                     ctx.setLineDash([5, 5]); 
@@ -490,32 +494,26 @@
                     ctx.moveTo(0, midGap); ctx.lineTo(w, midGap);
                     ctx.stroke();
 
-                    // 2. Пунктир внутри рабочей строки (середина ROW)
+                    // Пунктир 2 (Row)
                     const midRow = y + (lineHeight / 2);
                     ctx.beginPath();
                     ctx.moveTo(0, midRow); ctx.lineTo(w, midRow);
                     ctx.stroke();
 
-                    ctx.setLineDash([]); // Сброс
+                    ctx.setLineDash([]); 
                 }
 
                 y += totalH;
             }
-            
-            // Косые линии
             if (drawSlant) {
                 ctx.save();
                 ctx.lineWidth = (type === 'mazina') ? 1 : 2;
                 ctx.strokeStyle = (type === 'mazina') ? '#BBBBBB' : '#D1D1D6';
                 ctx.beginPath(); 
-                
                 const tan = 0.466; 
                 const totalShift = h * tan;
-                
-                // Рисуем с запасом
-                for(let x = -totalShift; x < w; x += slantStep) {
-                    ctx.moveTo(x + totalShift, 0); 
-                    ctx.lineTo(x, h);
+                for (let x = -totalShift; x < w; x += slantStep) {
+                    ctx.moveTo(x + totalShift, 0); ctx.lineTo(x, h);
                 }
                 ctx.stroke();
                 ctx.restore();

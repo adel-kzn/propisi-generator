@@ -1,10 +1,20 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <link rel="icon" type="image/x-icon" href="favicon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Генератор Прописей Онлайн | Скачать PDF </title>
+    <title>Генератор Прописей Онлайн | Скачать PDF (Частая косая)</title>
+
+    <meta name="description" content="Бесплатный генератор прописей для 1 класса. Создайте и распечатайте прописи в частую косую или сетку Мазиной. Шрифт Primo, пунктирный и контурный текст. Сохранение в PDF.">
+    <meta name="keywords" content="генератор прописей, создать прописи, прописи распечатать, частая косая, сетка мазиной, шрифт primo, прописи PDF, 1 класс, обучение письму">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Генератор Прописей Онлайн: Создать и Распечатать (PDF)">
+    <meta property="og:description" content="Создайте свои прописи за 1 минуту. Правильные соединения букв, пунктирный шрифт, частая косая линейка.">
+    <meta property="og:url" content="https://propisi.site/generator.html">
+    <meta property="og:image" content="https://propisi.site/preview_gen.jpg">
+
+    <link rel="icon" type="image/png" href="favicon.png">
 
     <script type="text/javascript" >
        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -15,15 +25,9 @@
        ym(106467293, "init", {clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true});
     </script>
     <noscript><div><img src="https://mc.yandex.ru/watch/106467293" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<meta name="description" content="Бесплатный генератор прописей для 1 класса. Создайте и распечатайте прописи в частую косую, клетку или линейку. Шрифт Primo, пунктирный и контурный текст. Сохранение в PDF.">
-<meta name="keywords" content="генератор прописей, создать прописи, прописи распечатать, частая косая, прописи пунктиром, шрифт primo, прописи PDF, 1 класс, обучение письму">
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="Генератор Прописей Онлайн: Создать и Распечатать (PDF)">
-<meta property="og:description" content="Создайте свои прописи за 1 минуту. Правильные соединения букв, пунктирный шрифт, частая косая линейка.">
-<meta property="og:url" content="https://propisi.site/generator.html">
-<meta property="og:image" content="https://propisi.site/preview_gen.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <style>
         @font-face {
             font-family: 'PrimoFont';
@@ -42,7 +46,6 @@
         * { box-sizing: border-box; }
         body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--app-bg); height: 100vh; display: flex; overflow: hidden; }
         
-        /* КНОПКА МЕНЮ */
         .toggle-btn {
             position: fixed; top: 15px; left: 15px; width: 44px; height: 44px;
             background: white; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -51,13 +54,11 @@
             color: var(--accent);
         }
 
-        /* SIDEBAR */
         .sidebar {
             width: 360px; min-width: 360px; height: 100%;
             background: var(--sidebar-bg); border-right: 1px solid rgba(0,0,0,0.1);
             display: flex; flex-direction: column; padding: 20px; 
-            padding-top: 70px;
-            gap: 15px; overflow-y: auto; z-index: 1000;
+            padding-top: 70px; gap: 15px; overflow-y: auto; z-index: 1000;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
         }
@@ -80,11 +81,10 @@
         button.btn-primary { border: none; height: 48px; border-radius: var(--radius-M); font-size: 17px; font-weight: 600; cursor: pointer; background-color: var(--accent); color: white; width: 100%; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; }
         button.btn-primary:active { opacity: 0.8; }
 
-        .main-area {
-            flex-grow: 1; background-color: var(--app-bg); 
-            display: flex; justify-content: center; align-items: flex-start; 
-            overflow-y: auto; padding: 40px; width: 100%;
-        }
+        .sidebar-footer { font-size: 11px; color: #999; margin-top: 10px; line-height: 1.4; text-align: center; padding-top: 10px; border-top: 1px solid #f0f0f0; }
+        .sidebar-footer a { color: #999; text-decoration: underline; }
+
+        .main-area { flex-grow: 1; background-color: var(--app-bg); display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; padding: 40px; width: 100%; }
         .a4-container { width: 100%; max-width: 800px; aspect-ratio: 210 / 297; background: white; box-shadow: 0 4px 24px rgba(0,0,0,0.08); flex-shrink: 0; }
         canvas { width: 100%; height: 100%; display: block; }
 
@@ -105,7 +105,7 @@
     <div class="sidebar" id="appSidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Генератор прописей v9.3</p>
+            <p class="app-subtitle">Генератор прописей v9.4</p>
         </div>
 
         <div class="nav-tabs">
@@ -117,6 +117,7 @@
             <div class="section-label">1. Разлиновка</div>
             <select id="bgSelect" onchange="updatePreview()">
                 <option value="propisi_often" selected>Частая косая (1 класс)</option>
+                <option value="mazina">Сетка Мазиной (Ритм)</option>
                 <option value="propisi_lines">Узкая линейка (2 класс)</option>
                 <option value="wide_lines">Широкая линейка (Старшие)</option>
                 <option value="cell">Клетка (5 мм)</option>
@@ -146,11 +147,16 @@
             </button>
             <div id="status">Загрузка шрифта...</div>
         </div>
+
         <div class="section" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
-    <a href="about.html" style="text-decoration: none; color: #8E8E93; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 5px; transition: color 0.2s;">
-        <span style="font-size: 16px;">ℹ️</span> Инструкция и Описание
-    </a>
-</div>
+            <a href="about.html" style="text-decoration: none; color: #8E8E93; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 5px; transition: color 0.2s;">
+                <span style="font-size: 16px;">ℹ️</span> Инструкция и Описание
+            </a>
+            <div class="sidebar-footer">
+                © 2026 Propisi.site. Все права защищены.<br>
+                Использование материалов возможно только при наличии ссылки на сайт.
+            </div>
+        </div>
     </div>
 
     <div class="main-area">
@@ -175,9 +181,7 @@
         const FONT_SIZE_PX = 116; 
         const OFFSET_PX = 0; 
 
-        function toggleSidebar() {
-            sidebar.classList.toggle('closed');
-        }
+        function toggleSidebar() { sidebar.classList.toggle('closed'); }
 
         // --- ЛОГИКА NEKIN (PRIMO) ---
         function getHeadAndTail(char) {
@@ -403,20 +407,17 @@
             });
         }
 
-        // --- ФОН ---
         function drawBackground(w, h, type) {
             if (type === 'white') return;
 
-            // ПОЛЯ
             ctx.lineWidth = 2;
+            ctx.setLineDash([]);
             ctx.beginPath(); ctx.strokeStyle = '#FF8080'; ctx.lineWidth = 4;
             ctx.moveTo(MARGIN_LEFT, 0); ctx.lineTo(MARGIN_LEFT, h); ctx.stroke();
             
-            // КЛЕТКА
             if (type === 'cell') {
                 const cellSize = 5 * MM_TO_PX; 
-                ctx.lineWidth = 1;
-                ctx.strokeStyle = '#5096F2'; 
+                ctx.lineWidth = 1; ctx.strokeStyle = '#5096F2'; 
                 ctx.beginPath();
                 for (let x = 0; x < w; x += cellSize) { ctx.moveTo(x, 0); ctx.lineTo(x, h); }
                 for (let y = 0; y < h; y += cellSize) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
@@ -426,11 +427,9 @@
                 return;
             }
 
-            // ШИРОКАЯ ЛИНЕЙКА
             if (type === 'wide_lines') {
                 const lineStep = 9 * MM_TO_PX; 
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = '#5096F2';
+                ctx.lineWidth = 2; ctx.strokeStyle = '#5096F2';
                 ctx.beginPath();
                 for (let y = MARGIN_TOP; y < h; y += lineStep) {
                     ctx.moveTo(0, y); ctx.lineTo(w, y);
@@ -439,27 +438,44 @@
                 return;
             }
 
-            // ПРОПИСИ
-            const totalH = ROW_H + GAP_H;
+            let lineHeight = ROW_H; 
+            if (type === 'mazina') lineHeight = 5 * MM_TO_PX; 
+
+            const totalH = lineHeight + GAP_H;
             let y = MARGIN_TOP;
             
             let drawSlant = false;
             let slantStep = 0;
             
-            if (type === 'propisi_often') { 
-                drawSlant = true; 
-                slantStep = 25 * MM_TO_PX; 
-            }
+            if (type === 'propisi_often') { drawSlant = true; slantStep = 25 * MM_TO_PX; }
+            if (type === 'mazina') { drawSlant = true; slantStep = 3.5 * MM_TO_PX; } 
 
-            ctx.lineWidth = 2;
             while(y < h - MARGIN_TOP) {
-                ctx.beginPath(); ctx.strokeStyle = '#5096F2'; 
-                ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(0, y + ROW_H); ctx.lineTo(w, y + ROW_H); ctx.stroke();
+                ctx.lineWidth = 2; ctx.strokeStyle = '#5096F2'; ctx.setLineDash([]);
+                ctx.beginPath(); 
+                ctx.moveTo(0, y); ctx.lineTo(w, y); 
+                ctx.stroke();
+                
+                ctx.beginPath(); 
+                ctx.moveTo(0, y + lineHeight); ctx.lineTo(w, y + lineHeight); 
+                ctx.stroke();
+
+                if (type === 'mazina') {
+                    const midGap = y + lineHeight + (GAP_H / 2);
+                    ctx.lineWidth = 1; ctx.strokeStyle = '#5096F2';
+                    ctx.setLineDash([5, 5]); 
+                    ctx.beginPath();
+                    ctx.moveTo(0, midGap); ctx.lineTo(w, midGap);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+
                 y += totalH;
             }
             if (drawSlant) {
-                ctx.beginPath(); ctx.strokeStyle = '#D1D1D6';
+                ctx.lineWidth = (type === 'mazina') ? 1 : 2;
+                ctx.strokeStyle = (type === 'mazina') ? '#BBBBBB' : '#D1D1D6';
+                ctx.beginPath(); 
                 const tan = 0.466; 
                 const totalShift = h * tan;
                 for (let x = -totalShift; x < w; x += slantStep) {
@@ -469,29 +485,26 @@
             }
         }
 
-        // --- ГЕНЕРАЦИЯ ТЕКСТА (SVG) ---
         function drawTextViaSVG(lines, w, h, styleMode, bgType) {
-            const fullRowH = ROW_H + GAP_H;
+            let currentLineHeight = ROW_H; 
+            if (bgType === 'mazina') currentLineHeight = 5 * MM_TO_PX; 
+
+            const fullRowH = currentLineHeight + GAP_H;
             let tspans = '';
             
             lines.forEach((line, i) => {
                 let y;
-                // СПЕЦИАЛЬНОЕ УСЛОВИЕ ДЛЯ ШИРОКОЙ ЛИНЕЙКИ
                 if (bgType === 'wide_lines') {
                     const lineStep = 9 * MM_TO_PX;
-                    // Текст сажаем на линию. Линии идут: MarginTop, MarginTop+9mm...
-                    // Первая строка текста должна быть на MarginTop + 9mm.
                     y = MARGIN_TOP + (i + 1) * lineStep + OFFSET_PX;
                 } else {
-                    // Стандартный режим (Косая/Узкая)
-                    y = MARGIN_TOP + (i * fullRowH) + ROW_H + OFFSET_PX;
+                    y = MARGIN_TOP + (i * fullRowH) + currentLineHeight + OFFSET_PX;
                 }
                 
                 const safeLine = line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
                 tspans += `<text x="${MARGIN_LEFT}" y="${y}">${safeLine}</text>`;
             });
 
-            // Настройка стилей для SVG
             let svgStyle = '';
             let defs = '';
 
@@ -502,7 +515,6 @@
             } else if (styleMode === 'outline') {
                 svgStyle = `fill: white; stroke: rgba(0,0,0,0.5); stroke-width: 1px;`;
             } else if (styleMode === 'dotted') {
-                // Магия паттерна: 6x6 px (сжатый шаг), радиус 1.5
                 defs = `
                 <defs>
                     <pattern id="dotPattern" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
@@ -516,7 +528,6 @@
                 svgStyle = `fill: url(#dotPattern);`;
             }
 
-            // Если не точечный (там стиль внутри defs из-за бага Safari/Chrome иногда), то добавляем стандартный стиль
             if (styleMode !== 'dotted') {
                 defs = `
                 <defs>

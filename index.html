@@ -127,7 +127,7 @@
     <div class="sidebar" id="appSidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Интерактивная доска v11.2</p>
+            <p class="app-subtitle">Интерактивная доска v11.3</p>
         </div>
 
         <div class="nav-tabs">
@@ -241,7 +241,7 @@
         let playbackSpeed = 5;
 
         const MM = 11.81;
-        const ROW_H = 4 * MM; // Стандарт 4мм для всех (вкл. Мазину)
+        const ROW_H = 4 * MM; // 4 мм
         const GAP_H = 8 * MM; 
         const MT = 20 * MM; 
         const BASE_WIDTH_PX = 794; 
@@ -296,6 +296,8 @@
             const w = bgCanvas.width;
             const h = bgCanvas.height;
             const type = document.getElementById('bgSelect').value;
+            
+            // Очистка
             bgCtx.fillStyle = 'white';
             bgCtx.fillRect(0, 0, w, h);
 
@@ -303,10 +305,12 @@
             if (type === 'white') return;
 
             // ПОЛЯ
+            bgCtx.save();
             bgCtx.lineWidth = 2;
             bgCtx.setLineDash([]);
             bgCtx.beginPath(); bgCtx.strokeStyle = '#FF8080'; bgCtx.lineWidth = 4;
             bgCtx.moveTo(20*MM, 0); bgCtx.lineTo(20*MM, h); bgCtx.stroke();
+            bgCtx.restore();
             
             // КЛЕТКА
             if (type === 'cell') {
@@ -316,6 +320,8 @@
                 for (let x = 0; x < w; x += cellSize) { bgCtx.moveTo(x, 0); bgCtx.lineTo(x, h); }
                 for (let y = 0; y < h; y += cellSize) { bgCtx.moveTo(0, y); bgCtx.lineTo(w, y); }
                 bgCtx.stroke();
+                
+                // Повторно поле сверху
                 bgCtx.beginPath(); bgCtx.strokeStyle = '#FF8080'; bgCtx.lineWidth = 4;
                 bgCtx.moveTo(20*MM, 0); bgCtx.lineTo(20*MM, h); bgCtx.stroke();
                 return;
@@ -334,31 +340,32 @@
             }
 
             // --- ОБЫЧНЫЕ / ЧАСТЫЕ / МАЗИНА ---
-            // Везде 4 мм
-            const totalH = ROW_H + GAP_H;
+            let lineHeight = ROW_H; // 4 мм
+            const totalH = lineHeight + GAP_H;
             let y = MT;
             
             let drawSlant = false;
             let slantStep = 0;
             
             if (type === 'propisi_often') { drawSlant = true; slantStep = 25 * MM; }
-            if (type === 'mazina') { drawSlant = true; slantStep = 3.5 * MM; } // Ритм
+            if (type === 'mazina') { drawSlant = true; slantStep = 3.5 * MM; } 
 
+            // Рисуем строки
             while(y < h - MT) {
-                // Строки (верх и низ)
+                // Основные линии строки
                 bgCtx.lineWidth = 2; bgCtx.strokeStyle = '#5096F2'; bgCtx.setLineDash([]);
                 bgCtx.beginPath(); 
                 bgCtx.moveTo(0, y); bgCtx.lineTo(w, y); 
                 bgCtx.stroke();
                 
                 bgCtx.beginPath(); 
-                bgCtx.moveTo(0, y+ROW_H); bgCtx.lineTo(w, y+ROW_H); 
+                bgCtx.moveTo(0, y + lineHeight); bgCtx.lineTo(w, y + lineHeight); 
                 bgCtx.stroke();
 
                 // ВСПОМОГАТЕЛЬНЫЕ ЛИНИИ ДЛЯ МАЗИНОЙ
                 if (type === 'mazina') {
-                    // 1. Пунктир в межстрочном интервале (середина GAP)
-                    const midGap = y + ROW_H + (GAP_H / 2); 
+                    // 1. Пунктир в межстрочном (середина GAP)
+                    const midGap = y + lineHeight + (GAP_H / 2); 
                     bgCtx.lineWidth = 1; bgCtx.strokeStyle = '#5096F2';
                     bgCtx.setLineDash([5, 5]); 
                     bgCtx.beginPath();
@@ -366,28 +373,34 @@
                     bgCtx.stroke();
 
                     // 2. Пунктир внутри рабочей строки (середина ROW)
-                    const midRow = y + (ROW_H / 2);
+                    const midRow = y + (lineHeight / 2);
                     bgCtx.beginPath();
                     bgCtx.moveTo(0, midRow); bgCtx.lineTo(w, midRow);
                     bgCtx.stroke();
 
-                    bgCtx.setLineDash([]); // Сброс
+                    bgCtx.setLineDash([]); 
                 }
 
                 y += totalH;
             }
             
-            // Косые линии
+            // Косые линии (рисуем ПОСЛЕ всего)
             if (drawSlant) {
+                bgCtx.save();
                 bgCtx.lineWidth = (type === 'mazina') ? 1 : 2; 
                 bgCtx.strokeStyle = (type === 'mazina') ? '#BBBBBB' : '#D1D1D6'; 
                 bgCtx.beginPath(); 
+                
                 const tan = 0.466; 
-                const totalShift = h * tan;
+                const shift = h * tan;
+                
+                // Рисуем с запасом слева и справа
                 for(let x = -shift; x < w; x += slantStep) {
-                    bgCtx.moveTo(x + totalShift, 0); bgCtx.lineTo(x, h);
+                    bgCtx.moveTo(x + shift, 0); 
+                    bgCtx.lineTo(x, h);
                 }
                 bgCtx.stroke();
+                bgCtx.restore();
             }
         }
 

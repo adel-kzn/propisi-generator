@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>О сервисе Propisi.site | Инструкция и Возможности</title>
+    <title>О сервисе Propisi.site | Инструкция и Авторские права</title>
     
-    <meta name="description" content="Полная инструкция по работе с генератором прописей и интерактивной доской. Как создать прописи для 1 класса, настроить шрифт и записать видео-урок.">
-    <meta name="keywords" content="инструкция прописи, как пользоваться генератором прописей, частая косая, шрифт primo, обучение письму">
+    <meta name="description" content="Полная инструкция по работе с генератором прописей и интерактивной доской. Информация об авторских правах и шрифте Primo.">
+    <meta name="keywords" content="инструкция прописи, как пользоваться генератором прописей, частая косая, шрифт primo, леонид некин">
 
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" href="favicon.png">
 
     <script type="text/javascript" >
        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -35,6 +35,7 @@
             background-color: var(--app-bg);
             color: var(--text-primary);
             line-height: 1.6;
+            display: flex; flex-direction: column; min-height: 100vh;
         }
 
         /* Шапка */
@@ -54,7 +55,7 @@
 
         /* Контент */
         .container {
-            max-width: 800px; margin: 40px auto; padding: 0 20px;
+            max-width: 800px; margin: 40px auto; padding: 0 20px; flex: 1;
         }
 
         .card {
@@ -85,6 +86,15 @@
             font-weight: 600; margin-top: 10px;
         }
         .cta-button:hover { opacity: 0.9; }
+
+        /* Подвал */
+        .footer {
+            background: #fff; border-top: 1px solid #e5e5ea;
+            padding: 30px 20px; text-align: center; color: var(--text-secondary);
+            font-size: 13px;
+        }
+        .footer p { margin: 5px 0; font-size: 13px; }
+        .footer a { color: var(--text-secondary); text-decoration: underline; }
 
         @media (max-width: 700px) {
             .feature-grid { grid-template-columns: 1fr; }
@@ -142,8 +152,8 @@
             
             <ul>
                 <li>
-                    <strong>Умный шрифт <a href="http://nekin.info" target="_blank" class="text-link">Primo</a> (nekin.info):</strong> 
-                    Мы используем лицензионный шрифт с автоматическими соединениями букв, разработанный Александром Некиным.
+                    <strong>Умный шрифт <a href="http://nekin.info" target="_blank" class="text-link">Primo</a>:</strong> 
+                    Мы используем лицензионный шрифт с автоматическими соединениями букв, разработанный Леонидом Некиным (nekin.info).
                 </li>
                 <li><strong>4 стиля текста:</strong>
                     <ul>
@@ -160,6 +170,11 @@
         </div>
 
     </div>
+
+    <footer class="footer">
+        <p>© 2026 Propisi.site. Все права защищены.</p>
+        <p>Использование материалов сайта возможно только при наличии активной ссылки на <a href="https://propisi.site">https://propisi.site</a>.</p>
+    </footer>
 
 </body>
 </html>

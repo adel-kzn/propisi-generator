@@ -3,749 +3,628 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Тренажер письма</title>
+    <title>Рисование (v11.0 Mobile)</title>
 
     <meta name="yandex-verification" content="zoqf7gn5mwyntin5" />
-
-    <script type="text/javascript">
-        (function(m,e,t,r,i,k,a){
-            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-            m[i].l=1*new Date();
-            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=106467293', 'ym');
-
-        ym(106467293, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+    <script type="text/javascript" >
+       (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+       m[i].l=1*new Date();
+       for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+       k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+       (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+       ym(106467293, "init", {clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true});
     </script>
-    <noscript><div><img src="https://mc.yandex.ru/watch/106467293" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
     <style>
-        /* --- APPLE / MACOS STYLE SYSTEM --- */
         :root {
-            --app-bg: #F2F2F7;
-            --sidebar-bg: rgba(255, 255, 255, 0.85);
-            --sidebar-border: rgba(0, 0, 0, 0.05);
+            --app-bg: #Eef2F5;
+            --sidebar-bg: #FFFFFF;
             --text-primary: #1C1C1E;
             --text-secondary: #8E8E93;
             --accent: #007AFF;
-            --accent-hover: #0062cc;
-            --danger: #FF3B30;
-            --radius-L: 16px;
             --radius-M: 10px;
-            --shadow-card: 0 8px 40px rgba(0, 0, 0, 0.12);
-            --z-sidebar: 1000;
-            --z-overlay: 900;
-            --z-menu-btn: 800;
-            --z-zoom: 500;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             margin: 0; padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--app-bg);
             color: var(--text-primary);
             height: 100vh;
             display: flex;
             overflow: hidden;
-            position: relative;
         }
 
-        /* --- ЛЕВАЯ ПАНЕЛЬ (SIDEBAR) --- */
-        .sidebar {
-            width: 320px;
-            min-width: 320px;
-            height: 100%;
-            background: var(--sidebar-bg);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border-right: 1px solid var(--sidebar-border);
-            display: flex;
-            flex-direction: column;
-            padding: 24px 20px;
-            gap: 20px;
-            overflow-y: auto;
-            z-index: var(--z-sidebar);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .sidebar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .close-btn {
-            display: none;
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .app-title { font-size: 24px; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
-        .app-subtitle { font-size: 13px; color: var(--text-secondary); margin: 0; }
-
-        .section { display: flex; flex-direction: column; gap: 8px; }
-        .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px; margin-left: 4px; }
-
-        /* --- КНОПКИ И КОНТРОЛЫ --- */
-        .row { display: flex; gap: 10px; }
-        /* .row > * { flex: 1; } Убрал жесткое выравнивание, чтобы кнопки были красивее */
-        
-        button {
-            border: none; height: 40px; border-radius: var(--radius-M);
-            font-size: 15px; font-weight: 500; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            transition: transform 0.1s, opacity 0.2s;
-            flex-grow: 1; /* Растягиваем кнопки */
-        }
-        button:active { transform: scale(0.96); }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        .btn-primary { background-color: var(--accent); color: white; box-shadow: 0 2px 8px rgba(0,122,255,0.25); }
-        .btn-secondary { background-color: rgba(0,0,0,0.05); color: var(--text-primary); }
-        .btn-danger { background-color: rgba(255, 59, 48, 0.1); color: var(--danger); }
-
-        select {
-            width: 100%; height: 40px; padding: 0 12px;
-            border-radius: var(--radius-M); border: 1px solid rgba(0,0,0,0.1);
-            background-color: rgba(255,255,255,0.6);
-            font-size: 15px; color: var(--text-primary); outline: none; appearance: none;
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007AFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-            background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 10px auto;
-        }
-
-        .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
-        .file-input-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
-        .btn-file { width: 100%; background: white; border: 1px dashed #ccc; color: var(--accent); }
-
-        .tool-panel {
-            background: white; padding: 8px 12px; border-radius: var(--radius-M);
-            display: flex; align-items: center; justify-content: space-between;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-        }
-        input[type="color"] { border: none; width: 32px; height: 32px; padding: 0; background: none; cursor: pointer; border-radius: 50%; }
-        input[type="number"] { width: 50px; border: none; text-align: right; font-size: 16px; font-weight: 600; color: var(--text-primary); outline: none; }
-
-        input[type=range] { width: 100%; -webkit-appearance: none; background: transparent; }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #E5E5EA; border-radius: 2px; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); margin-top: -8px; cursor: pointer; }
-
-        /* --- ZOOM CONTROLS --- */
-        .zoom-controls {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            z-index: var(--z-zoom);
-        }
-        .zoom-btn {
-            width: 44px;
-            height: 44px;
+        /* --- ГАМБУРГЕР (КНОПКА МЕНЮ) --- */
+        .toggle-btn {
+            position: fixed;
+            top: 15px; left: 15px;
+            width: 44px; height: 44px;
             background: white;
             border-radius: 50%;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            font-size: 22px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; border: none; cursor: pointer;
+            z-index: 2000; /* Поверх всего */
             color: var(--accent);
-            padding: 0;
+            transition: transform 0.2s;
         }
-        .zoom-btn:hover { background: #f0f0f0; }
-        
-        .zoom-value {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            background: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            min-width: 44px;
-            text-align: center;
-        }
+        .toggle-btn:active { transform: scale(0.9); }
 
-        /* --- КНОПКА МЕНЮ (ГАМБУРГЕР) --- */
-        .menu-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 44px;
-            height: 44px;
-            background: white;
-            border-radius: 50%;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: var(--z-menu-btn);
-            color: var(--text-primary);
-        }
-
-        .overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.3);
-            backdrop-filter: blur(2px);
-            z-index: var(--z-overlay);
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.3s;
-        }
-        .overlay.active { opacity: 1; pointer-events: all; }
-
-        /* --- ПРАВАЯ ЧАСТЬ (CANVAS) --- */
-        .main-area {
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--app-bg);
-            padding: 20px;
-            overflow: hidden;
-            width: 100%;
-        }
-
-        .canvas-container {
-            width: 800px;
-            height: 600px;
-            background: white;
-            border-radius: 4px; 
-            box-shadow: var(--shadow-card);
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 360px; min-width: 360px; height: 100%;
+            background: var(--sidebar-bg); border-right: 1px solid rgba(0,0,0,0.1);
+            display: flex; flex-direction: column; padding: 20px; 
+            padding-top: 70px; /* Отступ под кнопку */
+            gap: 15px;
+            overflow-y: auto; 
+            z-index: 1000;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
-            max-width: 100%;
-            max-height: 100%;
-            aspect-ratio: 4/3; 
         }
 
-        canvas {
-            display: block; width: 100%; height: 100%;
-            cursor: crosshair; touch-action: none;
+        /* Класс для скрытия панели */
+        .sidebar.closed {
+            transform: translateX(-100%);
+            position: absolute; /* Чтобы не занимала место когда скрыта */
         }
 
-        .icon { width: 24px; height: 24px; fill: currentColor; }
+        .app-title { font-size: 20px; font-weight: 700; margin: 0; }
+        .app-subtitle { font-size: 12px; color: var(--text-secondary); margin: 0; }
+        
+        .nav-tabs { display: flex; background: #F2F2F7; padding: 4px; border-radius: 10px; }
+        .nav-tab { flex: 1; text-align: center; padding: 8px 12px; font-size: 13px; font-weight: 500; text-decoration: none; color: var(--text-primary); border-radius: 7px; transition: all 0.2s; }
+        .nav-tab.active { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
-        /* --- АДАПТИВНОСТЬ (MOBILE) --- */
-        @media (max-width: 850px) {
-            .menu-btn { display: flex; }
+        .section { display: flex; flex-direction: column; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
+        .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); }
 
+        select, input[type=file] { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #E5E5EA; background-color: white; font-size: 14px; outline: none; }
+
+        /* Инструменты */
+        .tools-row { display: flex; gap: 8px; }
+        .tool-btn { flex: 1; padding: 10px; border: 1px solid #E5E5EA; border-radius: 8px; background: white; cursor: pointer; text-align: center; font-size: 13px; font-weight: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
+        .tool-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .tool-btn:active { transform: scale(0.98); }
+
+        /* Палитра */
+        .color-palette { display: flex; gap: 10px; justify-content: space-between; }
+        .color-swatch { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .color-swatch.active { border-color: #000; transform: scale(1.1); }
+
+        /* ЗУМ И СКОРОСТЬ */
+        .control-row { display: flex; align-items: center; gap: 10px; background: #F2F2F7; padding: 5px; border-radius: 8px; }
+        .zoom-btn { width: 36px; height: 36px; border: none; background: white; border-radius: 6px; font-size: 18px; font-weight: bold; cursor: pointer; color: var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .zoom-btn:active { background: #e0e0e0; }
+        .val-display { flex-grow: 1; text-align: center; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+        input[type=range] { width: 100%; }
+
+        /* Кнопки действий */
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        button.btn-action { border: none; height: 40px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; background: #F2F2F7; color: var(--text-primary); transition: 0.2s; display: flex; align-items: center; justify-content: center; width: 100%; }
+        button.btn-action:hover { background: #E5E5EA; }
+        button.btn-primary { background: var(--accent); color: white; }
+        button.btn-danger { background: #FF3B30; color: white; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        /* --- MAIN AREA --- */
+        .main-area {
+            flex-grow: 1; background-color: var(--app-bg); 
+            display: flex; align-items: center; justify-content: center; 
+            overflow: auto; position: relative;
+            width: 100%; /* Занимает все место когда панель скрыта */
+        }
+        
+        .canvas-wrapper {
+            background: white;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.15);
+            position: relative;
+            flex-shrink: 0; margin: auto;   
+        }
+
+        canvas { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+        #bgCanvas { z-index: 1; }
+        #drawCanvas { z-index: 2; cursor: crosshair; }
+
+        /* --- МОБИЛЬНЫЙ РЕЖИМ --- */
+        @media (max-width: 900px) {
             .sidebar {
-                position: absolute;
+                position: fixed; /* Нависает сверху */
                 left: 0; top: 0; bottom: 0;
+                width: 85%; max-width: 320px;
+                box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+            }
+            .sidebar.closed {
                 transform: translateX(-100%);
-                width: 280px;
-                min-width: 280px;
-                box-shadow: 4px 0 20px rgba(0,0,0,0.1);
             }
-
-            .sidebar.active {
-                transform: translateX(0);
+            .main-area {
+                padding: 10px;
+                padding-top: 60px; /* Место под кнопку гамбургера */
+                display: block; overflow: scroll;
             }
-
-            .close-btn { display: block; }
-
-            .main-area { padding: 10px; }
-            
-            .zoom-controls { bottom: 60px; right: 10px; }
+            .canvas-wrapper { margin: 0 auto; }
         }
-
     </style>
 </head>
 <body>
 
-    <button class="menu-btn" onclick="toggleMenu()">
-        <svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
-    </button>
+    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
 
-    <div class="overlay" onclick="closeMenu()"></div>
+    <div class="sidebar" id="appSidebar">
+        <div class="app-header">
+            <h1 class="app-title">Прописи</h1>
+            <p class="app-subtitle">Интерактивная доска v11.0</p>
+        </div>
 
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div>
-                <h1 class="app-title">Прописи</h1>
-                <p class="app-subtitle">Тренажер письма v3.2</p>
-            </div>
-            <button class="close-btn" onclick="closeMenu()">
-                <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-            </button>
+        <div class="nav-tabs">
+            <a href="index.html" class="nav-tab active">Рисование</a>
+            <a href="generator.html" class="nav-tab">Генератор</a>
         </div>
 
         <div class="section">
-            <div class="section-label">Управление</div>
-            <div class="row">
-                <button class="btn-primary" onclick="startReplay(); closeMenuIfMobile()" id="replayBtn" style="flex: 2;">
-                    <svg class="icon" style="width:18px;height:18px;" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                    Показать
-                </button>
-                <button class="btn-secondary" onclick="undoLastAction()" title="Отменить последнее действие" style="flex: 1;">
-                    <svg class="icon" style="width:20px;height:20px;" viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
-                </button>
-                <button class="btn-secondary btn-danger" onclick="fullClear(); closeMenuIfMobile()" title="Очистить всё" style="flex: 1;">
-                    <svg class="icon" style="width:18px;height:18px;" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-                </button>
-            </div>
-        </div>
-
-        <div class="section">
-            <div class="section-label">Экспорт</div>
-            <div class="row">
-                <button class="btn-secondary" onclick="downloadImage()">Фото</button>
-                <button class="btn-secondary" onclick="recordVideo()" id="recordBtn">Видео</button>
-            </div>
-        </div>
-
-        <div class="section">
-            <div class="section-label">Лист</div>
-            <select id="bgSelect" onchange="onBackgroundChange(); closeMenuIfMobile()">
-                <option value="propisi" selected>Косая линейка (1 класс)</option>
-                <option value="lines">Обычная линейка</option>
-                <option value="grid">Клетка</option>
-                <option value="music">Нотный стан</option>
-                <option value="none">Чистый лист</option>
+            <div class="section-label">1. Подложка</div>
+            <select id="bgSelect" onchange="changeBackground()">
+                <option value="propisi_often" selected>Частая косая (1 класс)</option>
+                <option value="propisi_lines">Узкая линейка (2 класс)</option>
+                <option value="wide_lines">Широкая линейка (Старшие)</option>
+                <option value="cell">Клетка (5 мм)</option> 
+                <option value="white">Чистый лист</option>
+                <option value="custom">📁 Загрузить своё фото...</option>
             </select>
             
-            <div class="file-input-wrapper">
-                <button class="btn-secondary btn-file">Загрузить свой фон...</button>
-                <input type="file" accept="image/*" onchange="handleImageUpload(this)">
+            <button id="btnUploadBg" class="btn-action" style="display:none; margin-top:8px; background:#E5E5EA;" onclick="document.getElementById('fileInput').click()">
+                📂 Выбрать файл
+            </button>
+            <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="handleImageUpload()">
+        </div>
+
+        <div class="section">
+            <div class="section-label">2. Инструменты</div>
+            <div class="tools-row">
+                <div class="tool-btn active" onclick="setTool('pen')" id="btnPen">🖊 Ручка</div>
+                <div class="tool-btn" onclick="setTool('eraser')" id="btnEraser">🧼 Ластик</div>
+                <div class="tool-btn" onclick="undo()" title="Отменить">↩️ Отмена</div>
+            </div>
+            
+            <div class="color-palette" id="palette">
+                <div class="color-swatch active" style="background:#0055AA" onclick="setColor('#0055AA', this)"></div>
+                <div class="color-swatch" style="background:#FF3B30" onclick="setColor('#FF3B30', this)"></div>
+                <div class="color-swatch" style="background:#34C759" onclick="setColor('#34C759', this)"></div>
+                <div class="color-swatch" style="background:#000000" onclick="setColor('#000000', this)"></div>
+            </div>
+            
+            <div style="margin-top:5px;">
+                <div class="section-label">Толщина линии</div>
+                <input type="range" id="lineWidth" min="1" max="15" value="4">
             </div>
         </div>
 
         <div class="section">
-            <div class="section-label">Ручка</div>
-            <div class="tool-panel">
-                <input type="color" id="color" value="#007AFF">
-                <span style="font-size:13px; color:#8E8E93;">Толщина:</span>
-                <input type="number" id="width" value="4" min="1" max="30">
-            </div>
-        </div>
-
-        <div class="section">
-            <div class="section-label">Скорость</div>
-            <input type="range" id="speed" min="1" max="10" value="5">
-        </div>
-
-        <div class="section" style="margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.05);">
-            <div class="section-label">Полезное</div>
-            <a href="https://market.yandex.ru/cc/8djm9v" rel="sponsored" target="_blank" style="text-decoration: none; color: inherit;">
-                <div style="background: white; border-radius: 12px; padding: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 12px; transition: transform 0.2s; border: 1px solid rgba(0,0,0,0.03);">
-                    <div style="min-width: 44px; height: 44px; background: #FFCC00; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
-                        🛍️
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 2px;">
-                        <span style="font-size: 13px; font-weight: 600; line-height: 1.2;">Товары для школы</span>
-                        <span style="font-size: 11px; color: #8E8E93;">Выгодные цены</span>
-                        <span style="font-size: 11px; color: #007AFF; font-weight: 500; margin-top: 2px;">Купить на Маркете &rarr;</span>
-                    </div>
+            <div class="section-label">3. Запись урока</div>
+            <button class="btn-action btn-primary" id="btnPlay" onclick="playRecording(false)">▶️ Проиграть (Как учитель)</button>
+            
+            <div style="margin-top:5px;">
+                <div class="section-label">Скорость воспроизведения</div>
+                <div class="control-row">
+                    <span style="font-size:12px; color:#888;">0.5x</span>
+                    <input type="range" id="speedRange" min="1" max="10" value="5" oninput="updateSpeedDisp()">
+                    <span style="font-size:12px; color:#888;">3x</span>
                 </div>
-            </a>
+                <div style="text-align:center; font-size:12px; color:#555; margin-top:2px;" id="speedVal">1.0x</div>
+            </div>
+
+            <div class="action-grid" style="margin-top:8px;">
+                 <button class="btn-action" id="btnExport" onclick="playRecording(true)">📹 Записать Видео</button>
+                 <button class="btn-action" onclick="downloadImage()">📷 Скачать Фото</button>
+            </div>
         </div>
 
+        <div class="section" style="margin-top:auto;">
+            <div class="section-label">Масштаб (Zoom)</div>
+            <div class="control-row">
+                <button class="zoom-btn" onclick="changeZoom(-0.1)">−</button>
+                <div class="val-display" id="zoomVal">100%</div>
+                <button class="zoom-btn" onclick="changeZoom(0.1)">+</button>
+            </div>
+            <button class="btn-action btn-danger" style="margin-top:10px;" onclick="clearCanvas()">🗑 Очистить всё</button>
+        </div>
     </div>
 
     <div class="main-area">
-        <div class="canvas-container">
-            <canvas id="drawingCanvas" width="800" height="600"></canvas>
-            
-            <div class="zoom-controls">
-                <button class="zoom-btn" onclick="changeZoom(0.1)">+</button>
-                <div id="zoomValue" class="zoom-value">100%</div>
-                <button class="zoom-btn" onclick="changeZoom(-0.1)">−</button>
-            </div>
+        <div class="canvas-wrapper" id="canvasWrapper">
+            <canvas id="bgCanvas" width="2480" height="3508"></canvas>
+            <canvas id="drawCanvas" width="2480" height="3508"></canvas>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('drawingCanvas');
-        const ctx = canvas.getContext('2d');
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.querySelector('.overlay');
-        
-        let isDrawing = false;
-        let allPaths = [];
-        let currentPath = [];
-        let isReplaying = false;
-        let uploadedImageObj = null;
-        let currentZoom = 1.0;
+        const bgCanvas = document.getElementById('bgCanvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        const drawCanvas = document.getElementById('drawCanvas');
+        const drawCtx = drawCanvas.getContext('2d');
+        const wrapper = document.getElementById('canvasWrapper');
+        const sidebar = document.getElementById('appSidebar');
 
-        window.onload = function() { 
-            redrawAll();
-            updateZoomDisplay();
+        let actions = []; 
+        let currentStroke = null;
+        let isDrawing = false;
+        let isReplaying = false;
+        let tool = 'pen';
+        let color = '#0055AA';
+        let zoom = 1.0;
+        let customImage = null; 
+        let playbackSpeed = 5;
+
+        const MM = 11.81;
+        const ROW_H = 4 * MM; 
+        const GAP_H = 8 * MM; 
+        const MT = 20 * MM; 
+        const BASE_WIDTH_PX = 794; 
+        const BASE_HEIGHT_PX = 1123;
+
+        window.onload = function() {
+            setZoom(1.0);
+            updateSpeedDisp();
+            drawBackground();
+            setupEvents();
+            
+            // На мобильном сразу скрываем панель для удобства?
+            if (window.innerWidth <= 900) {
+                // toggleSidebar(); // Можно раскомментировать, если хотите старт закрытым
+            }
         };
 
-        // --- НОВАЯ ФУНКЦИЯ: ОТМЕНИТЬ (UNDO) ---
-        function undoLastAction() {
-            if (allPaths.length > 0) {
-                allPaths.pop(); // Удаляем последний элемент из массива
-                redrawAll();    // Перерисовываем
-            }
+        // --- SIDEBAR TOGGLE ---
+        function toggleSidebar() {
+            sidebar.classList.toggle('closed');
         }
 
-        // --- ЗУМ ЛОГИКА ---
-        function changeZoom(delta) {
-            const newZoom = parseFloat((currentZoom + delta).toFixed(1));
+        // --- SPEED ---
+        function updateSpeedDisp() {
+            playbackSpeed = parseInt(document.getElementById('speedRange').value);
+            let factor = 1.0;
+            if (playbackSpeed < 5) factor = 0.5 + (playbackSpeed-1)*0.125;
+            else factor = 1.0 + (playbackSpeed-5)*0.4;
+            document.getElementById('speedVal').innerText = factor.toFixed(1) + 'x';
+        }
+
+        // --- ФОН ---
+        function changeBackground() {
+            const val = document.getElementById('bgSelect').value;
+            const btn = document.getElementById('btnUploadBg');
             
-            if (newZoom >= 0.5 && newZoom <= 3.0) {
-                currentZoom = newZoom;
-                redrawAll();
-                updateZoomDisplay();
+            if (val === 'custom') {
+                btn.style.display = 'flex'; 
+                document.getElementById('fileInput').click(); 
+            } else {
+                btn.style.display = 'none'; 
+                customImage = null;
+                drawBackground();
             }
         }
 
-        function updateZoomDisplay() {
-            const zoomPercent = Math.round(currentZoom * 100);
-            document.getElementById('zoomValue').innerText = zoomPercent + '%';
-        }
-
-        // --- МОБИЛЬНОЕ МЕНЮ ---
-        function toggleMenu() {
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        }
-
-        function closeMenu() {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-        }
-
-        function closeMenuIfMobile() {
-            if (window.innerWidth <= 850) {
-                closeMenu();
+        function handleImageUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() { customImage = img; drawBackground(); };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+                fileInput.value = '';
             }
-        }
-
-        // --- ФОНЫ ---
-        function onBackgroundChange() {
-            uploadedImageObj = null;
-            redrawAll();
         }
 
         function drawBackground() {
+            const w = bgCanvas.width;
+            const h = bgCanvas.height;
             const type = document.getElementById('bgSelect').value;
-            // Учитываем зум
-            const w = canvas.width / currentZoom;
-            const h = canvas.height / currentZoom;
+            bgCtx.fillStyle = 'white';
+            bgCtx.fillRect(0, 0, w, h);
 
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, w, h);
+            if (customImage) { bgCtx.drawImage(customImage, 0, 0, w, h); return; }
+            if (type === 'white') return;
 
-            if (uploadedImageObj) {
-                ctx.drawImage(uploadedImageObj, 0, 0, canvas.width, canvas.height);
+            // ПОЛЯ
+            bgCtx.lineWidth = 2;
+            bgCtx.beginPath(); bgCtx.strokeStyle = '#FF8080'; bgCtx.lineWidth = 4;
+            bgCtx.moveTo(20*MM, 0); bgCtx.lineTo(20*MM, h); bgCtx.stroke();
+            
+            // КЛЕТКА
+            if (type === 'cell') {
+                const cellSize = 5 * MM; 
+                bgCtx.lineWidth = 1;
+                bgCtx.strokeStyle = '#5096F2'; 
+                bgCtx.beginPath();
+                for (let x = 0; x < w; x += cellSize) { bgCtx.moveTo(x, 0); bgCtx.lineTo(x, h); }
+                for (let y = 0; y < h; y += cellSize) { bgCtx.moveTo(0, y); bgCtx.lineTo(w, y); }
+                bgCtx.stroke();
+                bgCtx.beginPath(); bgCtx.strokeStyle = '#FF8080'; bgCtx.lineWidth = 4;
+                bgCtx.moveTo(20*MM, 0); bgCtx.lineTo(20*MM, h); bgCtx.stroke();
                 return;
             }
 
-            // Тонкие линии при любом зуме
-            ctx.lineWidth = 1 / currentZoom;
-
-            if (type === 'lines') {
-                ctx.beginPath();
-                ctx.strokeStyle = '#999999';
-                for (let y = 40; y < h; y += 40) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
-                ctx.stroke();
-            } 
-            else if (type === 'grid') {
-                ctx.beginPath();
-                ctx.strokeStyle = '#cfcfcf';
-                for (let x = 20; x < w; x += 20) { ctx.moveTo(x, 0); ctx.lineTo(x, h); }
-                for (let y = 20; y < h; y += 20) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
-                ctx.stroke();
-            }
-            else if (type === 'music') {
-                // --- НОТНЫЙ СТАН ---
-                const lineGap = 15;      // Расстояние между линиями нотного стана
-                const staffGap = 60;     // Расстояние МЕЖДУ станами
-                
-                ctx.beginPath();
-                ctx.strokeStyle = '#444444'; // Темно-серый цвет для контраста
-
-                let y = 50; // Начальный отступ сверху
-                
-                // Рисуем станы, пока влезают в экран
-                while (y + (lineGap * 4) < h) {
-                    // Рисуем 5 линий для одного стана
-                    for (let i = 0; i < 5; i++) {
-                        let currentY = y + (i * lineGap);
-                        ctx.moveTo(0, currentY);
-                        ctx.lineTo(w, currentY);
-                    }
-                    // Переходим к следующему стану
-                    y += (lineGap * 4) + staffGap;
+            // ШИРОКАЯ ЛИНЕЙКА
+            if (type === 'wide_lines') {
+                const lineStep = 9 * MM; 
+                bgCtx.lineWidth = 2;
+                bgCtx.strokeStyle = '#5096F2';
+                bgCtx.beginPath();
+                for (let y = MT; y < h; y += lineStep) {
+                    bgCtx.moveTo(0, y); bgCtx.lineTo(w, y);
                 }
-                ctx.stroke();
+                bgCtx.stroke();
+                return;
             }
-            else if (type === 'propisi') {
-                // --- РЕДКАЯ КОСАЯ ---
-                const rowHeight = 25;   
-                const rowGap = 50;      
-                const slantStep = 80;   
-                const totalRow = rowHeight + rowGap;
-                
-                ctx.strokeStyle = '#6e6e6e'; 
-                const slantShift = h * 0.4663; 
-                
-                ctx.beginPath();
-                for (let x = -slantShift; x < w + slantStep; x += slantStep) {
-                    ctx.moveTo(x + slantShift, 0); 
-                    ctx.lineTo(x, h);
-                }
-                ctx.stroke();
 
-                ctx.beginPath();
-                let y = 50; 
-                while (y < h) {
-                    ctx.moveTo(0, y);
-                    ctx.lineTo(w, y);
-                    ctx.moveTo(0, y + rowHeight);
-                    ctx.lineTo(w, y + rowHeight);
-                    y += totalRow;
-                }
-                ctx.stroke();
-            }
-        }
-        function redrawAll() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.save();
-            ctx.scale(currentZoom, currentZoom);
+            // ПРОПИСИ
+            const totalH = ROW_H + GAP_H;
+            let y = MT;
             
-            if (!isReplaying) {
-                drawBackground();
-                allPaths.forEach(path => drawSinglePath(path));
-            }
+            let drawSlant = false;
+            let slantStep = 0;
             
-            ctx.restore();
-        }
+            if (type === 'propisi_often') { 
+                drawSlant = true; 
+                slantStep = 25 * MM; 
+            }
 
-        function drawSinglePath(path) {
-            if (path.points.length < 1) return;
-            ctx.lineWidth = path.width;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.strokeStyle = path.color;
-            ctx.fillStyle = path.color;
-
-            ctx.beginPath();
-            if (path.points.length === 1) {
-                ctx.arc(path.points[0].x, path.points[0].y, path.width / 2, 0, Math.PI * 2);
-                ctx.fill();
-            } else {
-                ctx.moveTo(path.points[0].x, path.points[0].y);
-                for (let i = 1; i < path.points.length; i++) {
-                    ctx.lineTo(path.points[i].x, path.points[i].y);
+            bgCtx.lineWidth = 2;
+            while(y < h - MT) {
+                bgCtx.beginPath(); bgCtx.strokeStyle = '#5096F2';
+                bgCtx.moveTo(0, y); bgCtx.lineTo(w, y); bgCtx.stroke();
+                bgCtx.beginPath(); bgCtx.moveTo(0, y+ROW_H); bgCtx.lineTo(w, y+ROW_H); bgCtx.stroke();
+                y += totalH;
+            }
+            if (drawSlant) {
+                bgCtx.beginPath(); bgCtx.strokeStyle = '#D1D1D6';
+                const tan = 0.466; 
+                const shift = h * tan;
+                for(let x = -shift; x < w; x += slantStep) {
+                    bgCtx.moveTo(x + shift, 0); bgCtx.lineTo(x, h);
                 }
-                ctx.stroke();
+                bgCtx.stroke();
             }
         }
 
-        function handleImageUpload(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        uploadedImageObj = img;
-                        document.getElementById('bgSelect').value = 'none';
-                        redrawAll();
-                        closeMenuIfMobile();
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(input.files[0]);
-                input.value = '';
-            }
-        }
-
-        // --- ВВОД (МЫШЬ + ТАЧ) ---
-        function getPos(e) {
-            const rect = canvas.getBoundingClientRect();
-            const cssScaleX = canvas.width / rect.width;
-            const cssScaleY = canvas.height / rect.height;
-
-            let clientX, clientY;
+        // --- РИСОВАНИЕ ---
+        function getCoords(e) {
+            const rect = drawCanvas.getBoundingClientRect();
+            let clientX = e.clientX;
+            let clientY = e.clientY;
             if (e.touches && e.touches.length > 0) {
                 clientX = e.touches[0].clientX;
                 clientY = e.touches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
             }
-            
-            const rawX = (clientX - rect.left) * cssScaleX;
-            const rawY = (clientY - rect.top) * cssScaleY;
-
-            return { 
-                x: rawX / currentZoom, 
-                y: rawY / currentZoom 
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+            return {
+                x: x * (drawCanvas.width / rect.width),
+                y: y * (drawCanvas.height / rect.height)
             };
         }
 
-        function startPath(e) {
+        function startDraw(e) {
             if (isReplaying) return;
-            if (e.target.closest('.menu-btn')) return;
-            if (e.target.closest('.zoom-controls')) return;
-
-            e.preventDefault();
             isDrawing = true;
-            const point = getPos(e);
-            currentPath = {
-                color: document.getElementById('color').value,
-                width: document.getElementById('width').value,
-                points: [point]
+            const coords = getCoords(e);
+            const width = document.getElementById('lineWidth').value * 2;
+            currentStroke = {
+                type: 'stroke', tool: tool, color: color, width: width, points: [ {x: coords.x, y: coords.y} ]
             };
-            
-            ctx.save();
-            ctx.scale(currentZoom, currentZoom);
-            ctx.beginPath();
-            ctx.fillStyle = currentPath.color;
-            ctx.arc(point.x, point.y, currentPath.width / 2, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
+            drawCtx.beginPath();
+            drawCtx.lineCap = 'round'; drawCtx.lineJoin = 'round';
+            drawCtx.lineWidth = width;
+            drawCtx.strokeStyle = (tool === 'eraser') ? 'rgba(0,0,0,1)' : color;
+            drawCtx.globalCompositeOperation = (tool === 'eraser') ? 'destination-out' : 'source-over';
+            if (tool === 'eraser') drawCtx.lineWidth = 60; 
+            drawCtx.moveTo(coords.x, coords.y);
         }
 
-        function movePath(e) {
+        function moveDraw(e) {
             if (!isDrawing) return;
-            e.preventDefault();
-            const point = getPos(e);
-            currentPath.points.push(point);
-            
-            const points = currentPath.points;
-            if (points.length > 1) {
-                const prev = points[points.length - 2];
-                
-                ctx.save();
-                ctx.scale(currentZoom, currentZoom);
-                ctx.beginPath();
-                ctx.lineWidth = currentPath.width;
-                ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-                ctx.strokeStyle = currentPath.color;
-                ctx.moveTo(prev.x, prev.y);
-                ctx.lineTo(point.x, point.y);
-                ctx.stroke();
-                ctx.restore();
+            e.preventDefault(); 
+            const coords = getCoords(e);
+            currentStroke.points.push({x: coords.x, y: coords.y});
+            drawCtx.lineTo(coords.x, coords.y);
+            drawCtx.stroke();
+        }
+
+        function endDraw() {
+            if (isDrawing && currentStroke) actions.push(currentStroke);
+            isDrawing = false;
+            currentStroke = null;
+            drawCtx.beginPath();
+        }
+
+        function setupEvents() {
+            drawCanvas.addEventListener('mousedown', startDraw);
+            drawCanvas.addEventListener('mousemove', moveDraw);
+            drawCanvas.addEventListener('mouseup', endDraw);
+            drawCanvas.addEventListener('mouseout', endDraw);
+            drawCanvas.addEventListener('touchstart', startDraw, {passive: false});
+            drawCanvas.addEventListener('touchmove', moveDraw, {passive: false});
+            drawCanvas.addEventListener('touchend', endDraw);
+        }
+
+        // --- UI ---
+        function setTool(t) {
+            tool = t;
+            document.getElementById('btnPen').classList.toggle('active', t==='pen');
+            document.getElementById('btnEraser').classList.toggle('active', t==='eraser');
+        }
+        function setColor(c, el) {
+            color = c; tool = 'pen'; setTool('pen');
+            document.querySelectorAll('.color-swatch').forEach(d => d.classList.remove('active'));
+            el.classList.add('active');
+        }
+        function changeZoom(delta) {
+            let newZoom = Math.round((zoom + delta) * 10) / 10;
+            if (newZoom < 0.2) newZoom = 0.2; if (newZoom > 5.0) newZoom = 5.0;
+            setZoom(newZoom);
+        }
+        function setZoom(z) {
+            zoom = z;
+            document.getElementById('zoomVal').innerText = Math.round(zoom * 100) + '%';
+            wrapper.style.width = (BASE_WIDTH_PX * zoom) + 'px';
+            wrapper.style.height = (BASE_HEIGHT_PX * zoom) + 'px';
+        }
+        function undo() {
+            if (actions.length === 0 || isReplaying) return;
+            actions.pop();
+            redrawAll();
+        }
+        function clearCanvas() {
+            if (isReplaying) return;
+            if(confirm('Удалить все записи?')) {
+                actions = [];
+                drawCtx.clearRect(0,0, drawCanvas.width, drawCanvas.height);
             }
         }
 
-        function endPath() {
-            if (isDrawing) {
-                isDrawing = false;
-                allPaths.push(currentPath);
-            }
-        }
+        // --- PLAY & EXPORT ---
+        function playRecording(forExport) {
+            if (actions.length === 0) { alert('Сначала напишите что-нибудь!'); return; }
+            if (isReplaying) return;
 
-        canvas.addEventListener('mousedown', startPath);
-        canvas.addEventListener('mousemove', movePath);
-        canvas.addEventListener('mouseup', endPath);
-        canvas.addEventListener('mouseleave', endPath);
-        
-        canvas.addEventListener('touchstart', startPath, { passive: false });
-        canvas.addEventListener('touchmove', movePath, { passive: false });
-        canvas.addEventListener('touchend', endPath);
-
-        function fullClear() {
-            if(confirm('Очистить весь лист?')) {
-                allPaths = [];
-                uploadedImageObj = null;
-                document.getElementById('bgSelect').value = 'propisi';
-                redrawAll();
-            }
-        }
-
-        // --- ВОСПРОИЗВЕДЕНИЕ ---
-        function startReplay(onComplete) {
-            if (allPaths.length === 0 || isReplaying) return;
             isReplaying = true;
-            document.getElementById('replayBtn').disabled = true;
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.save();
-            ctx.scale(currentZoom, currentZoom);
-            drawBackground();
-            ctx.restore();
+            toggleButtons(false); 
 
-            const speedInput = document.getElementById('speed');
-            let pathIndex = 0;
-            let pointIndex = 1;
+            let recorder = null;
+            
+            if (forExport) {
+                const stream = drawCanvas.captureStream(30);
+                recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+                const chunks = [];
+                recorder.ondataavailable = e => chunks.push(e.data);
+                recorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'video/webm' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'lesson.webm';
+                    a.click();
+                    redrawAll(); 
+                };
+                recorder.start();
+                alert("Запись пошла! Не переключайте вкладку.");
+            }
+
+            drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+            
+            let actionIdx = 0;
+            let pointIdx = 0;
+            const speed = parseInt(document.getElementById('speedRange').value); 
+            let pointsPerFrame = speed;
+            if (speed > 6) pointsPerFrame = (speed - 4) * 5;
 
             function animate() {
-                if (pathIndex >= allPaths.length) {
-                    isReplaying = false;
-                    document.getElementById('replayBtn').disabled = false;
-                    if (onComplete) onComplete();
-                    redrawAll();
-                    return;
-                }
-                const path = allPaths[pathIndex];
-                
-                ctx.save();
-                ctx.scale(currentZoom, currentZoom);
-                
-                ctx.lineWidth = path.width;
-                ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-                ctx.strokeStyle = path.color;
-                ctx.fillStyle = path.color;
+                if (!isReplaying) return;
 
-                if (pointIndex === 1) {
-                    ctx.beginPath();
-                    ctx.arc(path.points[0].x, path.points[0].y, path.width / 2, 0, Math.PI * 2);
-                    ctx.fill();
+                if (forExport) {
+                    drawCtx.drawImage(bgCanvas, 0, 0);
+                    for(let i=0; i<actionIdx; i++) {
+                        drawStroke(actions[i]);
+                    }
+                     const act = actions[actionIdx];
+                     if (act) {
+                         const partial = {...act, points: act.points.slice(0, pointIdx+1)};
+                         drawStroke(partial);
+                     }
                 }
 
-                if (pointIndex < path.points.length) {
-                    const p1 = path.points[pointIndex - 1];
-                    const p2 = path.points[pointIndex];
-                    ctx.beginPath();
-                    ctx.moveTo(p1.x, p1.y);
-                    ctx.lineTo(p2.x, p2.y);
-                    ctx.stroke();
-                    pointIndex++;
-                    ctx.restore();
-                    setTimeout(animate, 25 / parseInt(speedInput.value));
+                if (!forExport) {
+                     const act = actions[actionIdx];
+                     if (pointIdx === 0) {
+                        drawCtx.beginPath();
+                        setupCtxStyle(act);
+                        if(act.points.length > 0) drawCtx.moveTo(act.points[0].x, act.points[0].y);
+                        pointIdx = 1;
+                     }
+                     for(let k=0; k < pointsPerFrame; k++) {
+                        if (pointIdx < act.points.length) {
+                            drawCtx.lineTo(act.points[pointIdx].x, act.points[pointIdx].y);
+                            drawCtx.stroke();
+                            pointIdx++;
+                        } else {
+                            actionIdx++;
+                            pointIdx = 0;
+                            break;
+                        }
+                    }
                 } else {
-                    pathIndex++;
-                    pointIndex = 1;
-                    ctx.restore();
-                    setTimeout(animate, 200 / parseInt(speedInput.value)); 
+                    const act = actions[actionIdx];
+                    pointIdx += pointsPerFrame;
+                    if (pointIdx >= act.points.length) {
+                        actionIdx++;
+                        pointIdx = 0;
+                    }
+                }
+
+                if (actionIdx >= actions.length) {
+                    isReplaying = false;
+                    toggleButtons(true);
+                    if (forExport && recorder) {
+                        recorder.stop();
+                    } 
+                } else {
+                    requestAnimationFrame(animate);
                 }
             }
             animate();
         }
 
-        function downloadImage() {
-            redrawAll();
-            const link = document.createElement('a');
-            link.download = 'propisi-art.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-            closeMenuIfMobile();
+        function setupCtxStyle(act) {
+            drawCtx.lineCap = 'round'; drawCtx.lineJoin = 'round';
+            if (act.tool === 'eraser') {
+                drawCtx.globalCompositeOperation = 'destination-out';
+                drawCtx.lineWidth = 60;
+            } else {
+                drawCtx.globalCompositeOperation = 'source-over';
+                drawCtx.strokeStyle = act.color;
+                drawCtx.lineWidth = act.width;
+            }
         }
 
-        function recordVideo() {
-            if (allPaths.length === 0) { alert("Сначала напишите что-нибудь!"); return; }
-            closeMenuIfMobile();
-            
-            const btn = document.getElementById('recordBtn');
-            const originalContent = btn.innerHTML;
-            btn.innerHTML = 'Запись...';
-            btn.disabled = true;
-            
-            redrawAll();
+        function drawStroke(act) {
+            drawCtx.beginPath();
+            setupCtxStyle(act);
+            if(act.points.length > 0) {
+                drawCtx.moveTo(act.points[0].x, act.points[0].y);
+                for (let i = 1; i < act.points.length; i++) {
+                    drawCtx.lineTo(act.points[i].x, act.points[i].y);
+                }
+                drawCtx.stroke();
+            }
+        }
 
-            const stream = canvas.captureStream(30);
-            const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-            const chunks = [];
-            recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
-            recorder.onstop = () => {
-                const blob = new Blob(chunks, { type: 'video/webm' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none'; a.href = url; a.download = 'propisi-video.webm';
-                document.body.appendChild(a); a.click();
-                window.URL.revokeObjectURL(url);
-                btn.innerHTML = originalContent;
-                btn.disabled = false;
-                redrawAll();
-            };
-            recorder.start();
-            startReplay(() => { recorder.stop(); });
+        function redrawAll() {
+            drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+            actions.forEach(act => drawStroke(act));
+        }
+
+        function toggleButtons(enable) {
+            document.getElementById('btnPlay').disabled = !enable;
+            document.getElementById('btnExport').disabled = !enable;
+        }
+
+        function downloadImage() {
+            const temp = document.createElement('canvas');
+            temp.width = bgCanvas.width;
+            temp.height = bgCanvas.height;
+            const tCtx = temp.getContext('2d');
+            tCtx.drawImage(bgCanvas, 0, 0);
+            tCtx.drawImage(drawCanvas, 0, 0);
+            const link = document.createElement('a');
+            link.download = 'propisi_page.jpg';
+            link.href = temp.toDataURL('image/jpeg', 0.9);
+            link.click();
         }
     </script>
 </body>

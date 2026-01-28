@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Генератор прописей (v9.0 Styles)</title>
+    <title>Генератор прописей (v9.1 Styles)</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -88,7 +88,7 @@
     <div class="sidebar" id="appSidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Генератор прописей v9.0</p>
+            <p class="app-subtitle">Генератор прописей v9.1</p>
         </div>
 
         <div class="nav-tabs">
@@ -116,11 +116,7 @@
         <div class="section">
             <div class="section-label">3. Стиль текста</div>
             <select id="textStyle" onchange="updatePreview()">
-                <option value="black">⚫️ Черный (Сплошной)</option>
-                <option value="pale">⚪️ Серый (Для обводки)</option>
-                <option value="dotted">::: Точечный (Имитация)</option>
-                <option value="outline">🔲 Контурный (Полый)</option>
-            </select>
+                <option value="dotted">::: Пунктирный (Точки)</option> <option value="outline">🔲 Контурный (Полый)</option> <option value="pale">⚪️ Серый (Для обводки)</option>  <option value="black">⚫️ Черный (Сплошной)</option>    </select>
         </div>
         
         <div class="section" style="margin-top: auto;">
@@ -468,11 +464,11 @@
             } else if (styleMode === 'outline') {
                 svgStyle = `fill: white; stroke: rgba(0,0,0,0.5); stroke-width: 1px;`;
             } else if (styleMode === 'dotted') {
-                // Магия паттерна
+                // Магия паттерна: 8x8 px (широкий шаг)
                 defs = `
                 <defs>
-                    <pattern id="dotPattern" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
-                        <circle cx="2" cy="2" r="1.2" fill="black" />
+                    <pattern id="dotPattern" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
+                        <circle cx="4" cy="4" r="1.5" fill="black" />
                     </pattern>
                     <style>
                         @font-face { font-family: 'PrimoFont'; src: url('${fontBase64}') format('truetype'); }

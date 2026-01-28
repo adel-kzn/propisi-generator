@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Генератор прописей (v8.1 Mobile)</title>
+    <title>Генератор прописей (v9.0 Styles)</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -39,15 +39,12 @@
             width: 360px; min-width: 360px; height: 100%;
             background: var(--sidebar-bg); border-right: 1px solid rgba(0,0,0,0.1);
             display: flex; flex-direction: column; padding: 20px; 
-            padding-top: 70px; /* Отступ */
+            padding-top: 70px;
             gap: 15px; overflow-y: auto; z-index: 1000;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
         }
-        .sidebar.closed {
-            transform: translateX(-100%);
-            position: absolute;
-        }
+        .sidebar.closed { transform: translateX(-100%); position: absolute; }
 
         .app-header { margin-bottom: 5px; }
         .app-title { font-size: 20px; font-weight: 700; margin: 0; }
@@ -69,28 +66,17 @@
         .main-area {
             flex-grow: 1; background-color: var(--app-bg); 
             display: flex; justify-content: center; align-items: flex-start; 
-            overflow-y: auto; padding: 40px;
-            width: 100%;
+            overflow-y: auto; padding: 40px; width: 100%;
         }
         .a4-container { width: 100%; max-width: 800px; aspect-ratio: 210 / 297; background: white; box-shadow: 0 4px 24px rgba(0,0,0,0.08); flex-shrink: 0; }
         canvas { width: 100%; height: 100%; display: block; }
 
         #status { text-align: center; font-size: 11px; color: #888; }
 
-        /* MOBILE */
         @media (max-width: 900px) {
-            .sidebar {
-                position: fixed; left: 0; top: 0; bottom: 0;
-                width: 85%; max-width: 320px;
-                box-shadow: 4px 0 20px rgba(0,0,0,0.2);
-            }
-            .sidebar.closed {
-                transform: translateX(-100%);
-            }
-            .main-area {
-                padding: 10px; padding-top: 60px;
-                display: block; overflow: scroll;
-            }
+            .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 85%; max-width: 320px; box-shadow: 4px 0 20px rgba(0,0,0,0.2); }
+            .sidebar.closed { transform: translateX(-100%); }
+            .main-area { padding: 10px; padding-top: 60px; display: block; overflow: scroll; }
             .a4-container { margin: 0 auto; }
         }
     </style>
@@ -102,7 +88,7 @@
     <div class="sidebar" id="appSidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Генератор прописей v8.1</p>
+            <p class="app-subtitle">Генератор прописей v9.0</p>
         </div>
 
         <div class="nav-tabs">
@@ -128,10 +114,12 @@
         </div>
 
         <div class="section">
-            <div class="section-label">3. Вид шрифта</div>
-            <select id="colorStyle" onchange="updatePreview()">
-                <option value="pale">Серый (для обводки)</option>
-                <option value="black">Черный (для примера)</option>
+            <div class="section-label">3. Стиль текста</div>
+            <select id="textStyle" onchange="updatePreview()">
+                <option value="black">⚫️ Черный (Сплошной)</option>
+                <option value="pale">⚪️ Серый (Для обводки)</option>
+                <option value="dotted">::: Точечный (Имитация)</option>
+                <option value="outline">🔲 Контурный (Полый)</option>
             </select>
         </div>
         
@@ -375,8 +363,7 @@
             const h = canvas.height;
             const type = document.getElementById('bgSelect').value;
             const rawText = document.getElementById('textInput').value;
-            const colorStyle = document.getElementById('colorStyle').value;
-            const textColor = colorStyle === 'pale' ? 'rgba(0,0,0,0.25)' : 'black';
+            const styleMode = document.getElementById('textStyle').value;
 
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, w, h);
@@ -390,11 +377,11 @@
                 const maxTextWidth = w - MARGIN_LEFT - MARGIN_RIGHT;
                 const lines = getLines(rawText, maxTextWidth);
                 const processedLines = lines.map(line => processPrimoText(line));
-                drawTextViaSVG(processedLines, w, h, textColor);
+                drawTextViaSVG(processedLines, w, h, styleMode);
             });
         }
 
-        // --- ФОН (КОПИЯ ИЗ РИСОВАНИЯ) ---
+        // --- ФОН ---
         function drawBackground(w, h, type) {
             if (type === 'white') return;
 
@@ -460,7 +447,8 @@
             }
         }
 
-        function drawTextViaSVG(lines, w, h, color) {
+        // --- ГЕНЕРАЦИЯ ТЕКСТА (SVG) ---
+        function drawTextViaSVG(lines, w, h, styleMode) {
             const fullRowH = ROW_H + GAP_H;
             let tspans = '';
             lines.forEach((line, i) => {
@@ -469,22 +457,45 @@
                 tspans += `<text x="${MARGIN_LEFT}" y="${y}">${safeLine}</text>`;
             });
 
-            const svgData = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
+            // Настройка стилей для SVG
+            let svgStyle = '';
+            let defs = '';
+
+            if (styleMode === 'black') {
+                svgStyle = `fill: black;`;
+            } else if (styleMode === 'pale') {
+                svgStyle = `fill: rgba(0,0,0,0.25);`;
+            } else if (styleMode === 'outline') {
+                svgStyle = `fill: white; stroke: rgba(0,0,0,0.5); stroke-width: 1px;`;
+            } else if (styleMode === 'dotted') {
+                // Магия паттерна
+                defs = `
+                <defs>
+                    <pattern id="dotPattern" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+                        <circle cx="2" cy="2" r="1.2" fill="black" />
+                    </pattern>
+                    <style>
+                        @font-face { font-family: 'PrimoFont'; src: url('${fontBase64}') format('truetype'); }
+                        text { font-family: 'PrimoFont'; font-size: ${FONT_SIZE_PX}px; fill: url(#dotPattern); white-space: pre; }
+                    </style>
+                </defs>`;
+                svgStyle = `fill: url(#dotPattern);`;
+            }
+
+            // Если не точечный (там стиль внутри defs из-за бага Safari/Chrome иногда), то добавляем стандартный стиль
+            if (styleMode !== 'dotted') {
+                defs = `
                 <defs>
                     <style>
-                        @font-face {
-                            font-family: 'PrimoFont';
-                            src: url('${fontBase64}') format('truetype');
-                        }
-                        text {
-                            font-family: 'PrimoFont';
-                            font-size: ${FONT_SIZE_PX}px;
-                            fill: ${color};
-                            white-space: pre;
-                        }
+                        @font-face { font-family: 'PrimoFont'; src: url('${fontBase64}') format('truetype'); }
+                        text { font-family: 'PrimoFont'; font-size: ${FONT_SIZE_PX}px; ${svgStyle} white-space: pre; }
                     </style>
-                </defs>
+                </defs>`;
+            }
+
+            const svgData = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
+                ${defs}
                 ${tspans}
             </svg>`;
 

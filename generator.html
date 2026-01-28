@@ -3,8 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Генератор прописей (v9.2 Dense Dots)</title>
+    <title>Генератор прописей (v9.3 Metrica & Lines)</title>
 
+    <script type="text/javascript" >
+       (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+       m[i].l=1*new Date();
+       for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+       k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+       (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+       ym(106467293, "init", {clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/106467293" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
@@ -88,7 +97,7 @@
     <div class="sidebar" id="appSidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Генератор прописей v9.2</p>
+            <p class="app-subtitle">Генератор прописей v9.3</p>
         </div>
 
         <div class="nav-tabs">
@@ -377,7 +386,7 @@
                 const maxTextWidth = w - MARGIN_LEFT - MARGIN_RIGHT;
                 const lines = getLines(rawText, maxTextWidth);
                 const processedLines = lines.map(line => processPrimoText(line));
-                drawTextViaSVG(processedLines, w, h, styleMode);
+                drawTextViaSVG(processedLines, w, h, styleMode, type);
             });
         }
 
@@ -448,11 +457,23 @@
         }
 
         // --- ГЕНЕРАЦИЯ ТЕКСТА (SVG) ---
-        function drawTextViaSVG(lines, w, h, styleMode) {
+        function drawTextViaSVG(lines, w, h, styleMode, bgType) {
             const fullRowH = ROW_H + GAP_H;
             let tspans = '';
+            
             lines.forEach((line, i) => {
-                const y = MARGIN_TOP + (i * fullRowH) + ROW_H + OFFSET_PX;
+                let y;
+                // СПЕЦИАЛЬНОЕ УСЛОВИЕ ДЛЯ ШИРОКОЙ ЛИНЕЙКИ
+                if (bgType === 'wide_lines') {
+                    const lineStep = 9 * MM_TO_PX;
+                    // Текст сажаем на линию. Линии идут: MarginTop, MarginTop+9mm...
+                    // Первая строка текста должна быть на MarginTop + 9mm.
+                    y = MARGIN_TOP + (i + 1) * lineStep + OFFSET_PX;
+                } else {
+                    // Стандартный режим (Косая/Узкая)
+                    y = MARGIN_TOP + (i * fullRowH) + ROW_H + OFFSET_PX;
+                }
+                
                 const safeLine = line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
                 tspans += `<text x="${MARGIN_LEFT}" y="${y}">${safeLine}</text>`;
             });

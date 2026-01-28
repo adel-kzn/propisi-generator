@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Рисование (v10.5 Zoom 500%)</title>
+    <title>Рисование (v11.0 Mobile)</title>
 
     <meta name="yandex-verification" content="zoqf7gn5mwyntin5" />
     <script type="text/javascript" >
@@ -37,13 +37,41 @@
             overflow: hidden;
         }
 
+        /* --- ГАМБУРГЕР (КНОПКА МЕНЮ) --- */
+        .toggle-btn {
+            position: fixed;
+            top: 15px; left: 15px;
+            width: 44px; height: 44px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; border: none; cursor: pointer;
+            z-index: 2000; /* Поверх всего */
+            color: var(--accent);
+            transition: transform 0.2s;
+        }
+        .toggle-btn:active { transform: scale(0.9); }
+
         /* --- SIDEBAR --- */
         .sidebar {
             width: 360px; min-width: 360px; height: 100%;
             background: var(--sidebar-bg); border-right: 1px solid rgba(0,0,0,0.1);
-            display: flex; flex-direction: column; padding: 20px; gap: 15px;
-            overflow-y: auto; z-index: 10;
+            display: flex; flex-direction: column; padding: 20px; 
+            padding-top: 70px; /* Отступ под кнопку */
+            gap: 15px;
+            overflow-y: auto; 
+            z-index: 1000;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
         }
+
+        /* Класс для скрытия панели */
+        .sidebar.closed {
+            transform: translateX(-100%);
+            position: absolute; /* Чтобы не занимала место когда скрыта */
+        }
+
         .app-title { font-size: 20px; font-weight: 700; margin: 0; }
         .app-subtitle { font-size: 12px; color: var(--text-secondary); margin: 0; }
         
@@ -54,48 +82,29 @@
         .section { display: flex; flex-direction: column; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
         .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); }
 
-        select, input[type=file] {
-            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #E5E5EA;
-            background-color: white; font-size: 14px; outline: none;
-        }
+        select, input[type=file] { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #E5E5EA; background-color: white; font-size: 14px; outline: none; }
 
         /* Инструменты */
         .tools-row { display: flex; gap: 8px; }
-        .tool-btn {
-            flex: 1; padding: 10px; border: 1px solid #E5E5EA; border-radius: 8px;
-            background: white; cursor: pointer; text-align: center; font-size: 13px; font-weight: 500;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
-        }
+        .tool-btn { flex: 1; padding: 10px; border: 1px solid #E5E5EA; border-radius: 8px; background: white; cursor: pointer; text-align: center; font-size: 13px; font-weight: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
         .tool-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
         .tool-btn:active { transform: scale(0.98); }
 
         /* Палитра */
         .color-palette { display: flex; gap: 10px; justify-content: space-between; }
-        .color-swatch {
-            width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
-            border: 2px solid transparent; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
+        .color-swatch { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .color-swatch.active { border-color: #000; transform: scale(1.1); }
 
         /* ЗУМ И СКОРОСТЬ */
         .control-row { display: flex; align-items: center; gap: 10px; background: #F2F2F7; padding: 5px; border-radius: 8px; }
-        .zoom-btn {
-            width: 36px; height: 36px; border: none; background: white; border-radius: 6px;
-            font-size: 18px; font-weight: bold; cursor: pointer; color: var(--accent);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
+        .zoom-btn { width: 36px; height: 36px; border: none; background: white; border-radius: 6px; font-size: 18px; font-weight: bold; cursor: pointer; color: var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .zoom-btn:active { background: #e0e0e0; }
         .val-display { flex-grow: 1; text-align: center; font-size: 14px; font-weight: 600; color: var(--text-primary); }
-
         input[type=range] { width: 100%; }
 
         /* Кнопки действий */
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        button.btn-action {
-            border: none; height: 40px; border-radius: 8px; font-weight: 600; font-size: 13px;
-            cursor: pointer; background: #F2F2F7; color: var(--text-primary); transition: 0.2s;
-            display: flex; align-items: center; justify-content: center; width: 100%;
-        }
+        button.btn-action { border: none; height: 40px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; background: #F2F2F7; color: var(--text-primary); transition: 0.2s; display: flex; align-items: center; justify-content: center; width: 100%; }
         button.btn-action:hover { background: #E5E5EA; }
         button.btn-primary { background: var(--accent); color: white; }
         button.btn-danger { background: #FF3B30; color: white; }
@@ -103,41 +112,51 @@
         
         /* --- MAIN AREA --- */
         .main-area {
-            flex-grow: 1; 
-            background-color: var(--app-bg); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            overflow: auto; 
-            position: relative;
+            flex-grow: 1; background-color: var(--app-bg); 
+            display: flex; align-items: center; justify-content: center; 
+            overflow: auto; position: relative;
+            width: 100%; /* Занимает все место когда панель скрыта */
         }
         
         .canvas-wrapper {
             background: white;
             box-shadow: 0 4px 30px rgba(0,0,0,0.15);
             position: relative;
-            flex-shrink: 0; 
-            margin: auto;   
+            flex-shrink: 0; margin: auto;   
         }
 
         canvas { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
         #bgCanvas { z-index: 1; }
         #drawCanvas { z-index: 2; cursor: crosshair; }
 
+        /* --- МОБИЛЬНЫЙ РЕЖИМ --- */
         @media (max-width: 900px) {
-            body { flex-direction: column; height: auto; overflow-y: auto; }
-            .sidebar { width: 100%; min-width: 0; height: auto; border-right: none; }
-            .main-area { padding: 10px; display: block; overflow: scroll; }
+            .sidebar {
+                position: fixed; /* Нависает сверху */
+                left: 0; top: 0; bottom: 0;
+                width: 85%; max-width: 320px;
+                box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+            }
+            .sidebar.closed {
+                transform: translateX(-100%);
+            }
+            .main-area {
+                padding: 10px;
+                padding-top: 60px; /* Место под кнопку гамбургера */
+                display: block; overflow: scroll;
+            }
             .canvas-wrapper { margin: 0 auto; }
         }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
+    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+
+    <div class="sidebar" id="appSidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Интерактивная доска v10.5</p>
+            <p class="app-subtitle">Интерактивная доска v11.0</p>
         </div>
 
         <div class="nav-tabs">
@@ -227,6 +246,7 @@
         const drawCanvas = document.getElementById('drawCanvas');
         const drawCtx = drawCanvas.getContext('2d');
         const wrapper = document.getElementById('canvasWrapper');
+        const sidebar = document.getElementById('appSidebar');
 
         let actions = []; 
         let currentStroke = null;
@@ -236,7 +256,6 @@
         let color = '#0055AA';
         let zoom = 1.0;
         let customImage = null; 
-        
         let playbackSpeed = 5;
 
         const MM = 11.81;
@@ -251,8 +270,19 @@
             updateSpeedDisp();
             drawBackground();
             setupEvents();
+            
+            // На мобильном сразу скрываем панель для удобства?
+            if (window.innerWidth <= 900) {
+                // toggleSidebar(); // Можно раскомментировать, если хотите старт закрытым
+            }
         };
 
+        // --- SIDEBAR TOGGLE ---
+        function toggleSidebar() {
+            sidebar.classList.toggle('closed');
+        }
+
+        // --- SPEED ---
         function updateSpeedDisp() {
             playbackSpeed = parseInt(document.getElementById('speedRange').value);
             let factor = 1.0;
@@ -301,12 +331,12 @@
             if (customImage) { bgCtx.drawImage(customImage, 0, 0, w, h); return; }
             if (type === 'white') return;
 
-            // --- КРАСНАЯ ЧЕРТА (ПОЛЯ) ---
+            // ПОЛЯ
             bgCtx.lineWidth = 2;
             bgCtx.beginPath(); bgCtx.strokeStyle = '#FF8080'; bgCtx.lineWidth = 4;
             bgCtx.moveTo(20*MM, 0); bgCtx.lineTo(20*MM, h); bgCtx.stroke();
             
-            // --- КЛЕТКА ---
+            // КЛЕТКА
             if (type === 'cell') {
                 const cellSize = 5 * MM; 
                 bgCtx.lineWidth = 1;
@@ -315,13 +345,12 @@
                 for (let x = 0; x < w; x += cellSize) { bgCtx.moveTo(x, 0); bgCtx.lineTo(x, h); }
                 for (let y = 0; y < h; y += cellSize) { bgCtx.moveTo(0, y); bgCtx.lineTo(w, y); }
                 bgCtx.stroke();
-                // Повторно рисуем поле
                 bgCtx.beginPath(); bgCtx.strokeStyle = '#FF8080'; bgCtx.lineWidth = 4;
                 bgCtx.moveTo(20*MM, 0); bgCtx.lineTo(20*MM, h); bgCtx.stroke();
                 return;
             }
 
-            // --- ШИРОКАЯ ЛИНЕЙКА (Обычная) ---
+            // ШИРОКАЯ ЛИНЕЙКА
             if (type === 'wide_lines') {
                 const lineStep = 9 * MM; 
                 bgCtx.lineWidth = 2;
@@ -334,7 +363,7 @@
                 return;
             }
 
-            // --- УЗКАЯ ЛИНЕЙКА / ПРОПИСИ (Без редкой косой) ---
+            // ПРОПИСИ
             const totalH = ROW_H + GAP_H;
             let y = MT;
             
@@ -437,8 +466,7 @@
         }
         function changeZoom(delta) {
             let newZoom = Math.round((zoom + delta) * 10) / 10;
-            if (newZoom < 0.2) newZoom = 0.2; 
-            if (newZoom > 5.0) newZoom = 5.0; // ЛИМИТ 500%
+            if (newZoom < 0.2) newZoom = 0.2; if (newZoom > 5.0) newZoom = 5.0;
             setZoom(newZoom);
         }
         function setZoom(z) {
@@ -460,7 +488,7 @@
             }
         }
 
-        // --- ВОСПРОИЗВЕДЕНИЕ ---
+        // --- PLAY & EXPORT ---
         function playRecording(forExport) {
             if (actions.length === 0) { alert('Сначала напишите что-нибудь!'); return; }
             if (isReplaying) return;

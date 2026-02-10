@@ -134,14 +134,7 @@
             <a href="index.html" class="nav-tab active">Рисование</a>
             <a href="generator.html" class="nav-tab">Генератор</a>
         </div>
-<div class="section" style="margin-top: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px;">
-    <div class="section-label">🔥 Популярные шаблоны</div>
-    <div style="display: flex; flex-direction: column; gap: 5px;">
-        <a href="shablon-uzkaya-kosaya.html" style="font-size: 13px; text-decoration: none; color: #007AFF; padding: 4px 0;">
-            📄 Узкая косая (1 класс)
-        </a>
-        </div>
-</div>
+        
         <div class="section">
             <div class="section-label">1. Подложка</div>
             <select id="bgSelect" onchange="changeBackground()">
@@ -174,7 +167,13 @@
                 <div class="color-swatch" style="background:#34C759" onclick="setColor('#34C759', this)"></div>
                 <div class="color-swatch" style="background:#000000" onclick="setColor('#000000', this)"></div>
             </div>
-            
+            <div class="section" style="margin-top: auto; border-top: 1px solid #f0f0f0; padding-top: 10px;">
+            <div class="section-label">📚 Готовые прописи</div>
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+                <a href="shablon-uzkaya-kosaya.html" style="font-size: 13px; text-decoration: none; color: #007AFF;">📄 Шаблон: Узкая косая</a>
+                <a href="propisi-alfavit.html" style="font-size: 13px; text-decoration: none; color: #007AFF;">🔤 Весь Алфавит (А-Я)</a>
+            </div>
+        </div>
             <div style="margin-top:5px;">
                 <div class="section-label">Толщина линии</div>
                 <input type="range" id="lineWidth" min="1" max="15" value="4">

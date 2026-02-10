@@ -379,16 +379,22 @@
 
         function generatePDF() {
             if (!fontBase64) { alert("Шрифт не готов!"); return; }
+            
+            // Инициализация PDF
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+            
+            // 1. Вставляем картинку с прописями
             const imgData = canvas.toDataURL('image/jpeg', 0.85);
             doc.addImage(imgData, 'JPEG', 0, 0, 210, 297);
             
-            // Водяной знак
-            doc.setTextColor(150, 150, 150);
-            doc.setFontSize(9);
+            // 2. ДОБАВЛЯЕМ ССЫЛКУ (ВОДЯНОЙ ЗНАК)
+            doc.setTextColor(150, 150, 150); // Светло-серый цвет
+            doc.setFontSize(9);              // Мелкий шрифт
+            // Текст, отступ слева (10мм), отступ сверху (292мм - самый низ)
             doc.text("Сгенерировано бесплатно на https://propisi.site", 10, 292);
 
+            // 3. Сохраняем файл
             doc.save("propisi.pdf");
         }
     </script>

@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Интерактивные Прописи Онлайн | Доска для Учителя</title>
 
-    <meta name="description" content="Бесплатная интерактивная доска для уроков чистописания. Рисуйте в частую косую, используйте сетку Мазиной, записывайте видео-уроки письма. Идеально для учителей начальных классов.">
-    <meta name="keywords" content="прописи онлайн, интерактивная доска, чистописание, узкая косая, сетка мазиной, уроки письма, видео урок прописи, 1 класс, тренажер письма">
+    <meta name="description" content="Бесплатная интерактивная доска для уроков чистописания. Рисуйте в узкую косую, используйте сетку Мазиной, записывайте видео-уроки письма.">
+    <meta name="keywords" content="прописи онлайн, интерактивная доска, чистописание, узкая косая, сетка мазиной, уроки письма">
     <meta name="author" content="Propisi.site">
 
     <meta property="og:type" content="website">
     <meta property="og:title" content="Интерактивные Прописи: Онлайн Доска для Учителя">
-    <meta property="og:description" content="Записывайте видео-уроки письма, рисуйте на сетке 'косая линейка' и показывайте ученикам. Бесплатно.">
+    <meta property="og:description" content="Записывайте видео-уроки письма, рисуйте на сетке 'узкая косая' и показывайте ученикам. Бесплатно.">
     <meta property="og:url" content="https://propisi.site/">
     <meta property="og:image" content="https://propisi.site/preview.jpg">
 
@@ -28,47 +28,14 @@
     <noscript><div><img src="https://mc.yandex.ru/watch/106467293" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 
     <style>
-        :root {
-            --app-bg: #Eef2F5;
-            --sidebar-bg: #FFFFFF;
-            --text-primary: #1C1C1E;
-            --text-secondary: #8E8E93;
-            --accent: #007AFF;
-            --radius-M: 10px;
-        }
-
+        :root { --app-bg: #Eef2F5; --sidebar-bg: #FFFFFF; --text-primary: #1C1C1E; --text-secondary: #8E8E93; --accent: #007AFF; --radius-M: 10px; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--app-bg); color: var(--text-primary); height: 100vh; display: flex; overflow: hidden; }
 
-        body {
-            margin: 0; padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--app-bg);
-            color: var(--text-primary);
-            height: 100vh;
-            display: flex;
-            overflow: hidden;
-        }
-
-        /* --- ГАМБУРГЕР --- */
-        .toggle-btn {
-            position: fixed; top: 15px; left: 15px;
-            width: 44px; height: 44px; background: white; border-radius: 50%;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 24px; border: none; cursor: pointer; z-index: 2000;
-            color: var(--accent); transition: transform 0.2s;
-        }
+        .toggle-btn { position: fixed; top: 15px; left: 15px; width: 44px; height: 44px; background: white; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; font-size: 24px; border: none; cursor: pointer; z-index: 2000; color: var(--accent); transition: transform 0.2s; }
         .toggle-btn:active { transform: scale(0.9); }
 
-        /* --- SIDEBAR --- */
-        .sidebar {
-            width: 360px; min-width: 360px; height: 100%;
-            background: var(--sidebar-bg); border-right: 1px solid rgba(0,0,0,0.1);
-            display: flex; flex-direction: column; padding: 20px; 
-            padding-top: 70px; gap: 15px; overflow-y: auto; 
-            z-index: 1000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
+        .sidebar { width: 360px; min-width: 360px; height: 100%; background: var(--sidebar-bg); border-right: 1px solid rgba(0,0,0,0.1); display: flex; flex-direction: column; padding: 20px; padding-top: 70px; gap: 15px; overflow-y: auto; z-index: 1000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
         .sidebar.closed { transform: translateX(-100%); position: absolute; }
 
         .app-title { font-size: 20px; font-weight: 700; margin: 0; }
@@ -103,7 +70,7 @@
         button.btn-danger { background: #FF3B30; color: white; }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .sidebar-footer { font-size: 11px; color: #999; margin-top: 10px; line-height: 1.4; text-align: center; padding-top: 10px; border-top: 1px solid #f0f0f0; }
+        .sidebar-footer { font-size: 11px; color: #999; margin-top: 5px; line-height: 1.4; text-align: center; padding-top: 10px; border-top: 1px solid #f0f0f0; }
         .sidebar-footer a { color: #999; text-decoration: underline; }
         
         .main-area { flex-grow: 1; background-color: var(--app-bg); display: flex; align-items: center; justify-content: center; overflow: auto; position: relative; width: 100%; }
@@ -127,14 +94,14 @@
     <div class="sidebar" id="appSidebar">
         <div class="app-header">
             <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Интерактивная доска v11.3</p>
+            <p class="app-subtitle">Интерактивная доска v11.5</p>
         </div>
 
         <div class="nav-tabs">
             <a href="index.html" class="nav-tab active">Рисование</a>
             <a href="generator.html" class="nav-tab">Генератор</a>
         </div>
-        
+
         <div class="section">
             <div class="section-label">1. Подложка</div>
             <select id="bgSelect" onchange="changeBackground()">
@@ -167,13 +134,7 @@
                 <div class="color-swatch" style="background:#34C759" onclick="setColor('#34C759', this)"></div>
                 <div class="color-swatch" style="background:#000000" onclick="setColor('#000000', this)"></div>
             </div>
-            <div class="section" style="margin-top: auto; border-top: 1px solid #f0f0f0; padding-top: 10px;">
-            <div class="section-label">📚 Готовые прописи</div>
-            <div style="display: flex; flex-direction: column; gap: 6px;">
-                <a href="shablon-uzkaya-kosaya.html" style="font-size: 13px; text-decoration: none; color: #007AFF;">📄 Шаблон: Узкая косая</a>
-                <a href="propisi-alfavit.html" style="font-size: 13px; text-decoration: none; color: #007AFF;">🔤 Весь Алфавит (А-Я)</a>
-            </div>
-        </div>
+            
             <div style="margin-top:5px;">
                 <div class="section-label">Толщина линии</div>
                 <input type="range" id="lineWidth" min="1" max="15" value="4">
@@ -200,24 +161,24 @@
             </div>
         </div>
 
-        <div class="section" style="margin-top:auto;">
-            <div class="section-label">Масштаб (Zoom)</div>
+        <div class="section" style="margin-top:auto; border-top: 1px solid #f0f0f0; padding-top: 10px;">
             <div class="control-row">
                 <button class="zoom-btn" onclick="changeZoom(-0.1)">−</button>
                 <div class="val-display" id="zoomVal">100%</div>
                 <button class="zoom-btn" onclick="changeZoom(0.1)">+</button>
             </div>
-            <button class="btn-action btn-danger" style="margin-top:10px;" onclick="clearCanvas()">🗑 Очистить всё</button>
+            <button class="btn-action btn-danger" style="margin-top:10px; margin-bottom:15px;" onclick="clearCanvas()">🗑 Очистить всё</button>
+
+            <div style="display: flex; flex-direction: column; gap: 6px; padding-top: 5px;">
+                <div class="section-label">📚 Полезное</div>
+                <a href="shablon-uzkaya-kosaya.html" style="font-size: 13px; text-decoration: none; color: #007AFF;">📄 Шаблон: Узкая косая</a>
+                <a href="propisi-alfavit.html" style="font-size: 13px; text-decoration: none; color: #007AFF;">🔤 Весь Алфавит (А-Я)</a>
+            </div>
         </div>
 
-        <div class="section" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
-            <a href="about.html" style="text-decoration: none; color: #8E8E93; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 5px; transition: color 0.2s;">
-                <span style="font-size: 16px;">ℹ️</span> Инструкция и Описание
-            </a>
-            <div class="sidebar-footer">
-                © 2026 Propisi.site. Все права защищены.<br>
-                Использование материалов возможно только при наличии ссылки на сайт.
-            </div>
+        <div class="sidebar-footer">
+            <a href="about.html">Инструкция</a> | <a href="propisi-alfavit.html">Алфавит</a><br>
+            <span style="font-size:10px; color:#ccc;">© 2026 Propisi.site</span>
         </div>
     </div>
 
@@ -247,7 +208,7 @@
         let playbackSpeed = 5;
 
         const MM = 11.81;
-        const ROW_H = 4 * MM; // 4 мм
+        const ROW_H = 4 * MM; 
         const GAP_H = 8 * MM; 
         const MT = 20 * MM; 
         const BASE_WIDTH_PX = 794; 
@@ -346,7 +307,7 @@
             }
 
             // --- ОБЫЧНЫЕ / ЧАСТЫЕ / МАЗИНА ---
-            let lineHeight = ROW_H; // 4 мм
+            let lineHeight = ROW_H; 
             const totalH = lineHeight + GAP_H;
             let y = MT;
             

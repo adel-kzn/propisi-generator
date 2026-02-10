@@ -377,25 +377,36 @@
             img.src = url;
         }
 
-        function generatePDF() {
+       function generatePDF() {
             if (!fontBase64) { alert("Шрифт не готов!"); return; }
             
-            // Инициализация PDF
+            // 1. ХИТРОСТЬ: Рисуем ссылку прямо на картинке (Canvas), 
+            // так как jsPDF не понимает русские буквы без загрузки спец. шрифта.
+            ctx.save(); // Сохраняем текущие настройки кисти
+            
+            // Настройки шрифта для подписи (размеры в пикселях для канваса 2480x3508)
+            ctx.font = "30px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"; 
+            ctx.fillStyle = "#aaaaaa"; // Светло-серый цвет
+            
+            // Рисуем текст внизу страницы (x=60, y=3450 пикселей)
+            ctx.fillText("Сгенерировано бесплатно на https://propisi.site", 60, 3450);
+            
+            ctx.restore(); // Возвращаем кисть как было
+
+            // 2. Инициализация PDF
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
             
-            // 1. Вставляем картинку с прописями
+            // 3. Вставляем картинку (теперь уже с надписью)
             const imgData = canvas.toDataURL('image/jpeg', 0.85);
             doc.addImage(imgData, 'JPEG', 0, 0, 210, 297);
             
-            // 2. ДОБАВЛЯЕМ ССЫЛКУ (ВОДЯНОЙ ЗНАК)
-            doc.setTextColor(150, 150, 150); // Светло-серый цвет
-            doc.setFontSize(9);              // Мелкий шрифт
-            // Текст, отступ слева (10мм), отступ сверху (292мм - самый низ)
-            doc.text("Сгенерировано бесплатно на https://propisi.site", 10, 292);
-
-            // 3. Сохраняем файл
+            // 4. Сохраняем файл
             doc.save("propisi.pdf");
+            
+            // После скачивания можно перерисовать чисто, чтобы на экране надпись не мешалась,
+            // но обычно это не критично. Если нужно — раскомментируйте строку ниже:
+            // updatePreview(); 
         }
     </script>
 </body>

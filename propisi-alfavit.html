@@ -20,13 +20,31 @@
     }
     </script>
 
-    <script type="text/javascript" >
-       (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-       m[i].l=1*new Date();
-       for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-       k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-       (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-       ym(106467293, "init", {clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true});
+    <script>
+        const letters = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+        const grid = document.getElementById('grid');
+
+        letters.split('').forEach(char => {
+            const a = document.createElement('a');
+            
+            // 1. Формируем ОДНУ строку (Паттерн: А а А а А а...)
+            // Добавил пробелы между парами для красоты
+            const singleLine = `${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}`;
+            
+            // 2. Размножаем её на 12 строк (на весь лист А4)
+            // .fill(singleLine) - заполняет, .join('\n') - ставит Enter между строками
+            const fullPageText = new Array(12).fill(singleLine).join('\n');
+            
+            // 3. Кодируем в URL
+            a.href = `generator.html?text=${encodeURIComponent(fullPageText)}`;
+            
+            a.className = 'letter-card';
+            a.innerHTML = `
+                <div class="letter-big">${char}</div>
+                <div class="letter-desc">Распечатать</div>
+            `;
+            grid.appendChild(a);
+        });
     </script>
 
     <style>

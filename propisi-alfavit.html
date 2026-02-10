@@ -15,43 +15,26 @@
       "name": "Прописи букв русского алфавита",
       "itemListElement": [
         { "@type": "ListItem", "position": 1, "name": "Буква А" },
-        { "@type": "ListItem", "position": 2, "name": "Буква Б" }
+        { "@type": "ListItem", "position": 33, "name": "Буква Я" }
       ]
     }
     </script>
 
-    <script>
-        const letters = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
-        const grid = document.getElementById('grid');
-
-        letters.split('').forEach(char => {
-            const a = document.createElement('a');
-            
-            // 1. Формируем ОДНУ строку (Паттерн: А а А а А а...)
-            // Добавил пробелы между парами для красоты
-            const singleLine = `${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}`;
-            
-            // 2. Размножаем её на 12 строк (на весь лист А4)
-            // .fill(singleLine) - заполняет, .join('\n') - ставит Enter между строками
-            const fullPageText = new Array(12).fill(singleLine).join('\n');
-            
-            // 3. Кодируем в URL
-            a.href = `generator.html?text=${encodeURIComponent(fullPageText)}`;
-            
-            a.className = 'letter-card';
-            a.innerHTML = `
-                <div class="letter-big">${char}</div>
-                <div class="letter-desc">Распечатать</div>
-            `;
-            grid.appendChild(a);
-        });
+    <script type="text/javascript" >
+       (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+       m[i].l=1*new Date();
+       for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+       k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+       (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+       ym(106467293, "init", {clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true});
     </script>
 
     <style>
         :root { --app-bg: #Eef2F5; --text-primary: #1C1C1E; --accent: #007AFF; --card-bg: #FFFFFF; }
+        * { box-sizing: border-box; }
         body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--app-bg); color: var(--text-primary); line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
         
-        .header { background: var(--card-bg); padding: 15px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .header { background: var(--card-bg); padding: 15px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         .logo { font-weight: 700; font-size: 20px; text-decoration: none; color: var(--text-primary); }
         .nav-link { text-decoration: none; color: var(--accent); font-weight: 500; margin-left: 20px; background: #F2F2F7; padding: 8px 16px; border-radius: 8px; }
 
@@ -63,7 +46,7 @@
         /* СЕТКА АЛФАВИТА */
         .alphabet-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
             gap: 15px;
             margin-top: 30px;
         }
@@ -76,21 +59,29 @@
             background: #F9F9FB;
             border: 1px solid #E5E5EA;
             border-radius: 12px;
-            padding: 15px;
+            padding: 20px 10px;
             text-decoration: none;
             transition: transform 0.2s, border-color 0.2s;
             cursor: pointer;
         }
-        .letter-card:hover { transform: translateY(-3px); border-color: var(--accent); }
+        .letter-card:hover { transform: translateY(-3px); border-color: var(--accent); background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         
-        .letter-big { font-size: 32px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; }
-        .letter-desc { font-size: 11px; color: #8E8E93; text-transform: uppercase; }
+        .letter-big { font-size: 32px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; line-height: 1; }
+        .letter-desc { font-size: 11px; color: #8E8E93; text-transform: uppercase; font-weight: 600; }
 
         .breadcrumbs { font-size: 13px; color: #999; margin-bottom: 10px; }
         .breadcrumbs a { color: #999; text-decoration: none; }
 
         .footer { background: #fff; padding: 30px; text-align: center; font-size: 13px; border-top: 1px solid #eee; margin-top: 40px; }
         .footer a { color: #999; }
+
+        @media (max-width: 600px) {
+            .card { padding: 20px; }
+            .alphabet-grid { grid-template-columns: repeat(4, 1fr); gap: 10px; }
+            .letter-card { padding: 10px 5px; }
+            .letter-big { font-size: 24px; }
+            .letter-desc { font-size: 9px; }
+        }
     </style>
 </head>
 <body>
@@ -109,10 +100,11 @@
 
         <div class="card">
             <h1>Прописи букв: Выберите букву</h1>
-            <p>Нажмите на нужную букву, чтобы автоматически создать страницу прописей с ней.</p>
+            <p>Нажмите на нужную карточку, и откроется генератор с уже заполненным листом прописей (12 строк) для печати.</p>
             
             <div class="alphabet-grid" id="grid">
-                </div>
+                <div style="grid-column: 1/-1; text-align: center; color: #999; padding: 20px;">Загрузка букв...</div>
+            </div>
         </div>
     </div>
 
@@ -121,23 +113,35 @@
     </footer>
 
     <script>
-        const letters = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
-        const grid = document.getElementById('grid');
+        document.addEventListener("DOMContentLoaded", function() {
+            const letters = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+            const grid = document.getElementById('grid');
+            
+            if (!grid) return; // Защита от ошибки
+            
+            // Очищаем индикатор загрузки
+            grid.innerHTML = '';
 
-        letters.split('').forEach(char => {
-            const a = document.createElement('a');
-            
-            // ФОРМУЛА ГЕНЕРАЦИИ ТЕКСТА:
-            // Аа Аа Аа (строчка) + перенос строки
-            const textPattern = `${char}${char.toLowerCase()} ${char}${char.toLowerCase()} ${char}${char.toLowerCase()} ${char}${char.toLowerCase()} ${char}${char.toLowerCase()} ${char}${char.toLowerCase()}`;
-            
-            a.href = `generator.html?text=${encodeURIComponent(textPattern)}`;
-            a.className = 'letter-card';
-            a.innerHTML = `
-                <div class="letter-big">${char}</div>
-                <div class="letter-desc">Прописи</div>
-            `;
-            grid.appendChild(a);
+            letters.split('').forEach(char => {
+                const a = document.createElement('a');
+                
+                // 1. Формируем ОДНУ строку (Паттерн: А а А а ...)
+                // Добавил два пробела для отступа
+                const singleLine = `${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}`;
+                
+                // 2. Размножаем её на 12 строк
+                const fullPageText = new Array(12).fill(singleLine).join('\n');
+                
+                // 3. Кодируем в URL для передачи в генератор
+                a.href = `generator.html?text=${encodeURIComponent(fullPageText)}`;
+                
+                a.className = 'letter-card';
+                a.innerHTML = `
+                    <div class="letter-big">${char}</div>
+                    <div class="letter-desc">Печать</div>
+                `;
+                grid.appendChild(a);
+            });
         });
     </script>
 

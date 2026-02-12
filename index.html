@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Сайт прописей — Чистописание и коррекция почерка</title>
-    <meta name="description" content="Бесплатные инструменты для обучения письму: Интерактивная доска для учителей, Генератор прописей PDF и шаблоны линовки.">
-    
+    <meta name="description" content="Бесплатные инструменты для обучения письму: Интерактивная доска для учителей, Генератор прописей PDF.">
     <link rel="icon" type="image/png" href="favicon.png">
 
     <script type="text/javascript" >
@@ -16,169 +15,149 @@
        (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
        ym(106467293, "init", {clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true});
     </script>
-    <noscript><div><img src="https://mc.yandex.ru/watch/106467293" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 
     <style>
         @font-face { font-family: 'PrimoFont'; src: url('primo.ttf'); }
 
         :root {
-            --ink: #007AFF;         /* Синие чернила */
-            --paper: #F9F9FB;       /* Цвет бумаги */
-            --text: #1D1D1F;        /* Основной текст */
-            --text-secondary: #555;
-            --header-height: 64px;  /* Компактная шапка */
+            --ink: #007AFF;
+            --paper: #F9F9FB;
+            --text: #1D1D1F;
+            --header-h: 60px;
+            --footer-h: 40px;
         }
 
         html, body {
-            height: 100%; /* Важно для размещения на один экран */
+            height: 100%;
             margin: 0; padding: 0;
+            overflow: hidden; /* Жестко убираем скролл на ПК */
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--paper);
             color: var(--text);
-            line-height: 1.4;
             display: flex;
             flex-direction: column;
 
-            /* ИСПРАВЛЕННЫЙ ФОН: Точная "Узкая косая" через SVG */
-            background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='uzkaya-kosaya' x='0' y='0' width='60' height='60' patternUnits='userSpaceOnUse'%3E%3C!-- Горизонтальные линии (основная и средняя) --%3E%3Cline x1='0' y1='15' x2='60' y2='15' stroke='%23E1E1E8' stroke-width='1.5'/%3E%3Cline x1='0' y1='45' x2='60' y2='45' stroke='%23E1E1E8' stroke-width='1.5'/%3E%3C!-- Косые линии (угол ~65 градусов) --%3E%3Cpath d='M-5,65 L25,0 M25,65 L55,0 M55,65 L85,0' stroke='%23D1D1D6' stroke-width='1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23uzkaya-kosaya)'/%3E%3C/svg%3E");
-            background-size: 60px 60px; /* Масштаб паттерна */
+            /* ПРАВИЛЬНЫЙ ФОН: Узкая косая (SVG) */
+            background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='uzkaya-kosaya' x='0' y='0' width='60' height='60' patternUnits='userSpaceOnUse'%3E%3Cline x1='0' y1='15' x2='60' y2='15' stroke='%23E1E1E8' stroke-width='1.5'/%3E%3Cline x1='0' y1='45' x2='60' y2='45' stroke='%23E1E1E8' stroke-width='1.5'/%3E%3Cpath d='M-5,65 L25,0 M25,65 L55,0 M55,65 L85,0' stroke='%23D1D1D6' stroke-width='1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23uzkaya-kosaya)'/%3E%3C/svg%3E");
+            background-size: 60px 60px;
         }
 
-        /* Компактная шапка */
+        /* 1. ШАПКА */
         header {
+            height: var(--header-h);
             background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(8px);
-            border-bottom: 1px solid rgba(0,0,0,0.08);
-            height: var(--header-height);
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
             flex-shrink: 0;
-            position: sticky; top: 0; z-index: 100;
+            display: flex; align-items: center;
         }
         .container { 
-            max-width: 1000px; margin: 0 auto; padding: 0 20px; height: 100%;
+            width: 100%; max-width: 1000px; margin: 0 auto; padding: 0 20px;
             display: flex; justify-content: space-between; align-items: center;
         }
 
-        /* Логотип на русском */
         .logo {
             font-family: 'PrimoFont', cursive;
-            font-size: 30px; color: var(--ink);
+            font-size: 28px; color: var(--ink);
             text-decoration: none; 
-            text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+            text-shadow: 0 1px 0 #fff;
             white-space: nowrap;
         }
 
-        .menu { display: flex; gap: 20px; }
+        .menu { display: flex; gap: 15px; }
         .menu a {
-            text-decoration: none; color: #333; font-weight: 500; font-size: 15px;
-            padding: 5px 10px; border-radius: 8px; transition: 0.2s;
+            text-decoration: none; color: #333; font-weight: 500; font-size: 14px;
+            transition: 0.2s; padding: 5px 8px; border-radius: 6px;
         }
         .menu a:hover { color: var(--ink); background: rgba(0,122,255,0.05); }
 
-        /* Основной контент на один экран */
-        .main-content {
-            flex: 1; /* Занимает всё доступное место */
+        /* 2. ОСНОВНОЙ КОНТЕНТ (Центрирование) */
+        main {
+            flex: 1; /* Занимает всё место между шапкой и подвалом */
             display: flex;
             flex-direction: column;
-            justify-content: center; /* Центрируем по вертикали */
+            justify-content: center; /* Центр по вертикали */
             align-items: center;
-            padding: 2vh 20px; /* Отступы зависят от высоты экрана */
-            max-width: 1000px;
-            margin: 0 auto;
-            width: 100%; box-sizing: border-box;
+            padding: 0 20px;
+            max-height: calc(100vh - var(--header-h) - var(--footer-h));
         }
 
-        .hero { 
-            text-align: center; 
-            margin-bottom: 4vh; /* Отступ до карточек */
+        .hero-block {
+            text-align: center;
+            margin-bottom: 5vh; /* Гибкий отступ (5% высоты экрана) */
         }
 
         h1 {
-            font-size: clamp(32px, 5vh, 46px); /* Адаптивный размер шрифта */
-            font-weight: 800; margin: 0 0 15px 0; color: #111; letter-spacing: -0.02em;
-            background: rgba(255,255,255,0.9); display: inline-block;
-            padding: 8px 25px; border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-            backdrop-filter: blur(5px);
+            font-size: clamp(28px, 4.5vh, 42px); /* Шрифт зависит от высоты экрана */
+            margin: 0 0 1.5vh 0; color: #111; font-weight: 800;
+            background: rgba(255,255,255,0.85); display: inline-block;
+            padding: 8px 20px; border-radius: 12px;
         }
-
         .subtitle {
-            font-size: clamp(16px, 2.5vh, 20px);
-            color: var(--text-secondary); margin: 0 auto 30px; max-width: 640px;
-            background: rgba(255,255,255,0.7); padding: 10px 15px; border-radius: 12px;
+            font-size: clamp(14px, 2.2vh, 18px); color: #555; margin: 0 auto 3vh; max-width: 600px;
+            background: rgba(255,255,255,0.7); padding: 8px 12px; border-radius: 8px;
         }
 
-        .cta-group { display: flex; justify-content: center; gap: 15px; }
-        
+        .cta-group { display: flex; gap: 12px; justify-content: center; }
         .btn {
-            padding: 12px 28px; border-radius: 12px; font-size: 17px; font-weight: 600;
-            text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
-            transition: transform 0.2s, box-shadow 0.2s;
+            padding: 1.5vh 3vh; border-radius: 10px; font-size: clamp(14px, 2vh, 16px);
+            font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 8px;
+            transition: transform 0.2s;
         }
         .btn:hover { transform: translateY(-2px); }
-        .btn-primary { background: var(--ink); color: white; box-shadow: 0 4px 15px rgba(0,122,255,0.3); }
+        .btn-primary { background: var(--ink); color: white; box-shadow: 0 4px 12px rgba(0,122,255,0.3); }
         .btn-secondary { background: white; color: var(--text); border: 1px solid #ddd; }
 
-        /* Карточки в ряд */
-        .cards-flex {
-            display: flex;
+        /* 3. КАРТОЧКИ (В ряд) */
+        .cards-row {
+            display: flex; gap: 20px; width: 100%; max-width: 960px;
             justify-content: center;
-            gap: 20px;
-            width: 100%;
-            flex-wrap: wrap; /* На мобильных перенесутся */
+            height: 25vh; /* Фиксированная высота в % от экрана */
+            min-height: 160px; max-height: 220px;
         }
 
         .card {
-            background: white; padding: 25px; border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.04); 
-            text-decoration: none; color: inherit; 
-            transition: transform 0.3s, border-color 0.3s;
-            border: 2px solid transparent;
-            position: relative; overflow: hidden;
-            flex: 1 1 280px; /* Гибкая ширина, но не меньше 280px */
-            max-width: 340px;
+            flex: 1; background: white; padding: 2.5vh; border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.04);
+            text-decoration: none; color: inherit;
+            transition: transform 0.2s, border-color 0.2s;
+            border: 2px solid transparent; position: relative; overflow: hidden;
             display: flex; flex-direction: column;
         }
-        .card::before { /* Синяя полоска сверху */
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
-            background: var(--ink); opacity: 0.2; transition: opacity 0.3s;
+        .card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+            background: var(--ink); opacity: 0.2; transition: opacity 0.2s;
         }
-        .card:hover { transform: translateY(-5px); border-color: rgba(0,122,255,0.3); }
+        .card:hover { transform: translateY(-4px); border-color: rgba(0,122,255,0.3); }
         .card:hover::before { opacity: 1; }
 
-        .card-top { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
-        .card-icon { font-size: 32px; }
-        .card h3 { margin: 0; font-size: 20px; font-weight: 700; color: #111; }
-        .card p { color: var(--text-secondary); font-size: 15px; margin: 0; line-height: 1.5; flex-grow: 1; }
-        .card-arrow { 
-            margin-top: 20px; color: var(--ink); font-weight: 600; font-size: 14px; 
-            display: flex; align-items: center; justify-content: flex-end;
-        }
+        .card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 1vh; }
+        .card-icon { font-size: clamp(24px, 3vh, 32px); }
+        .card h3 { margin: 0; font-size: clamp(16px, 2.2vh, 18px); font-weight: 700; }
+        .card p { font-size: clamp(12px, 1.8vh, 14px); color: #666; margin: 0; line-height: 1.4; flex-grow: 1; }
+        .card-arrow { margin-top: auto; color: var(--ink); font-weight: 600; font-size: 13px; text-align: right; }
 
-        /* Компактный подвал */
-        footer { 
-            text-align: center; padding: 15px 20px; 
-            background: rgba(255,255,255,0.9); border-top: 1px solid rgba(0,0,0,0.08); 
-            font-size: 12px; color: #999; flex-shrink: 0;
-            backdrop-filter: blur(5px);
+        /* 4. ПОДВАЛ */
+        footer {
+            height: var(--footer-h); flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; color: #999;
+            background: rgba(255,255,255,0.9);
         }
-        footer a { color: #888; text-decoration: none; }
-        footer a:hover { color: var(--ink); }
+        footer a { color: #888; text-decoration: none; border-bottom: 1px solid #eee; }
 
-        /* Мобильная адаптация */
-        @media (max-width: 768px) {
-            .menu { display: none; } /* Скрываем меню на мобильном */
+        /* МОБИЛЬНАЯ ВЕРСИЯ */
+        @media (max-width: 768px), (max-height: 600px) {
+            html, body { height: auto; overflow: auto; } /* Возвращаем скролл на телефоне */
+            main { display: block; padding: 40px 20px; max-height: none; }
+            .menu { display: none; }
             .container { justify-content: center; }
-            .main-content { padding: 40px 20px; justify-content: flex-start; } /* На мобильном скроллим */
-            .hero { margin-bottom: 40px; }
-            .cta-group { flex-direction: column; width: 100%; }
-            .btn { width: 100%; justify-content: center; }
-            .cards-flex { flex-direction: column; align-items: center; }
-            .card { width: 100%; max-width: none; }
-            h1 { font-size: 32px; }
-            .subtitle { font-size: 16px; }
+            .cards-row { flex-direction: column; height: auto; max-height: none; gap: 15px; }
+            .card { min-height: auto; padding: 20px; }
+            .hero-block { margin-bottom: 40px; }
         }
     </style>
 </head>
@@ -186,7 +165,7 @@
 
     <header>
         <div class="container">
-            <a href="index.html" class="logo">Сайт прописей</a>
+            <a href="index.html" class="logo" id="logoLink">Сайт прописей</a>
             
             <nav class="menu">
                 <a href="board.html">Доска</a>
@@ -197,12 +176,11 @@
         </div>
     </header>
 
-    <main class="main-content">
-        
-        <section class="hero">
+    <main>
+        <section class="hero-block">
             <h1>Научитесь писать красиво.<br>Легко и бесплатно.</h1>
             <div class="subtitle">
-                Профессиональные онлайн-инструменты для учителей начальных классов, логопедов и заботливых родителей.
+                Профессиональные онлайн-инструменты для учителей начальных классов, логопедов и родителей.
             </div>
             
             <div class="cta-group">
@@ -210,19 +188,18 @@
                     ✏️ Открыть Доску
                 </a>
                 <a href="generator.html" class="btn btn-secondary">
-                    🖨 Создать Прописи PDF
+                    🖨 Создать PDF
                 </a>
             </div>
         </section>
 
-        <section class="cards-flex">
-            
+        <section class="cards-row">
             <a href="board.html" class="card">
                 <div class="card-top">
                     <div class="card-icon">🎨</div>
                     <h3>Интерактивная доска</h3>
                 </div>
-                <p>Рисуйте на экране поверх сетки Мазиной или косой линейки. Для уроков на проекторе или в Zoom.</p>
+                <p>Рисуйте на экране поверх сетки Мазиной или косой линейки. Для уроков на проекторе.</p>
                 <div class="card-arrow">Запустить →</div>
             </a>
 
@@ -231,7 +208,7 @@
                     <div class="card-icon">📄</div>
                     <h3>Генератор прописей</h3>
                 </div>
-                <p>Введите свой текст. Умный шрифт "Primo" сам соединит буквы. Скачайте PDF для печати.</p>
+                <p>Введите текст. Умный шрифт сам соединит буквы в слова. Скачайте PDF для печати.</p>
                 <div class="card-arrow">Создать →</div>
             </a>
 
@@ -240,21 +217,31 @@
                     <div class="card-icon">🅰️</div>
                     <h3>Алфавит и Шаблоны</h3>
                 </div>
-                <p>Каталог готовых прописей для каждой буквы (А-Я) и чистые листы разлиновки.</p>
+                <p>Каталог готовых прописей (А-Я) и чистые листы разлиновки для скачивания.</p>
                 <div class="card-arrow">Выбрать букву →</div>
             </a>
-
         </section>
-
     </main>
 
     <footer>
-        <p>
-            © 2026 Сайт прописей. &nbsp;|&nbsp; 
-            <a href="about.html">Инструкция</a> &nbsp;|&nbsp; 
-            <a href="propisi-alfavit.html">Алфавит</a>
-        </p>
+        <p>© 2026 Сайт прописей. &nbsp;|&nbsp; <a href="about.html">Инструкция</a></p>
     </footer>
+
+    <script>
+        // Это мини-версия движка Primo только для рендеринга логотипа
+        // Логика взята из generator.html
+        function getHeadAndTail(char){const code=char.charCodeAt(0);const map={0x0410:{h:100,t:8},0x0411:{h:100,t:100},0x0412:{h:100,t:100},0x0413:{h:100,t:100},0x0414:{h:100,t:8},0x0415:{h:100,t:4},0x0416:{h:100,t:4},0x0417:{h:100,t:100},0x0418:{h:100,t:1},0x0419:{h:100,t:1},0x041A:{h:100,t:1},0x041B:{h:100,t:1},0x041C:{h:100,t:1},0x041D:{h:100,t:1},0x041E:{h:100,t:100},0x041F:{h:100,t:1},0x0420:{h:100,t:100},0x0421:{h:100,t:4},0x0422:{h:100,t:1},0x0423:{h:100,t:100},0x0424:{h:100,t:100},0x0425:{h:100,t:4},0x0426:{h:100,t:6},0x0427:{h:100,t:1},0x0428:{h:100,t:1},0x0429:{h:100,t:6},0x042A:{h:100,t:100},0x042B:{h:100,t:1},0x042C:{h:100,t:100},0x042D:{h:100,t:100},0x042E:{h:100,t:100},0x042F:{h:100,t:1},0x0401:{h:100,t:4},0x0430:{h:2,t:1},0x0431:{h:2,t:100},0x0432:{h:6,t:2},0x0433:{h:7,t:1},0x0434:{h:2,t:3},0x0435:{h:5,t:4},0x0436:{h:4,t:4},0x0437:{h:4,t:3},0x0438:{h:1,t:1},0x0439:{h:1,t:1},0x043A:{h:1,t:1},0x043B:{h:3,t:1},0x043C:{h:3,t:1},0x043D:{h:1,t:1},0x043E:{h:2,t:5},0x043F:{h:1,t:1},0x0440:{h:1,t:1},0x0441:{h:2,t:4},0x0442:{h:1,t:1},0x0443:{h:1,t:3},0x0444:{h:2,t:100},0x0445:{h:4,t:4},0x0446:{h:1,t:6},0x0447:{h:8,t:1},0x0448:{h:1,t:1},0x0449:{h:1,t:6},0x044A:{h:8,t:7},0x044B:{h:1,t:1},0x044C:{h:1,t:7},0x044D:{h:4,t:100},0x044E:{h:1,t:5},0x044F:{h:3,t:1},0x0451:{h:5,t:4}};if(map[code])return map[code];if(code>=0xE000)return{h:200,t:200};return{h:0,t:0}}
+        function insGRF(c0Code,cCode,h){if(c0Code!==0x0413&&c0Code!==0x0420&&c0Code!==0x0424)return"";if(c0Code===0x0413){if(h===0||h===100||[0x431,0x432,0x439,0x451].includes(cCode))return"\uE403";if([0x438,0x439,0x443,0x448,0x449,0x446,0x44F].includes(cCode))return"\uE401"}else if(c0Code===0x0420){if(cCode!==0x43B&&cCode!==0x43C)return"\uE402"}else if(c0Code===0x0424){if(cCode!==0x43B&&cCode!==0x43C)return"\uE401"}return""}
+        function ins(c1,c2){if(!c1||!c2)return"";const info1=getHeadAndTail(c1);const info2=getHeadAndTail(c2);const t=info1.t,h=info2.h;const n1=c1.charCodeAt(0),n2=c2.charCodeAt(0);if(t===200||h===200)return"";if((n1===0x41F||n1===0x422)&&n2===0x432)return"\uE410";if((n1===0x41F||n1===0x422)&&n2===0x431)return"\uE411";const set1=[0x438,0x439,0x43B,0x43C,0x448];const set2=[0x438,0x439,0x446,0x448,0x449];if(set1.includes(n1)&&set2.includes(n2))return"\uE413";if([0x41D,0x41F,0x422].includes(n1)&&[0x456,0x457].includes(n2))return"\uE413";if(t===0){if(h===1||h===2||h===3||h===100)return"\uE402";if(h===4)return"\uE402\uE007";if(h===5)return"\uE402\uE005";if(h===6)return"\uE402\uE006";if(h===7)return"\uE402\uE007";if(h===8)return"\uE402\uE008"}if(t===1){if(h===0)return"\uE010\uE402";if(h===1)return"\uE011";if(h===2)return"\uE012";if(h===3)return"\uE010";if(h===4)return"\uE014";if(h===5)return"\uE015";if(h===6)return"\uE016";if(h===7)return"\uE017";if(h===8)return"\uE018";if(h===100)return"\uE010\uE403"}if(t===2){if(h===0)return"\uE020\uE402";if(h===1)return"\uE021";if(h===2)return"\uE022";if(h===3)return"\uE023";if(h===4)return"\uE024";if(h===5)return"\uE025";if(h===6)return"\uE026";if(h===7)return"\uE027";if(h===8)return"\uE028";if(h===100)return"\uE020\uE403"}if(t===3){if(h===0)return"\uE030\uE402";if(h===1)return"\uE031";if(h===2)return"\uE032";if(h===3)return"\uE033";if(h===4)return"\uE034";if(h===5)return"\uE035";if(h===6)return"\uE036";if(h===7)return"\uE037";if(h===8)return"\uE038";if(h===100)return"\uE030\uE403"}if(t===4){if(h===0)return"\uE040\uE402";if(h===1)return"\uE041";if(h===2)return"\uE042";if(h===3)return"\uE043";if(h===4)return"\uE044";if(h===5)return"\uE045";if(h===6)return"\uE046";if(h===7)return"\uE047";if(h===8)return"\uE048";if(h===100)return"\uE040\uE403"}if(t===5){if(h===0)return"\uE402";if(h===1)return"\uE051";if(h===2)return"\uE052";if(h===3)return"\uE053";if(h===4)return"\uE054";if(h===5)return"\uE055";if(h===6)return"\uE056";if(h===7)return"\uE057";if(h===8)return"\uE058";if(h===100)return"\uE403"}if(t===6){if(h===0)return"\uE060\uE402";if(h===1)return"\uE061";if(h===2)return"\uE062";if(h===3)return"\uE063";if(h===4)return"\uE064";if(h===5)return"\uE065";if(h===6)return"\uE066";if(h===7)return"\uE067";if(h===8)return"\uE068";if(h===100)return"\uE060\uE403"}if(t===7){if(h===0)return"\uE070\uE402";if(h===1)return"\uE071";if(h===2)return"\uE072";if(h===3)return"\uE073";if(h===4)return"\uE074";if(h===5)return"\uE075";if(h===6)return"\uE076";if(h===7)return"\uE077";if(h===8)return"\uE078";if(h===100)return"\uE070\uE403"}if(t===8){if(h===0)return"\uE080\uE402";if(h===1)return"\uE081";if(h===2)return"\uE082";if(h===3)return"\uE083";if(h===4)return"\uE084";if(h===5)return"\uE085";if(h===6)return"\uE086";if(h===7)return"\uE087";if(h===8)return"\uE088";if(h===100)return"\uE080\uE403"}if(t===100){if(h===0)return"\uE402";if(h===1)return"\uE402\uE402";if(h===2)return"\uE402\uE401";if(h===3)return"\uE402";if(h===4)return"\uE402\uE401\uE007";if(h===5)return"\uE402\uE005";if(h===6)return"\uE402\uE401\uE006";if(h===7)return"\uE402\uE007";if(h===8)return"\uE402\uE008";if(h===100)return"\uE403"}const grf=insGRF(n1,n2,h);if(grf)return grf;return""}
+        function processPrimoText(text){if(!text)return"";let res="";let c1="";let c2=text[0];res+=ins(" ",c2)+c2;for(let i=1;i<text.length;i++){c1=c2;c2=text[i];res+=ins(c1,c2)+c2}res+=ins(c2," ");return res}
+
+        window.onload = function() {
+            // Превращаем обычный текст "Сайт прописей" в связный
+            const raw = "Сайт прописей";
+            const processed = processPrimoText(raw);
+            document.getElementById('logoLink').innerText = processed;
+        };
+    </script>
 
 </body>
 </html>

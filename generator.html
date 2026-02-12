@@ -34,7 +34,6 @@
         .app-header h1 { font-size: 20px; font-weight: 700; margin: 0; }
         .app-header p { font-size: 12px; color: var(--text-secondary); margin: 0; }
         
-        /* МЕНЮ НАВИГАЦИИ */
         .nav-tabs { display: flex; background: #F2F2F7; padding: 4px; border-radius: 10px; gap: 2px; }
         .nav-tab { flex: 1; text-align: center; padding: 8px 6px; font-size: 12px; font-weight: 500; text-decoration: none; color: var(--text-primary); border-radius: 7px; transition: all 0.2s; white-space: nowrap; }
         .nav-tab:hover { background: rgba(255,255,255,0.5); }
@@ -73,7 +72,7 @@
     <div class="sidebar" id="appSidebar">
         <div class="app-header">
             <h1>Прописи</h1>
-            <p>Генератор v11.6 (Исправленный)</p>
+            <p>Генератор v11.7 (Точечный)</p>
         </div>
 
         <div class="nav-tabs">
@@ -102,9 +101,9 @@
         <div class="section">
             <div class="section-label">3. Стиль текста</div>
             <select id="textStyle" onchange="updatePreview()">
-                <option value="dotted">::: Пунктирный (Точки)</option>
-                <option value="outline">🔲 Контурный (Полый)</option>
                 <option value="pale">⚪️ Серый (Для обводки)</option>
+                <option value="dotted">::: Точечный (Заливка)</option>
+                <option value="outline">🔲 Контурный (Полый)</option>
                 <option value="black">⚫️ Черный (Сплошной)</option>
             </select>
         </div>
@@ -141,6 +140,7 @@
         const fontFile = 'primo.ttf'; 
         let fontBase64 = null;
         let isFontLoaded = false;
+        let dotPattern = null; // Паттерн для точек
 
         // Константы размеров (A4 при 300 DPI)
         const MM_TO_PX = 11.81; 
@@ -162,7 +162,9 @@
 
         window.onload = async function() {
             try {
-                // Пытаемся загрузить шрифт для Canvas (чтобы рисовать на превью)
+                // Создаем паттерн для точек
+                createDotPattern();
+
                 const response = await fetch(fontFile);
                 if (!response.ok) throw new Error("Нет файла");
                 const blob = await response.blob();
@@ -170,7 +172,6 @@
                 const reader = new FileReader();
                 reader.onloadend = function() {
                     fontBase64 = reader.result;
-                    // Подключаем шрифт в CSS
                     const f = new FontFace('PrimoFont', `url(${fontBase64})`);
                     f.load().then(loadedFace => {
                         document.fonts.add(loadedFace);
@@ -178,7 +179,6 @@
                         document.getElementById('status').innerText = 'Готов к работе';
                         document.getElementById('downloadBtn').disabled = false;
                         
-                        // Если в URL есть текст (пришли с алфавита)
                         const urlParams = new URLSearchParams(window.location.search);
                         const textParam = urlParams.get('text');
                         if (textParam) {
@@ -190,15 +190,27 @@
                 reader.readAsDataURL(blob);
             } catch (e) {
                 document.getElementById('status').innerText = 'Ошибка: нет файла primo.ttf';
-                // Всё равно рисуем фон, даже без шрифта
                 updatePreview();
             }
         };
 
+        function createDotPattern() {
+            // Создаем маленький холст для паттерна (точки)
+            const pCanvas = document.createElement('canvas');
+            pCanvas.width = 4;
+            pCanvas.height = 4;
+            const pCtx = pCanvas.getContext('2d');
+            pCtx.fillStyle = '#000000';
+            pCtx.beginPath();
+            pCtx.arc(2, 2, 1, 0, Math.PI * 2); // Маленькая точка
+            pCtx.fill();
+            // Сохраняем паттерн глобально
+            dotPattern = ctx.createPattern(pCanvas, 'repeat');
+        }
+
         function handleInput() {
             const input = document.getElementById('textInput');
             let text = input.value;
-            // Автозамена латиницы на кириллицу (если случайно нажали не ту клавишу)
             const replacements = {'a':'а','A':'А','B':'В','c':'с','C':'С','e':'е','E':'Е','H':'Н','k':'к','K':'К','m':'м','M':'М','o':'о','O':'О','p':'р','P':'Р','T':'Т','x':'х','X':'Х','y':'у'};
             let newText = '';
             for (let char of text) newText += replacements[char] || char;
@@ -246,21 +258,16 @@
             const rawText = document.getElementById('textInput').value;
             const styleMode = document.getElementById('textStyle').value;
 
-            // 1. Рисуем белый фон
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, w, h);
-
-            // 2. Рисуем разлиновку
             drawBackground(w, h, type);
 
             if (!rawText || !isFontLoaded) return;
 
-            // 3. Рисуем текст
             const maxTextWidth = w - MARGIN_LEFT - MARGIN_RIGHT;
             const lines = getLines(rawText, maxTextWidth);
             const processedLines = lines.map(line => processPrimoText(line));
             
-            // Настройка стиля текста
             ctx.font = `${FONT_SIZE_PX}px PrimoFont`;
             ctx.textBaseline = 'alphabetic'; 
 
@@ -276,30 +283,33 @@
                     y = MARGIN_TOP + (i * fullRowH) + currentLineHeight + OFFSET_PX;
                 }
 
-                ctx.save(); // Сохраняем состояние контекста
+                ctx.save(); 
 
                 if (styleMode === 'black') {
                     ctx.fillStyle = 'black';
                     ctx.fillText(line, MARGIN_LEFT, y);
                 } else if (styleMode === 'pale') {
-                    ctx.fillStyle = '#C7C7CC'; // Светло-серый
+                    ctx.fillStyle = '#D1D1D6'; // Светлый серый для обводки
                     ctx.fillText(line, MARGIN_LEFT, y);
                 } else if (styleMode === 'outline') {
                     ctx.strokeStyle = 'black';
-                    ctx.lineWidth = 2; // Толщина контура
+                    ctx.lineWidth = 1.5;
                     ctx.strokeText(line, MARGIN_LEFT, y);
                 } else if (styleMode === 'dotted') {
-                    // НАСТОЯЩИЙ ПУНКТИР
-                    ctx.strokeStyle = 'black';
-                    ctx.lineWidth = 2;
-                    ctx.setLineDash([3, 5]); // 3px штрих, 5px пропуск
-                    ctx.strokeText(line, MARGIN_LEFT, y);
+                    // ИСПОЛЬЗУЕМ ЗАЛИВКУ ПАТТЕРНОМ (Точки внутри букв)
+                    // Это решает проблему "двойного контура"
+                    if (dotPattern) {
+                        ctx.fillStyle = dotPattern;
+                        ctx.fillText(line, MARGIN_LEFT, y);
+                    } else {
+                        ctx.fillStyle = '#999';
+                        ctx.fillText(line, MARGIN_LEFT, y);
+                    }
                 }
                 
-                ctx.restore(); // Возвращаем состояние (чтобы пунктир не применился к другим элементам)
+                ctx.restore(); 
             });
             
-            // Водяной знак
             ctx.save();
             ctx.font = "30px sans-serif";
             ctx.fillStyle = "#ccc";
@@ -313,7 +323,6 @@
             ctx.lineWidth = 2;
             ctx.setLineDash([]);
             
-            // Поля (красная линия)
             ctx.beginPath(); ctx.strokeStyle = '#FF8080'; ctx.lineWidth = 4;
             ctx.moveTo(MARGIN_LEFT, 0); ctx.lineTo(MARGIN_LEFT, h); ctx.stroke();
             
@@ -324,7 +333,6 @@
                 for (let x = 0; x < w; x += cellSize) { ctx.moveTo(x, 0); ctx.lineTo(x, h); }
                 for (let y = 0; y < h; y += cellSize) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
                 ctx.stroke();
-                // Повторяем поле поверх
                 ctx.beginPath(); ctx.strokeStyle = '#FF8080'; ctx.lineWidth = 4;
                 ctx.moveTo(MARGIN_LEFT, 0); ctx.lineTo(MARGIN_LEFT, h); ctx.stroke();
                 return;
@@ -350,20 +358,13 @@
             
             if (type === 'propisi_often') { drawSlant = true; slantStep = 25 * MM_TO_PX; }
 
-            // Рисуем строки
             while(y < h - MARGIN_TOP) {
                 ctx.lineWidth = 2; ctx.strokeStyle = '#5096F2'; ctx.setLineDash([]);
-                
-                // Верхняя линия строки
                 ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-                
-                // Нижняя линия строки
                 ctx.beginPath(); ctx.moveTo(0, y + lineHeight); ctx.lineTo(w, y + lineHeight); ctx.stroke();
-                
                 y += totalH;
             }
             
-            // Косые линии
             if (drawSlant) {
                 ctx.lineWidth = 2;
                 ctx.strokeStyle = '#D1D1D6';
@@ -387,15 +388,9 @@
             setTimeout(() => {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-                
-                // Берем картинку с канваса (высокое качество)
                 const imgData = canvas.toDataURL('image/jpeg', 0.85);
-                
-                // Вставляем на весь лист А4 (210x297 мм)
                 doc.addImage(imgData, 'JPEG', 0, 0, 210, 297);
-                
                 doc.save("propisi.pdf");
-                
                 btn.innerText = "Скачать PDF";
                 btn.disabled = false;
             }, 100);

@@ -3,23 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Прописи по буквам: Весь Алфавит (Генератор)</title>
+    <title>Прописи букв: Весь Алфавит (А-Я)</title>
     
-    <meta name="description" content="Скачать прописи букв русского алфавита. Выберите букву и создайте индивидуальный лист для печати.">
-      <link rel="icon" type="image/png" href="/favicon.png" sizes="192x192">
-<link rel="icon" type="image/png" href="/favicon.png"> 
-
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "ItemList",
-      "name": "Прописи букв русского алфавита",
-      "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Буква А" },
-        { "@type": "ListItem", "position": 33, "name": "Буква Я" }
-      ]
-    }
-    </script>
+    <meta name="description" content="Скачать прописи букв русского алфавита. Выберите букву и создайте индивидуальный лист для печати. Генератор прописей 1 класс.">
+    <link rel="icon" type="image/png" href="favicon.png">
 
     <script type="text/javascript" >
        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -31,86 +18,163 @@
     </script>
 
     <style>
-        :root { --app-bg: #Eef2F5; --text-primary: #1C1C1E; --accent: #007AFF; --card-bg: #FFFFFF; }
-        * { box-sizing: border-box; }
-        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--app-bg); color: var(--text-primary); line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
-        
-        .header { background: var(--card-bg); padding: 15px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .logo { font-weight: 700; font-size: 20px; text-decoration: none; color: var(--text-primary); }
-        .nav-link { text-decoration: none; color: var(--accent); font-weight: 500; margin-left: 20px; background: #F2F2F7; padding: 8px 16px; border-radius: 8px; }
+        @font-face { font-family: 'PrimoFont'; src: url('primo.ttf'); }
 
-        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; flex: 1; }
-        .card { background: var(--card-bg); padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        :root {
+            --ink: #007AFF;
+            --paper: #F9F9FB;
+            --lines: #E1E1E8;
+            --text: #1D1D1F;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--paper);
+            color: var(--text);
+            line-height: 1.5;
+            
+            /* Фон "Узкая косая" */
+            background-image: 
+                repeating-linear-gradient(0deg, var(--lines) 0px, var(--lines) 1px, transparent 1px, transparent 30px),
+                repeating-linear-gradient(65deg, var(--lines) 0px, var(--lines) 1px, transparent 1px, transparent 40px);
+            background-attachment: fixed;
+        }
+
+        /* ШАПКА (Как на главной) */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .container { max-width: 960px; margin: 0 auto; padding: 0 20px; }
         
-        h1 { margin-top: 0; font-size: 28px; }
-        
-        /* СЕТКА АЛФАВИТА */
+        .nav-flex { 
+            display: flex; justify-content: space-between; align-items: center; 
+            height: 70px;
+        }
+
+        .logo {
+            font-family: 'PrimoFont', cursive;
+            font-size: 32px; color: var(--ink);
+            text-decoration: none; text-shadow: 0 2px 0 #fff;
+        }
+        .menu { display: flex; gap: 20px; }
+        .menu a {
+            text-decoration: none; color: #333; font-weight: 500; font-size: 15px;
+            transition: color 0.2s;
+        }
+        .menu a:hover { color: var(--ink); }
+
+        /* КОНТЕНТ */
+        .page-header { text-align: center; padding: 60px 0 40px; }
+        h1 {
+            font-size: 36px; font-weight: 800; margin-bottom: 10px; color: #111;
+            background: rgba(255,255,255,0.85); display: inline-block;
+            padding: 10px 25px; border-radius: 16px;
+        }
+        .desc {
+            font-size: 18px; color: #555; max-width: 600px; margin: 0 auto;
+            background: rgba(255,255,255,0.7); padding: 10px; border-radius: 8px;
+        }
+
+        /* СЕТКА БУКВ */
         .alphabet-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             gap: 15px;
-            margin-top: 30px;
+            padding-bottom: 60px;
         }
-        
+
         .letter-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            text-decoration: none;
+            color: var(--text);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: #F9F9FB;
-            border: 1px solid #E5E5EA;
-            border-radius: 12px;
-            padding: 20px 10px;
-            text-decoration: none;
-            transition: transform 0.2s, border-color 0.2s;
-            cursor: pointer;
+            height: 120px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid transparent;
+            position: relative;
+            overflow: hidden;
         }
-        .letter-card:hover { transform: translateY(-3px); border-color: var(--accent); background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         
-        .letter-big { font-size: 32px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; line-height: 1; }
-        .letter-desc { font-size: 11px; color: #8E8E93; text-transform: uppercase; font-weight: 600; }
+        /* Синяя полоска сверху */
+        .letter-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+            background: var(--ink); opacity: 0.2; transition: opacity 0.2s;
+        }
 
-        .breadcrumbs { font-size: 13px; color: #999; margin-bottom: 10px; }
-        .breadcrumbs a { color: #999; text-decoration: none; }
+        .letter-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,122,255,0.15);
+            border-color: rgba(0,122,255,0.3);
+        }
+        .letter-card:hover::before { opacity: 1; }
 
-        .footer { background: #fff; padding: 30px; text-align: center; font-size: 13px; border-top: 1px solid #eee; margin-top: 40px; }
-        .footer a { color: #999; }
+        .letter-big {
+            font-family: 'PrimoFont', cursive;
+            font-size: 48px;
+            color: var(--ink);
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+        .letter-label {
+            font-size: 12px;
+            color: #999;
+            font-weight: 500;
+        }
+
+        /* ПОДВАЛ */
+        footer { 
+            text-align: center; padding: 40px 20px; background: white; 
+            border-top: 1px solid #eee; font-size: 13px; color: #999; 
+        }
+        footer a { color: #999; text-decoration: none; }
 
         @media (max-width: 600px) {
-            .card { padding: 20px; }
-            .alphabet-grid { grid-template-columns: repeat(4, 1fr); gap: 10px; }
-            .letter-card { padding: 10px 5px; }
-            .letter-big { font-size: 24px; }
-            .letter-desc { font-size: 9px; }
+            .menu { display: none; } 
+            .nav-flex { justify-content: center; }
+            h1 { font-size: 28px; }
+            .alphabet-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+            .letter-card { height: 100px; }
+            .letter-big { font-size: 36px; }
         }
     </style>
 </head>
 <body>
 
-    <header class="header">
-        <a href="index.html" class="logo">Propisi.site</a>
-        <nav>
-            <a href="generator.html" class="nav-link">К Генератору</a>
-        </nav>
+    <header>
+        <div class="container nav-flex">
+            <a href="index.html" class="logo">Propisi.site</a>
+            <nav class="menu">
+                <a href="board.html">Доска</a>
+                <a href="generator.html">Генератор</a>
+                <a href="propisi-alfavit.html" style="color:var(--ink);">Алфавит</a>
+                <a href="about.html">О нас</a>
+            </nav>
+        </div>
     </header>
 
-    <div class="container">
-        <div class="breadcrumbs">
-            <a href="index.html">Главная</a> / <a href="generator.html">Генератор</a> / Алфавит
+    <main class="container">
+        <div class="page-header">
+            <h1>Прописи по буквам</h1>
+            <p class="desc">Выберите букву, чтобы открыть готовый лист прописей для печати.</p>
         </div>
 
-        <div class="card">
-            <h1>Прописи букв: Выберите букву</h1>
-            <p>Нажмите на нужную карточку, и откроется генератор с уже заполненным листом прописей (12 строк) для печати.</p>
-            
-            <div class="alphabet-grid" id="grid">
-                <div style="grid-column: 1/-1; text-align: center; color: #999; padding: 20px;">Загрузка букв...</div>
-            </div>
+        <div class="alphabet-grid" id="grid">
+            <div style="text-align:center; width:100%; color:#999;">Загрузка букв...</div>
         </div>
-    </div>
+    </main>
 
-    <footer class="footer">
-        © 2026 Propisi.site
+    <footer>
+        <p>© 2026 Propisi.site. Все права защищены.</p>
+        <p style="margin-top:5px;"><a href="index.html">На Главную</a></p>
     </footer>
 
     <script>
@@ -118,28 +182,25 @@
             const letters = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
             const grid = document.getElementById('grid');
             
-            if (!grid) return; // Защита от ошибки
-            
-            // Очищаем индикатор загрузки
-            grid.innerHTML = '';
+            if (!grid) return;
+            grid.innerHTML = ''; // Очистка
 
             letters.split('').forEach(char => {
                 const a = document.createElement('a');
                 
-                // 1. Формируем ОДНУ строку (Паттерн: А а А а ...)
-                // Добавил два пробела для отступа
+                // 1. Формируем строку прописи: "А а  А а ..."
                 const singleLine = `${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}`;
                 
-                // 2. Размножаем её на 12 строк
+                // 2. Размножаем на 12 строк
                 const fullPageText = new Array(12).fill(singleLine).join('\n');
                 
-                // 3. Кодируем в URL для передачи в генератор
+                // 3. Ссылка ведет в Генератор с параметром текста
                 a.href = `generator.html?text=${encodeURIComponent(fullPageText)}`;
                 
                 a.className = 'letter-card';
                 a.innerHTML = `
                     <div class="letter-big">${char}</div>
-                    <div class="letter-desc">Печать</div>
+                    <div class="letter-label">Печать PDF</div>
                 `;
                 grid.appendChild(a);
             });

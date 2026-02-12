@@ -35,6 +35,7 @@
             height: 100vh; display: flex; flex-direction: column; overflow: hidden; 
         }
 
+        /* ШАПКА */
         header {
             height: var(--header-h); background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(5px); border-bottom: 1px solid rgba(0,0,0,0.06);
@@ -46,6 +47,7 @@
         .top-menu a { text-decoration: none; color: #333; font-weight: 500; font-size: 14px; transition: 0.2s; padding: 5px 8px; border-radius: 6px; }
         .top-menu a:hover { color: var(--ink); background: rgba(0,122,255,0.05); }
 
+        /* ПРИЛОЖЕНИЕ */
         .app-body { display: flex; flex: 1; overflow: hidden; position: relative; }
 
         .toggle-btn { 
@@ -58,7 +60,7 @@
         }
 
         .sidebar { 
-            width: 320px; min-width: 320px; height: 100%; 
+            width: 360px; min-width: 360px; height: 100%; 
             background: var(--sidebar-bg); border-right: 1px solid rgba(0,0,0,0.1);
             display: flex; flex-direction: column; padding: 20px; padding-top: 60px;
             gap: 15px; overflow-y: auto; z-index: 1000; transition: transform 0.3s;
@@ -75,13 +77,18 @@
         #bgCanvas { z-index: 1; }
         #drawCanvas { z-index: 2; cursor: crosshair; }
 
+        /* ИНСТРУМЕНТЫ */
         .section { display: flex; flex-direction: column; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
         .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #8E8E93; letter-spacing: 0.5px; }
-        select, input[type=range] { width: 100%; }
-        .btn-action { border: none; height: 40px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; background: #F2F2F7; color: #1C1C1E; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        select, input[type=range] { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ddd; }
+        
+        .btn-action { border: none; height: 42px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; background: #F2F2F7; color: #1C1C1E; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-primary { background: var(--accent); color: white; }
+        
+        .tool-row { display: flex; gap: 8px; }
         .tool-btn { flex: 1; padding: 10px; border: 1px solid #E5E5EA; border-radius: 8px; background: white; cursor: pointer; font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        .tool-btn.active { background: var(--accent); color: white; }
+        .tool-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+        
         .color-dot { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
         .color-dot.active { border-color: #000; transform: scale(1.1); }
 
@@ -135,32 +142,34 @@
 
             <div class="section">
                 <div class="section-label">2. Инструменты</div>
-                <div style="display: flex; gap: 5px;">
+                <div class="tool-row">
                     <button class="tool-btn active" onclick="setTool('pen')" id="btnPen">🖊 Ручка</button>
                     <button class="tool-btn" onclick="setTool('eraser')" id="btnEraser">🧼 Ластик</button>
                 </div>
-                <div style="display: flex; gap: 8px; margin-top: 5px;">
+                <div style="display: flex; gap: 10px; margin: 5px 0;">
                     <div class="color-dot active" style="background: #0055AA" onclick="setColor('#0055AA', this)"></div>
                     <div class="color-dot" style="background: #FF3B30" onclick="setColor('#FF3B30', this)"></div>
                     <div class="color-dot" style="background: #34C759" onclick="setColor('#34C759', this)"></div>
                     <div class="color-dot" style="background: #000000" onclick="setColor('#000000', this)"></div>
                 </div>
-                <input type="range" id="lineWidth" min="1" max="15" value="4" style="margin-top:5px;">
+                <div class="section-label" style="font-size: 10px;">Толщина</div>
+                <input type="range" id="lineWidth" min="1" max="15" value="4">
             </div>
 
             <div class="section">
-                <div class="section-label">3. Запись урока</div>
-                <button class="btn-action btn-primary" id="btnPlay" onclick="playRecording(false)">▶️ Проиграть</button>
-                <button class="btn-action" id="btnExport" onclick="playRecording(true)" style="margin-top:5px;">📹 Записать Видео</button>
+                <div class="section-label">3. Запись и экспорт</div>
+                <button class="btn-action btn-primary" onclick="playRecording(false)">▶️ Проиграть (Как учитель)</button>
+                <button class="btn-action" onclick="playRecording(true)">📹 Сохранить видео</button>
+                <button class="btn-action" onclick="downloadImage()">📷 Скачать фото</button>
                 <div style="margin-top:5px;">
-                    <div class="section-label">Скорость</div>
+                    <div class="section-label" style="font-size: 10px;">Скорость воспроизведения</div>
                     <input type="range" id="speedRange" min="1" max="10" value="5">
                 </div>
             </div>
 
             <div class="section" style="margin-top:auto;">
                 <button class="btn-action" onclick="undo()">↩️ Отменить шаг</button>
-                <button class="btn-action" onclick="clearCanvas()" style="margin-top:5px; color:#FF3B30;">🗑 Очистить всё</button>
+                <button class="btn-action" onclick="clearCanvas()" style="color:#FF3B30;">🗑 Очистить всё</button>
             </div>
         </div>
 
@@ -177,19 +186,17 @@
     </footer>
 
     <script>
-        const bgCanvas = document.getElementById('bgCanvas');
-        const bgCtx = bgCanvas.getContext('2d');
-        const drawCanvas = document.getElementById('drawCanvas');
-        const drawCtx = drawCanvas.getContext('2d');
-        const wrapper = document.getElementById('canvasWrapper');
-        const sidebar = document.getElementById('appSidebar');
+        const bgCanvas = document.getElementById('bgCanvas'), bgCtx = bgCanvas.getContext('2d');
+        const drawCanvas = document.getElementById('drawCanvas'), drawCtx = drawCanvas.getContext('2d');
+        const wrapper = document.getElementById('canvasWrapper'), sidebar = document.getElementById('appSidebar');
 
         let actions = [], currentStroke = null, isDrawing = false, isReplaying = false;
         let tool = 'pen', color = '#0055AA', zoom = 0.3, customImage = null;
 
         const MM = 11.81, ROW_H = 4 * MM, GAP_H = 8 * MM, MT = 20 * MM;
 
-        function getHeadAndTail(char){const code=char.charCodeAt(0);const map={0x0410:{h:100,t:8},0x0411:{h:100,t:100},0x0412:{h:100,t:100},0x0413:{h:100,t:100},0x0414:{h:100,t:8},0x0415:{h:100,t:4},0x0416:{h:100,t:4},0x0417:{h:100,t:100},0x0418:{h:100,t:1},0x0419:{h:100,t:1},0x041A:{h:100,t:1},0x041B:{h:100,t:1},0x041C:{h:100,t:1},0x041D:{h:100,t:1},0x041E:{h:100,t:100},0x041F:{h:100,t:1},0x0420:{h:100,t:100},0x0421:{h:100,t:4},0x0422:{h:100,t:1},0x0423:{h:100,t:100},0x0424:{h:100,t:100},0x0425:{h:100,t:4},0x0426:{h:100,t:6},0x0427:{h:100,t:1},0x0428:{h:100,t:1},0x0429:{h:100,t:6},0x042A:{h:100,t:100},0x042B:{h:100,t:1},0x042C:{h:100,t:100},0x042D:{h:100,t:100},0x042E:{h:100,t:100},0x042F:{h:100,t:1},0x0401:{h:100,t:4},0x0430:{h:2,t:1},0x0431:{h:2,t:100},0x0432:{h:6,t:2},0x0433:{h:7,t:1},0x0434:{h:2,t:3},0x0435:{h:5,t:4},0x0436:{h:4,t:4},0x0437:{h:4,t:3},0x0438:{h:1,t:1},0x0439:{h:1,t:1},0x043A:{h:1,t:1},0x043B:{h:3,t:1},0x043C:{h:3,t:1},0x043D:{h:1,t:1},0x043E:{h:2,t:5},0x043F:{h:1,t:1},0x0440:{h:1,t:1},0x0441:{h:2,t:4},0x0442:{h:1,t:1},0x0443:{h:1,t:3},0x0444:{h:2,t:100},0x0445:{h:4,t:4},0x0446:{h:1,t:6},0x0447:{h:8,t:1},0x0448:{h:1,t:1},0x0449:{h:1,t:6},0x044A:{h:8,t:7},0x044B:{h:1,t:1},0x044C:{h:1,t:7},0x044D:{h:4,t:100},0x044E:{h:1,t:5},0x044F:{h:3,t:1},0x0451:{h:5,t:4}};if(map[code])return map[code];if(code>=0xE000)return{h:200,t:200};return{h:0,t:0}}function ins(c1,c2){if(!c1||!c2)return"";const info1=getHeadAndTail(c1);const info2=getHeadAndTail(c2);const t=info1.t,h=info2.h;if(t===0){if(h===1||h===2||h===3||h===100)return"\uE402";if(h===4)return"\uE402\uE007";if(h===5)return"\uE402\uE005";if(h===6)return"\uE402\uE006";if(h===7)return"\uE402\uE007";if(h===8)return"\uE402\uE008"}if(t===100){if(h===1)return"\uE402\uE402";if(h===2)return"\uE402\uE401";if(h===100)return"\uE403"}return""}function processPrimoText(text){if(!text)return"";let res="";let c1="";let c2=text[0];res+=ins(" ",c2)+c2;for(let i=1;i<text.length;i++){c1=c2;c2=text[i];res+=ins(c1,c2)+c2}res+=ins(c2," ");return res}
+        // --- ДВИЖОК PRIMO ДЛЯ ЛОГОТИПА ---
+        function getHeadAndTail(char){const code=char.charCodeAt(0);const map={0x0410:{h:100,t:8},0x0411:{h:100,t:100},0x0412:{h:100,t:100},0x0413:{h:100,t:100},0x0414:{h:100,t:8},0x0415:{h:100,t:4},0x0416:{h:100,t:4},0x0417:{h:100,t:100},0x0418:{h:100,t:1},0x0419:{h:100,t:1},0x041A:{h:100,t:1},0x041B:{h:100,t:1},0x041C:{h:100,t:1},0x041D:{h:100,t:1},0x041E:{h:100,t:100},0x041F:{h:100,t:1},0x0420:{h:100,t:100},0x0421:{h:100,t:4},0x0422:{h:100,t:1},0x0423:{h:100,t:100},0x0424:{h:100,t:100},0x0425:{h:100,t:4},0x0426:{h:100,t:6},0x0427:{h:100,t:1},0x0428:{h:100,t:1},0x0429:{h:100,t:6},0x042A:{h:100,t:100},0x042B:{h:100,t:1},0x042C:{h:100,t:100},0x042D:{h:100,t:100},0x042E:{h:100,t:100},0x042F:{h:100,t:1},0x0401:{h:100,t:4},0x0430:{h:2,t:1},0x0431:{h:2,t:100},0x0432:{h:6,t:2},0x0433:{h:7,t:1},0x0434:{h:2,t:3},0x0435:{h:5,t:4},0x0436:{h:4,t:4},0x0437:{h:4,t:3},0x0438:{h:1,t:1},0x0439:{h:1,t:1},0x043A:{h:1,t:1},0x043B:{h:3,t:1},0x043C:{h:3,t:1},0x043D:{h:1,t:1},0x043E:{h:2,t:5},0x043F:{h:1,t:1},0x0440:{h:1,t:1},0x0441:{h:2,t:4},0x0442:{h:1,t:1},0x0443:{h:1,t:3},0x0444:{h:2,t:100},0x0445:{h:4,t:4},0x0446:{h:1,t:6},0x0447:{h:8,t:1},0x0448:{h:1,t:1},0x0449:{h:1,t:6},0x044A:{h:8,t:7},0x044B:{h:1,t:1},0x044C:{h:1,t:7},0x044D:{h:4,t:100},0x044E:{h:1,t:5},0x044F:{h:3,t:1},0x0451:{h:5,t:4}};if(map[code])return map[code];if(code>=0xE000)return{h:200,t:200};return{h:0,t:0}}function ins(c1,c2){if(!c1||!c2)return"";const i1=getHeadAndTail(c1),i2=getHeadAndTail(c2);const t=i1.t,h=i2.h;if(t===0){if(h===1||h===2||h===3||h===100)return"\uE402";if(h===4)return"\uE402\uE007";if(h===5)return"\uE402\uE005";if(h===6)return"\uE402\uE006";if(h===7)return"\uE402\uE007";if(h===8)return"\uE402\uE008"}if(t===100){if(h===1)return"\uE402\uE402";if(h===2)return"\uE402\uE401";if(h===100)return"\uE403"}return""}function processPrimoText(text){if(!text)return"";let res="",c1="",c2=text[0];res+=ins(" ",c2)+c2;for(let i=1;i<text.length;i++){c1=c2;c2=text[i];res+=ins(c1,c2)+c2}res+=ins(c2," ");return res}
 
         window.onload = () => {
             document.getElementById('logoLink').innerText = processPrimoText("Сайт прописей");
@@ -206,8 +213,7 @@
         }
 
         function changeBackground() {
-            const val = document.getElementById('bgSelect').value;
-            if (val === 'custom') document.getElementById('fileInput').click();
+            if (document.getElementById('bgSelect').value === 'custom') document.getElementById('fileInput').click();
             else { customImage = null; drawBackground(); }
         }
 
@@ -224,6 +230,7 @@
             }
         }
 
+        // --- ЛОГИКА ОТРИСОВКИ СЕТОК (ВОССТАНОВЛЕНО) ---
         function drawBackground() {
             const w = bgCanvas.width, h = bgCanvas.height;
             const type = document.getElementById('bgSelect').value;
@@ -262,6 +269,7 @@
             }
         }
 
+        // --- ЛОГИКА РИСОВАНИЯ (ВОССТАНОВЛЕНО) ---
         function getCoords(e) {
             const rect = drawCanvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -301,8 +309,14 @@
         function setTool(t) { tool = t; document.getElementById('btnPen').classList.toggle('active', t==='pen'); document.getElementById('btnEraser').classList.toggle('active', t==='eraser'); }
         function setColor(c, el) { color = c; setTool('pen'); document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active')); el.classList.add('active'); }
         function undo() { actions.pop(); redrawAll(); }
-        function clearCanvas() { if(confirm('Очистить?')) { actions = []; redrawAll(); } }
+        function clearCanvas() { if(confirm('Очистить доску?')) { actions = []; redrawAll(); } }
         function redrawAll() { drawCtx.clearRect(0,0,drawCanvas.width,drawCanvas.height); actions.forEach(s => { drawCtx.beginPath(); setupCtxStyle(s); drawCtx.moveTo(s.points[0].x, s.points[0].y); s.points.forEach(p => drawCtx.lineTo(p.x, p.y)); drawCtx.stroke(); }); }
+
+        function downloadImage() {
+            const temp = document.createElement('canvas'); temp.width = 2480; temp.height = 3508;
+            const tCtx = temp.getContext('2d'); tCtx.drawImage(bgCanvas, 0,0); tCtx.drawImage(drawCanvas, 0,0);
+            const link = document.createElement('a'); link.download = 'board.jpg'; link.href = temp.toDataURL('image/jpeg', 0.9); link.click();
+        }
 
         function playRecording(forExport) {
             if(!actions.length) return; isReplaying = true;

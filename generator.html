@@ -73,7 +73,7 @@
     <div class="sidebar" id="appSidebar">
         <div class="app-header">
             <h1>Прописи</h1>
-            <p>Генератор v11.5</p>
+            <p>Генератор v11.6 (Исправленный)</p>
         </div>
 
         <div class="nav-tabs">
@@ -262,7 +262,7 @@
             
             // Настройка стиля текста
             ctx.font = `${FONT_SIZE_PX}px PrimoFont`;
-            ctx.textBaseline = 'alphabetic'; // Важно для шрифта
+            ctx.textBaseline = 'alphabetic'; 
 
             processedLines.forEach((line, i) => {
                 let currentLineHeight = ROW_H; 
@@ -271,37 +271,40 @@
                 
                 if (type === 'wide_lines') {
                     const lineStep = 9 * MM_TO_PX;
-                    y = MARGIN_TOP + (i + 1) * lineStep + OFFSET_PX - (2 * MM_TO_PX); // Коррекция для широкой
+                    y = MARGIN_TOP + (i + 1) * lineStep + OFFSET_PX - (2 * MM_TO_PX);
                 } else {
-                    // Базовая линия шрифта ложится на нижнюю линейку строки
                     y = MARGIN_TOP + (i * fullRowH) + currentLineHeight + OFFSET_PX;
                 }
 
-                ctx.save();
+                ctx.save(); // Сохраняем состояние контекста
+
                 if (styleMode === 'black') {
                     ctx.fillStyle = 'black';
                     ctx.fillText(line, MARGIN_LEFT, y);
                 } else if (styleMode === 'pale') {
-                    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+                    ctx.fillStyle = '#C7C7CC'; // Светло-серый
                     ctx.fillText(line, MARGIN_LEFT, y);
                 } else if (styleMode === 'outline') {
                     ctx.strokeStyle = 'black';
-                    ctx.lineWidth = 1;
+                    ctx.lineWidth = 2; // Толщина контура
                     ctx.strokeText(line, MARGIN_LEFT, y);
                 } else if (styleMode === 'dotted') {
-                    // Симуляция пунктира (просто серый с точками сложно сделать в canvas без паттерна, 
-                    // для простоты делаем светло-серым, но в PDF можно сделать лучше)
-                    // Для превью используем серый
-                    ctx.fillStyle = '#aaaaaa';
-                    ctx.fillText(line, MARGIN_LEFT, y);
+                    // НАСТОЯЩИЙ ПУНКТИР
+                    ctx.strokeStyle = 'black';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([3, 5]); // 3px штрих, 5px пропуск
+                    ctx.strokeText(line, MARGIN_LEFT, y);
                 }
-                ctx.restore();
+                
+                ctx.restore(); // Возвращаем состояние (чтобы пунктир не применился к другим элементам)
             });
             
             // Водяной знак
+            ctx.save();
             ctx.font = "30px sans-serif";
             ctx.fillStyle = "#ccc";
             ctx.fillText("Propisi.site", 40, h - 40);
+            ctx.restore();
         }
 
         function drawBackground(w, h, type) {
@@ -381,7 +384,6 @@
             btn.innerText = "Генерация...";
             btn.disabled = true;
 
-            // Небольшая задержка, чтобы UI обновился
             setTimeout(() => {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });

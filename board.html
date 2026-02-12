@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Интерактивная Доска | Propisi.site</title>
-
-    <meta name="description" content="Бесплатная интерактивная доска для уроков чистописания. Рисуйте в узкую косую, используйте сетку Мазиной, записывайте видео-уроки письма.">
+    <title>Интерактивная доска прописей | Propisi.site</title>
+    
     <link rel="icon" type="image/png" href="favicon.png">
 
     <script type="text/javascript" >
@@ -16,531 +15,351 @@
        (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
        ym(106467293, "init", {clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true});
     </script>
-    <noscript><div><img src="https://mc.yandex.ru/watch/106467293" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 
     <style>
-        :root { --app-bg: #Eef2F5; --sidebar-bg: #FFFFFF; --text-primary: #1C1C1E; --text-secondary: #8E8E93; --accent: #007AFF; --radius-M: 10px; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--app-bg); color: var(--text-primary); height: 100vh; display: flex; overflow: hidden; }
+        @font-face { font-family: 'PrimoFont'; src: url('primo.ttf'); }
+        :root { 
+            --ink: #007AFF; 
+            --paper: #FFFFFF;
+            --text: #1D1D1F;
+            --sidebar-bg: #FFFFFF;
+            --accent: #007AFF;
+            --header-h: 60px;
+            --footer-h: 50px;
+        }
 
-        .toggle-btn { position: fixed; top: 15px; left: 15px; width: 44px; height: 44px; background: white; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; font-size: 24px; border: none; cursor: pointer; z-index: 2000; color: var(--accent); transition: transform 0.2s; }
-        .toggle-btn:active { transform: scale(0.9); }
+        * { box-sizing: border-box; touch-action: none; }
+        body { 
+            margin: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background-color: #F2F2F7; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column;
+            overflow: hidden; 
+        }
 
-        .sidebar { width: 360px; min-width: 360px; height: 100%; background: var(--sidebar-bg); border-right: 1px solid rgba(0,0,0,0.1); display: flex; flex-direction: column; padding: 20px; padding-top: 70px; gap: 15px; overflow-y: auto; z-index: 1000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
-        .sidebar.closed { transform: translateX(-100%); position: absolute; }
+        /* 1. УНИФИЦИРОВАННАЯ ШАПКА */
+        header {
+            height: var(--header-h);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            flex-shrink: 0;
+            display: flex; align-items: center;
+            z-index: 1100;
+        }
+        .header-container { 
+            width: 100%; max-width: 1000px; margin: 0 auto; padding: 0 20px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo {
+            font-family: 'PrimoFont', cursive;
+            font-size: 28px; color: var(--ink);
+            text-decoration: none; 
+            text-shadow: 0 1px 0 #fff;
+            white-space: nowrap;
+        }
+        .top-menu { display: flex; gap: 15px; }
+        .top-menu a {
+            text-decoration: none; color: #333; font-weight: 500; font-size: 14px;
+            transition: 0.2s; padding: 5px 8px; border-radius: 6px;
+        }
+        .top-menu a:hover { color: var(--ink); background: rgba(0,122,255,0.05); }
 
-        .app-title { font-size: 20px; font-weight: 700; margin: 0; }
-        .app-subtitle { font-size: 12px; color: var(--text-secondary); margin: 0; }
+        /* 2. РАБОЧАЯ ОБЛАСТЬ */
+        .app-body { display: flex; flex: 1; overflow: hidden; position: relative; }
+
+        /* ГАМБУРГЕР - Закреплен на панели */
+        .toggle-btn { 
+            position: absolute; top: 10px; right: -54px;
+            width: 44px; height: 44px; background: white; border-radius: 10px;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.05);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; border: 1px solid #eee; cursor: pointer;
+            z-index: 2000; color: var(--accent);
+        }
+
+        .sidebar { 
+            width: 320px; min-width: 320px; height: 100%; 
+            background: var(--sidebar-bg); border-right: 1px solid rgba(0,0,0,0.1);
+            display: flex; flex-direction: column; padding: 20px; padding-top: 60px;
+            gap: 20px; overflow-y: auto; z-index: 1000; transition: transform 0.3s;
+            position: relative;
+        }
+        .sidebar.closed { transform: translateX(-100%); }
+
+        .main-canvas-area { 
+            flex-grow: 1; position: relative; overflow: hidden;
+            /* Стандартный фон сайта */
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='120' viewBox='0 0 40 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='grid' x='0' y='0' width='40' height='120' patternUnits='userSpaceOnUse'%3E%3Cpath d='M0,120 L40,0' stroke='%23D9D9D9' stroke-width='1' fill='none'/%3E%3Cline x1='0' y1='30' x2='40' y2='30' stroke='%238CA6D6' stroke-width='1'/%3E%3Cline x1='0' y1='60' x2='40' y2='60' stroke='%238CA6D6' stroke-width='1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grid)'/%3E%3C/svg%3E");
+            background-size: 40px 120px;
+        }
+
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        #gridCanvas { pointer-events: none; }
+
+        /* ИНСТРУМЕНТЫ */
+        .tool-group { display: flex; flex-direction: column; gap: 8px; }
+        .label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #8E8E93; letter-spacing: 0.5px; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         
-        /* ОБНОВЛЕННОЕ МЕНЮ */
-        .nav-tabs { display: flex; background: #F2F2F7; padding: 4px; border-radius: 10px; gap: 2px; }
-        .nav-tab { flex: 1; text-align: center; padding: 8px 6px; font-size: 12px; font-weight: 500; text-decoration: none; color: var(--text-primary); border-radius: 7px; transition: all 0.2s; white-space: nowrap; }
-        .nav-tab:hover { background: rgba(255,255,255,0.5); }
-        .nav-tab.active { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); color: var(--accent); }
+        button.tool-btn { 
+            padding: 10px; border-radius: 10px; border: 1px solid #E5E5EA; 
+            background: white; cursor: pointer; font-size: 13px; font-weight: 500;
+            transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        button.tool-btn:hover { background: #F2F2F7; }
+        button.active { background: var(--accent) !important; color: white !important; border-color: var(--accent); }
 
-        .section { display: flex; flex-direction: column; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
-        .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); }
+        .color-picker { display: flex; gap: 8px; }
+        .color-dot { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+        .color-dot.active { border-color: #000; transform: scale(1.1); }
 
-        select, input[type=file] { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #E5E5EA; background-color: white; font-size: 14px; outline: none; }
+        .recording-box { 
+            margin-top: auto; padding: 15px; background: #FFF5F5; border-radius: 12px; 
+            border: 1px solid #FFDADA; text-align: center; 
+        }
+        #recBtn { background: #FF3B30; color: white; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; }
+        #recBtn.recording { animation: blink 1s infinite; background: #000; }
+        @keyframes blink { 50% { opacity: 0.6; } }
 
-        .tools-row { display: flex; gap: 8px; }
-        .tool-btn { flex: 1; padding: 10px; border: 1px solid #E5E5EA; border-radius: 8px; background: white; cursor: pointer; text-align: center; font-size: 13px; font-weight: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
-        .tool-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-        
-        .color-palette { display: flex; gap: 10px; justify-content: space-between; }
-        .color-swatch { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .color-swatch.active { border-color: #000; transform: scale(1.1); }
-
-        .control-row { display: flex; align-items: center; gap: 10px; background: #F2F2F7; padding: 5px; border-radius: 8px; }
-        .zoom-btn { width: 36px; height: 36px; border: none; background: white; border-radius: 6px; font-size: 18px; font-weight: bold; cursor: pointer; color: var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .val-display { flex-grow: 1; text-align: center; font-size: 14px; font-weight: 600; color: var(--text-primary); }
-        input[type=range] { width: 100%; }
-
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        button.btn-action { border: none; height: 40px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; background: #F2F2F7; color: var(--text-primary); transition: 0.2s; display: flex; align-items: center; justify-content: center; width: 100%; }
-        button.btn-action:hover { background: #E5E5EA; }
-        button.btn-primary { background: var(--accent); color: white; }
-        button.btn-danger { background: #FF3B30; color: white; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        .sidebar-footer { font-size: 11px; color: #999; margin-top: 5px; line-height: 1.4; text-align: center; padding-top: 10px; border-top: 1px solid #f0f0f0; }
-        .sidebar-footer a { color: #999; text-decoration: underline; }
-        
-        .main-area { flex-grow: 1; background-color: var(--app-bg); display: flex; align-items: center; justify-content: center; overflow: auto; position: relative; width: 100%; }
-        .canvas-wrapper { background: white; box-shadow: 0 4px 30px rgba(0,0,0,0.15); position: relative; flex-shrink: 0; margin: auto; }
-        canvas { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
-        #bgCanvas { z-index: 1; }
-        #drawCanvas { z-index: 2; cursor: crosshair; }
+        /* 3. ФУТЕР */
+        footer {
+            height: var(--footer-h); flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; color: #888;
+            background: rgba(255,255,255,0.95);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            z-index: 1100;
+        }
 
         @media (max-width: 900px) {
-            .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 85%; max-width: 320px; box-shadow: 4px 0 20px rgba(0,0,0,0.2); }
-            .sidebar.closed { transform: translateX(-100%); }
-            .main-area { padding: 10px; padding-top: 60px; display: block; overflow: scroll; }
-            .canvas-wrapper { margin: 0 auto; }
+            .sidebar { position: fixed; left: 0; top: 60px; bottom: 50px; }
+            .top-menu { display: none; }
+            .header-container { justify-content: center; }
+            .toggle-btn { right: 10px; top: 10px; border-radius: 50%; }
         }
     </style>
 </head>
 <body>
 
-    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
-
-    <div class="sidebar" id="appSidebar">
-        <div class="app-header">
-            <h1 class="app-title">Доска</h1>
-            <p class="app-subtitle">Инструмент учителя v11.5</p>
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo" id="logoLink">Сайт прописей</a>
+            <nav class="top-menu">
+                <a href="board.html" style="color:var(--ink);">Доска</a>
+                <a href="generator.html">Генератор</a>
+                <a href="propisi-alfavit.html">Алфавит</a>
+                <a href="about.html">О нас</a>
+            </nav>
         </div>
+    </header>
 
-        <div class="nav-tabs">
-            <a href="index.html" class="nav-tab">🏠 Главная</a>
-            <a href="board.html" class="nav-tab active">🎨 Доска</a>
-            <a href="generator.html" class="nav-tab">📄 Генератор</a>
-        </div>
-
-        <div class="section">
-            <div class="section-label">1. Подложка</div>
-            <select id="bgSelect" onchange="changeBackground()">
-                <option value="propisi_often" selected>Узкая косая (1 класс)</option>
-                <option value="mazina">Сетка Мазиной (Ритм)</option>
-                <option value="propisi_lines">Узкая линейка (2 класс)</option>
-                <option value="wide_lines">Широкая линейка (Старшие)</option>
-                <option value="cell">Клетка (5 мм)</option> 
-                <option value="white">Чистый лист</option>
-                <option value="custom">📁 Загрузить своё фото...</option>
-            </select>
-            <button id="btnUploadBg" class="btn-action" style="display:none; margin-top:8px; background:#E5E5EA;" onclick="document.getElementById('fileInput').click()">📂 Выбрать файл</button>
-            <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="handleImageUpload()">
-        </div>
-
-        <div class="section">
-            <div class="section-label">2. Инструменты</div>
-            <div class="tools-row">
-                <div class="tool-btn active" onclick="setTool('pen')" id="btnPen">🖊 Ручка</div>
-                <div class="tool-btn" onclick="setTool('eraser')" id="btnEraser">🧼 Ластик</div>
-                <div class="tool-btn" onclick="undo()" title="Отменить">↩️ Отмена</div>
-            </div>
+    <div class="app-body">
+        <div class="sidebar" id="appSidebar">
+            <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
             
-            <div class="color-palette" id="palette">
-                <div class="color-swatch active" style="background:#0055AA" onclick="setColor('#0055AA', this)"></div>
-                <div class="color-swatch" style="background:#FF3B30" onclick="setColor('#FF3B30', this)"></div>
-                <div class="color-swatch" style="background:#34C759" onclick="setColor('#34C759', this)"></div>
-                <div class="color-swatch" style="background:#000000" onclick="setColor('#000000', this)"></div>
-            </div>
-            
-            <div style="margin-top:5px;">
-                <div class="section-label">Толщина линии</div>
-                <input type="range" id="lineWidth" min="1" max="15" value="4">
-            </div>
-        </div>
-
-        <div class="section">
-            <div class="section-label">3. Запись урока</div>
-            <button class="btn-action btn-primary" id="btnPlay" onclick="playRecording(false)">▶️ Проиграть (Как учитель)</button>
-            
-            <div style="margin-top:5px;">
-                <div class="section-label">Скорость воспроизведения</div>
-                <div class="control-row">
-                    <span style="font-size:12px; color:#888;">0.5x</span>
-                    <input type="range" id="speedRange" min="1" max="10" value="5" oninput="updateSpeedDisp()">
-                    <span style="font-size:12px; color:#888;">3x</span>
+            <div class="tool-group">
+                <div class="label">1. Сетка фона</div>
+                <div class="btn-grid">
+                    <button class="tool-btn active" onclick="setGrid('often')">Косая</button>
+                    <button class="tool-btn" onclick="setGrid('mazina')">Мазиной</button>
+                    <button class="tool-btn" onclick="setGrid('cell')">Клетка</button>
+                    <button class="tool-btn" onclick="setGrid('none')">Чистая</button>
                 </div>
-                <div style="text-align:center; font-size:12px; color:#555; margin-top:2px;" id="speedVal">1.0x</div>
+                <button class="tool-btn" onclick="document.getElementById('fileInput').click()" style="width:100%; margin-top:5px;">🖼 Своё фото</button>
+                <input type="file" id="fileInput" hidden accept="image/*" onchange="handleFile(event)">
             </div>
 
-            <div class="action-grid" style="margin-top:8px;">
-                 <button class="btn-action" id="btnExport" onclick="playRecording(true)">📹 Записать Видео</button>
-                 <button class="btn-action" onclick="downloadImage()">📷 Скачать Фото</button>
+            <div class="tool-group">
+                <div class="label">2. Цвет пера</div>
+                <div class="color-picker">
+                    <div class="color-dot active" style="background: #007AFF;" onclick="setColor('#007AFF', this)"></div>
+                    <div class="color-dot" style="background: #000000;" onclick="setColor('#000000', this)"></div>
+                    <div class="color-dot" style="background: #FF3B30;" onclick="setColor('#FF3B30', this)"></div>
+                    <div class="color-dot" style="background: #4CD964;" onclick="setColor('#4CD964', this)"></div>
+                </div>
+            </div>
+
+            <div class="tool-group">
+                <div class="label">3. Действия</div>
+                <button class="tool-btn" onclick="clearCanvas()" style="width:100%; color:#FF3B30;">🗑 Очистить всё</button>
+            </div>
+
+            <div class="recording-box">
+                <div class="label" style="color:#FF3B30; margin-bottom:10px;">Запись урока</div>
+                <button id="recBtn" onclick="toggleRecording()">📹 Записать видео</button>
+                <p style="font-size:10px; color:#999; margin-top:8px;">Видео сохранится на устройство после остановки.</p>
             </div>
         </div>
 
-        <div class="section" style="margin-top:auto; border-top: 1px solid #f0f0f0; padding-top: 10px;">
-            <div class="control-row">
-                <button class="zoom-btn" onclick="changeZoom(-0.1)">−</button>
-                <div class="val-display" id="zoomVal">100%</div>
-                <button class="zoom-btn" onclick="changeZoom(0.1)">+</button>
-            </div>
-            <button class="btn-action btn-danger" style="margin-top:10px; margin-bottom:15px;" onclick="clearCanvas()">🗑 Очистить всё</button>
-
-            <div style="display: flex; flex-direction: column; gap: 6px; padding-top: 5px;">
-                <div class="section-label">📚 Полезное</div>
-                <a href="shablon-uzkaya-kosaya.html" style="font-size: 13px; text-decoration: none; color: #007AFF;">📄 Шаблон: Узкая косая</a>
-                <a href="propisi-alfavit.html" style="font-size: 13px; text-decoration: none; color: #007AFF;">🔤 Весь Алфавит (А-Я)</a>
-            </div>
-        </div>
-
-        <div class="sidebar-footer">
-            <a href="about.html">Инструкция</a> | <a href="propisi-alfavit.html">Алфавит</a><br>
-            <span style="font-size:10px; color:#ccc;">© 2026 Propisi.site</span>
-        </div>
-    </div>
-
-    <div class="main-area">
-        <div class="canvas-wrapper" id="canvasWrapper">
-            <canvas id="bgCanvas" width="2480" height="3508"></canvas>
-            <canvas id="drawCanvas" width="2480" height="3508"></canvas>
+        <div class="main-canvas-area">
+            <canvas id="gridCanvas"></canvas>
+            <canvas id="drawCanvas"></canvas>
         </div>
     </div>
+
+    <footer>
+        <p>Сайт прописей (propisi.site) — сделано с любовью к образованию © 2026.</p>
+    </footer>
 
     <script>
-        const bgCanvas = document.getElementById('bgCanvas');
-        const bgCtx = bgCanvas.getContext('2d');
-        const drawCanvas = document.getElementById('drawCanvas');
-        const drawCtx = drawCanvas.getContext('2d');
-        const wrapper = document.getElementById('canvasWrapper');
+        const dCanvas = document.getElementById('drawCanvas');
+        const dCtx = dCanvas.getContext('2d');
+        const gCanvas = document.getElementById('gridCanvas');
+        const gCtx = gCanvas.getContext('2d');
         const sidebar = document.getElementById('appSidebar');
 
-        let actions = []; 
-        let currentStroke = null;
         let isDrawing = false;
-        let isReplaying = false;
-        let tool = 'pen';
-        let color = '#0055AA';
-        let zoom = 1.0;
-        let customImage = null; 
-        let playbackSpeed = 5;
+        let currentColor = '#007AFF';
+        let currentGrid = 'often';
+        let bgImg = null;
 
-        // Размеры А4 в пикселях (при 300 DPI - хотя тут канвас большой, масштабируется CSS)
-        // Для точных размеров используем константы
-        const MM = 11.81; // пикселей в 1 мм
-        const ROW_H = 4 * MM; 
-        const GAP_H = 8 * MM; 
-        const MT = 20 * MM; 
-        const BASE_WIDTH_PX = 794; // Для отображения на экране (CSS width)
-        const BASE_HEIGHT_PX = 1123;
-
-        window.onload = function() {
-            setZoom(1.0);
-            updateSpeedDisp();
-            drawBackground();
-            setupEvents();
-        };
+        // Видеозапись
+        let mediaRecorder;
+        let recordedChunks = [];
 
         function toggleSidebar() { sidebar.classList.toggle('closed'); }
 
-        function updateSpeedDisp() {
-            playbackSpeed = parseInt(document.getElementById('speedRange').value);
-            let factor = 1.0;
-            if (playbackSpeed < 5) factor = 0.5 + (playbackSpeed-1)*0.125;
-            else factor = 1.0 + (playbackSpeed-5)*0.4;
-            document.getElementById('speedVal').innerText = factor.toFixed(1) + 'x';
+        window.onload = () => {
+            // Логотип со связками
+            document.getElementById('logoLink').innerText = processPrimoText("Сайт прописей");
+            resize();
+            setGrid('often');
+        };
+
+        window.onresize = resize;
+
+        function resize() {
+            const rect = dCanvas.parentElement.getBoundingClientRect();
+            dCanvas.width = gCanvas.width = rect.width;
+            dCanvas.height = gCanvas.height = rect.height;
+            drawGrid();
         }
 
-        function changeBackground() {
-            const val = document.getElementById('bgSelect').value;
-            const btn = document.getElementById('btnUploadBg');
-            if (val === 'custom') {
-                btn.style.display = 'flex'; 
-                document.getElementById('fileInput').click(); 
-            } else {
-                btn.style.display = 'none'; 
-                customImage = null;
-                drawBackground();
-            }
-        }
-
-        function handleImageUpload() {
-            const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() { customImage = img; drawBackground(); };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-                fileInput.value = '';
-            }
-        }
-
-        function drawBackground() {
-            const w = bgCanvas.width;
-            const h = bgCanvas.height;
-            const type = document.getElementById('bgSelect').value;
-            
-            bgCtx.fillStyle = 'white';
-            bgCtx.fillRect(0, 0, w, h);
-
-            if (customImage) { bgCtx.drawImage(customImage, 0, 0, w, h); return; }
-            if (type === 'white') return;
-
-            bgCtx.save();
-            bgCtx.lineWidth = 2;
-            bgCtx.setLineDash([]);
-            bgCtx.beginPath(); bgCtx.strokeStyle = '#FF8080'; bgCtx.lineWidth = 4;
-            bgCtx.moveTo(20*MM, 0); bgCtx.lineTo(20*MM, h); bgCtx.stroke();
-            bgCtx.restore();
-            
-            if (type === 'cell') {
-                const cellSize = 5 * MM; 
-                bgCtx.lineWidth = 1; bgCtx.strokeStyle = '#5096F2'; 
-                bgCtx.beginPath();
-                for (let x = 0; x < w; x += cellSize) { bgCtx.moveTo(x, 0); bgCtx.lineTo(x, h); }
-                for (let y = 0; y < h; y += cellSize) { bgCtx.moveTo(0, y); bgCtx.lineTo(w, y); }
-                bgCtx.stroke();
-                bgCtx.beginPath(); bgCtx.strokeStyle = '#FF8080'; bgCtx.lineWidth = 4;
-                bgCtx.moveTo(20*MM, 0); bgCtx.lineTo(20*MM, h); bgCtx.stroke();
-                return;
-            }
-
-            if (type === 'wide_lines') {
-                const lineStep = 9 * MM; 
-                bgCtx.lineWidth = 2; bgCtx.strokeStyle = '#5096F2';
-                bgCtx.beginPath();
-                for (let y = MT; y < h; y += lineStep) {
-                    bgCtx.moveTo(0, y); bgCtx.lineTo(w, y);
-                }
-                bgCtx.stroke();
-                return;
-            }
-
-            let lineHeight = ROW_H; 
-            const totalH = lineHeight + GAP_H;
-            let y = MT;
-            
-            let drawSlant = false;
-            let slantStep = 0;
-            
-            if (type === 'propisi_often') { drawSlant = true; slantStep = 25 * MM; }
-            if (type === 'mazina') { drawSlant = true; slantStep = 3.5 * MM; } 
-
-            while(y < h - MT) {
-                bgCtx.lineWidth = 2; bgCtx.strokeStyle = '#5096F2'; bgCtx.setLineDash([]);
-                bgCtx.beginPath(); 
-                bgCtx.moveTo(0, y); bgCtx.lineTo(w, y); 
-                bgCtx.stroke();
-                
-                bgCtx.beginPath(); 
-                bgCtx.moveTo(0, y + lineHeight); bgCtx.lineTo(w, y + lineHeight); 
-                bgCtx.stroke();
-
-                if (type === 'mazina') {
-                    const midGap = y + lineHeight + (GAP_H / 2); 
-                    bgCtx.lineWidth = 1; bgCtx.strokeStyle = '#5096F2';
-                    bgCtx.setLineDash([5, 5]); 
-                    bgCtx.beginPath();
-                    bgCtx.moveTo(0, midGap); bgCtx.lineTo(w, midGap);
-                    bgCtx.stroke();
-
-                    const midRow = y + (lineHeight / 2);
-                    bgCtx.beginPath();
-                    bgCtx.moveTo(0, midRow); bgCtx.lineTo(w, midRow);
-                    bgCtx.stroke();
-
-                    bgCtx.setLineDash([]); 
-                }
-                y += totalH;
-            }
-            
-            if (drawSlant) {
-                bgCtx.save();
-                bgCtx.lineWidth = (type === 'mazina') ? 1 : 2; 
-                bgCtx.strokeStyle = (type === 'mazina') ? '#BBBBBB' : '#D1D1D6'; 
-                bgCtx.beginPath(); 
-                const tan = 0.466; 
-                const shift = h * tan;
-                for(let x = -shift; x < w; x += slantStep) {
-                    bgCtx.moveTo(x + shift, 0); 
-                    bgCtx.lineTo(x, h);
-                }
-                bgCtx.stroke();
-                bgCtx.restore();
-            }
-        }
-
-        function getCoords(e) {
-            const rect = drawCanvas.getBoundingClientRect();
-            let clientX = e.clientX; let clientY = e.clientY;
-            if (e.touches && e.touches.length > 0) {
-                clientX = e.touches[0].clientX; clientY = e.touches[0].clientY;
-            }
-            const x = clientX - rect.left; const y = clientY - rect.top;
-            return { x: x * (drawCanvas.width / rect.width), y: y * (drawCanvas.height / rect.height) };
-        }
-
-        function startDraw(e) {
-            if (isReplaying) return;
+        // РИСОВАНИЕ
+        function startDrawing(e) {
             isDrawing = true;
-            const coords = getCoords(e);
-            const width = document.getElementById('lineWidth').value * 2;
-            currentStroke = {
-                type: 'stroke', tool: tool, color: color, width: width, points: [ {x: coords.x, y: coords.y} ]
-            };
-            drawCtx.beginPath();
-            drawCtx.lineCap = 'round'; drawCtx.lineJoin = 'round';
-            drawCtx.lineWidth = width;
-            drawCtx.strokeStyle = (tool === 'eraser') ? 'rgba(0,0,0,1)' : color;
-            drawCtx.globalCompositeOperation = (tool === 'eraser') ? 'destination-out' : 'source-over';
-            if (tool === 'eraser') drawCtx.lineWidth = 60; 
-            drawCtx.moveTo(coords.x, coords.y);
+            dCtx.beginPath();
+            const pos = getPos(e);
+            dCtx.moveTo(pos.x, pos.y);
         }
 
-        function moveDraw(e) {
+        function draw(e) {
             if (!isDrawing) return;
-            e.preventDefault(); 
-            const coords = getCoords(e);
-            currentStroke.points.push({x: coords.x, y: coords.y});
-            drawCtx.lineTo(coords.x, coords.y);
-            drawCtx.stroke();
+            const pos = getPos(e);
+            dCtx.lineTo(pos.x, pos.y);
+            dCtx.strokeStyle = currentColor;
+            dCtx.lineWidth = 3;
+            dCtx.lineCap = 'round';
+            dCtx.lineJoin = 'round';
+            dCtx.stroke();
         }
 
-        function endDraw() {
-            if (isDrawing && currentStroke) actions.push(currentStroke);
-            isDrawing = false;
-            currentStroke = null;
-            drawCtx.beginPath();
+        function stopDrawing() { isDrawing = false; }
+
+        function getPos(e) {
+            const rect = dCanvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: clientX - rect.left, y: clientY - rect.top };
         }
 
-        function setupEvents() {
-            drawCanvas.addEventListener('mousedown', startDraw);
-            drawCanvas.addEventListener('mousemove', moveDraw);
-            drawCanvas.addEventListener('mouseup', endDraw);
-            drawCanvas.addEventListener('mouseout', endDraw);
-            drawCanvas.addEventListener('touchstart', startDraw, {passive: false});
-            drawCanvas.addEventListener('touchmove', moveDraw, {passive: false});
-            drawCanvas.addEventListener('touchend', endDraw);
+        dCanvas.addEventListener('mousedown', startDrawing);
+        dCanvas.addEventListener('mousemove', draw);
+        dCanvas.addEventListener('mouseup', stopDrawing);
+        dCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDrawing(e); });
+        dCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
+        dCanvas.addEventListener('touchend', stopDrawing);
+
+        // СЕТКИ
+        function setGrid(type) {
+            currentGrid = type;
+            bgImg = null;
+            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+            event?.target.classList.add('active');
+            drawGrid();
         }
 
-        function setTool(t) {
-            tool = t;
-            document.getElementById('btnPen').classList.toggle('active', t==='pen');
-            document.getElementById('btnEraser').classList.toggle('active', t==='eraser');
+        function drawGrid() {
+            gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
+            if (bgImg) {
+                const ratio = Math.min(gCanvas.width / bgImg.width, gCanvas.height / bgImg.height);
+                gCtx.drawImage(bgImg, 0, 0, bgImg.width * ratio, bgImg.height * ratio);
+                return;
+            }
+            if (currentGrid === 'none') return;
+
+            const w = gCanvas.width; const h = gCanvas.height;
+            gCtx.strokeStyle = '#D1D1D6'; gCtx.lineWidth = 1;
+
+            if (currentGrid === 'cell') {
+                for(let x=0; x<w; x+=30) { gCtx.beginPath(); gCtx.moveTo(x,0); gCtx.lineTo(x,h); gCtx.stroke(); }
+                for(let y=0; y<h; y+=30) { gCtx.beginPath(); gCtx.moveTo(0,y); gCtx.lineTo(w,y); gCtx.stroke(); }
+            } else {
+                let y = 50;
+                while (y < h) {
+                    gCtx.strokeStyle = '#8CA6D6'; gCtx.setLineDash([]);
+                    gCtx.beginPath(); gCtx.moveTo(0, y); gCtx.lineTo(w, y); gCtx.stroke();
+                    gCtx.beginPath(); gCtx.moveTo(0, y + 40); gCtx.lineTo(w, y + 40); gCtx.stroke();
+                    if (currentGrid === 'mazina') {
+                        gCtx.setLineDash([5, 5]); gCtx.beginPath(); 
+                        gCtx.moveTo(0, y + 20); gCtx.lineTo(w, y + 20); gCtx.stroke();
+                    }
+                    y += 120;
+                }
+                gCtx.setLineDash([]); gCtx.strokeStyle = '#E5E5EA';
+                for (let x = -h*0.4; x < w; x += (currentGrid === 'mazina' ? 40 : 150)) {
+                    gCtx.beginPath(); gCtx.moveTo(x + h*0.4, 0); gCtx.lineTo(x, h); gCtx.stroke();
+                }
+            }
         }
+
+        function handleFile(e) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                bgImg = new Image();
+                bgImg.onload = drawGrid;
+                bgImg.src = event.target.result;
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+
         function setColor(c, el) {
-            color = c; tool = 'pen'; setTool('pen');
-            document.querySelectorAll('.color-swatch').forEach(d => d.classList.remove('active'));
+            currentColor = c;
+            document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
             el.classList.add('active');
         }
-        function changeZoom(delta) {
-            let newZoom = Math.round((zoom + delta) * 10) / 10;
-            if (newZoom < 0.2) newZoom = 0.2; if (newZoom > 5.0) newZoom = 5.0;
-            setZoom(newZoom);
-        }
-        function setZoom(z) {
-            zoom = z;
-            document.getElementById('zoomVal').innerText = Math.round(zoom * 100) + '%';
-            wrapper.style.width = (BASE_WIDTH_PX * zoom) + 'px';
-            wrapper.style.height = (BASE_HEIGHT_PX * zoom) + 'px';
-        }
-        function undo() {
-            if (actions.length === 0 || isReplaying) return;
-            actions.pop();
-            redrawAll();
-        }
-        function clearCanvas() {
-            if (isReplaying) return;
-            if(confirm('Удалить все записи?')) {
-                actions = [];
-                drawCtx.clearRect(0,0, drawCanvas.width, drawCanvas.height);
-            }
-        }
 
-        function playRecording(forExport) {
-            if (actions.length === 0) { alert('Сначала напишите что-нибудь!'); return; }
-            if (isReplaying) return;
-            isReplaying = true;
-            document.getElementById('btnPlay').disabled = true;
-            document.getElementById('btnExport').disabled = true;
+        function clearCanvas() { dCtx.clearRect(0, 0, dCanvas.width, dCanvas.height); }
 
-            let recorder = null;
-            if (forExport) {
-                const stream = drawCanvas.captureStream(30);
-                recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-                const chunks = [];
-                recorder.ondataavailable = e => chunks.push(e.data);
-                recorder.onstop = () => {
-                    const blob = new Blob(chunks, { type: 'video/webm' });
+        // ЗАПИСЬ
+        async function toggleRecording() {
+            const btn = document.getElementById('recBtn');
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                mediaRecorder.stop();
+                btn.innerText = "📹 Записать видео";
+                btn.classList.remove('recording');
+            } else {
+                recordedChunks = [];
+                const stream = dCanvas.captureStream(30);
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+                mediaRecorder.ondataavailable = e => recordedChunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'lesson.webm';
-                    a.click();
-                    redrawAll(); 
+                    a.href = url; a.download = 'lesson.webm'; a.click();
                 };
-                recorder.start();
-                alert("Запись пошла! Не переключайте вкладку.");
-            }
-
-            drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-            let actionIdx = 0; let pointIdx = 0;
-            const speed = parseInt(document.getElementById('speedRange').value); 
-            let pointsPerFrame = speed;
-            if (speed > 6) pointsPerFrame = (speed - 4) * 5;
-
-            function animate() {
-                if (!isReplaying) return;
-                if (forExport) {
-                    drawCtx.drawImage(bgCanvas, 0, 0);
-                    for(let i=0; i<actionIdx; i++) drawStroke(actions[i]);
-                     const act = actions[actionIdx];
-                     if (act) {
-                         const partial = {...act, points: act.points.slice(0, pointIdx+1)};
-                         drawStroke(partial);
-                     }
-                }
-                if (!forExport) {
-                     const act = actions[actionIdx];
-                     if (pointIdx === 0) {
-                        drawCtx.beginPath(); setupCtxStyle(act);
-                        if(act.points.length > 0) drawCtx.moveTo(act.points[0].x, act.points[0].y);
-                        pointIdx = 1;
-                     }
-                     for(let k=0; k < pointsPerFrame; k++) {
-                        if (pointIdx < act.points.length) {
-                            drawCtx.lineTo(act.points[pointIdx].x, act.points[pointIdx].y);
-                            drawCtx.stroke(); pointIdx++;
-                        } else {
-                            actionIdx++; pointIdx = 0; break;
-                        }
-                    }
-                } else {
-                    const act = actions[actionIdx];
-                    pointIdx += pointsPerFrame;
-                    if (pointIdx >= act.points.length) { actionIdx++; pointIdx = 0; }
-                }
-
-                if (actionIdx >= actions.length) {
-                    isReplaying = false;
-                    document.getElementById('btnPlay').disabled = false;
-                    document.getElementById('btnExport').disabled = false;
-                    if (forExport && recorder) recorder.stop();
-                } else {
-                    requestAnimationFrame(animate);
-                }
-            }
-            animate();
-        }
-
-        function setupCtxStyle(act) {
-            drawCtx.lineCap = 'round'; drawCtx.lineJoin = 'round';
-            if (act.tool === 'eraser') {
-                drawCtx.globalCompositeOperation = 'destination-out'; drawCtx.lineWidth = 60;
-            } else {
-                drawCtx.globalCompositeOperation = 'source-over'; drawCtx.strokeStyle = act.color; drawCtx.lineWidth = act.width;
+                mediaRecorder.start();
+                btn.innerText = "🛑 Остановить";
+                btn.classList.add('recording');
             }
         }
-        function drawStroke(act) {
-            drawCtx.beginPath(); setupCtxStyle(act);
-            if(act.points.length > 0) {
-                drawCtx.moveTo(act.points[0].x, act.points[0].y);
-                for (let i = 1; i < act.points.length; i++) drawCtx.lineTo(act.points[i].x, act.points[i].y);
-                drawCtx.stroke();
-            }
-        }
-        function redrawAll() {
-            drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-            actions.forEach(act => drawStroke(act));
-        }
-        function downloadImage() {
-            const temp = document.createElement('canvas');
-            temp.width = bgCanvas.width; temp.height = bgCanvas.height;
-            const tCtx = temp.getContext('2d');
-            tCtx.drawImage(bgCanvas, 0, 0);
-            tCtx.drawImage(drawCanvas, 0, 0);
-            const link = document.createElement('a');
-            link.download = 'propisi_page.jpg';
-            link.href = temp.toDataURL('image/jpeg', 0.9);
-            link.click();
-        }
+
+        // ДВИЖОК PRIMO
+        function getHeadAndTail(char){const code=char.charCodeAt(0);const map={0x0410:{h:100,t:8},0x0411:{h:100,t:100},0x0412:{h:100,t:100},0x0413:{h:100,t:100},0x0414:{h:100,t:8},0x0415:{h:100,t:4},0x0416:{h:100,t:4},0x0417:{h:100,t:100},0x0418:{h:100,t:1},0x0419:{h:100,t:1},0x041A:{h:100,t:1},0x041B:{h:100,t:1},0x041C:{h:100,t:1},0x041D:{h:100,t:1},0x041E:{h:100,t:100},0x041F:{h:100,t:1},0x0420:{h:100,t:100},0x0421:{h:100,t:4},0x0422:{h:100,t:1},0x0423:{h:100,t:100},0x0424:{h:100,t:100},0x0425:{h:100,t:4},0x0426:{h:100,t:6},0x0427:{h:100,t:1},0x0428:{h:100,t:1},0x0429:{h:100,t:6},0x042A:{h:100,t:100},0x042B:{h:100,t:1},0x042C:{h:100,t:100},0x042D:{h:100,t:100},0x042E:{h:100,t:100},0x042F:{h:100,t:1},0x0401:{h:100,t:4},0x0430:{h:2,t:1},0x0431:{h:2,t:100},0x0432:{h:6,t:2},0x0433:{h:7,t:1},0x0434:{h:2,t:3},0x0435:{h:5,t:4},0x0436:{h:4,t:4},0x0437:{h:4,t:3},0x0438:{h:1,t:1},0x0439:{h:1,t:1},0x043A:{h:1,t:1},0x043B:{h:3,t:1},0x043C:{h:3,t:1},0x043D:{h:1,t:1},0x043E:{h:2,t:5},0x043F:{h:1,t:1},0x0440:{h:1,t:1},0x0441:{h:2,t:4},0x0442:{h:1,t:1},0x0443:{h:1,t:3},0x0444:{h:2,t:100},0x0445:{h:4,t:4},0x0446:{h:1,t:6},0x0447:{h:8,t:1},0x0448:{h:1,t:1},0x0449:{h:1,t:6},0x044A:{h:8,t:7},0x044B:{h:1,t:1},0x044C:{h:1,t:7},0x044D:{h:4,t:100},0x044E:{h:1,t:5},0x044F:{h:3,t:1},0x0451:{h:5,t:4}};if(map[code])return map[code];if(code>=0xE000)return{h:200,t:200};return{h:0,t:0}}function ins(c1,c2){if(!c1||!c2)return"";const info1=getHeadAndTail(c1);const info2=getHeadAndTail(c2);const t=info1.t,h=info2.h;if(t===0){if(h===1||h===2||h===3||h===100)return"\uE402";if(h===4)return"\uE402\uE007";if(h===5)return"\uE402\uE005";if(h===6)return"\uE402\uE006";if(h===7)return"\uE402\uE007";if(h===8)return"\uE402\uE008"}if(t===100){if(h===1)return"\uE402\uE402";if(h===2)return"\uE402\uE401";if(h===100)return"\uE403"}return""}function processPrimoText(text){if(!text)return"";let res="";let c1="";let c2=text[0];res+=ins(" ",c2)+c2;for(let i=1;i<text.length;i++){c1=c2;c2=text[i];res+=ins(c1,c2)+c2}res+=ins(c2," ");return res}
     </script>
 </body>
 </html>

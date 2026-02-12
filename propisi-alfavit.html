@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Прописи букв: Весь Алфавит (А-Я)</title>
+    <title>Прописи по буквам и чистые шаблоны | Propisi.site</title>
     
-    <meta name="description" content="Скачать прописи букв русского алфавита. Выберите букву и создайте индивидуальный лист для печати. Генератор прописей 1 класс.">
+    <meta name="description" content="Скачать прописи букв русского алфавита и чистые листы разлиновки: узкая косая, сетка Мазиной, широкая линейка.">
     <link rel="icon" type="image/png" href="favicon.png">
 
     <script type="text/javascript" >
@@ -22,136 +22,97 @@
 
         :root {
             --ink: #007AFF;
-            --paper: #F9F9FB;
-            --lines: #E1E1E8;
+            --paper: #FFFFFF;
             --text: #1D1D1F;
+            --header-h: 60px;
+            --footer-h: 50px;
         }
 
         body {
-            margin: 0;
+            margin: 0; padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--paper);
             color: var(--text);
+            display: flex; flex-direction: column; min-height: 100vh;
             line-height: 1.5;
-            
-            /* Фон "Узкая косая" */
-            background-image: 
-                repeating-linear-gradient(0deg, var(--lines) 0px, var(--lines) 1px, transparent 1px, transparent 30px),
-                repeating-linear-gradient(65deg, var(--lines) 0px, var(--lines) 1px, transparent 1px, transparent 40px);
+
+            /* ФОН: ТОЧНАЯ КОПИЯ С ГЛАВНОЙ */
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='120' viewBox='0 0 40 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='exact_grid' x='0' y='0' width='40' height='120' patternUnits='userSpaceOnUse'%3E%3Cpath d='M0,120 L40,0' stroke='%23D9D9D9' stroke-width='1' fill='none'/%3E%3Cline x1='0' y1='30' x2='40' y2='30' stroke='%238CA6D6' stroke-width='1'/%3E%3Cline x1='0' y1='60' x2='40' y2='60' stroke='%238CA6D6' stroke-width='1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23exact_grid)'/%3E%3C/svg%3E");
+            background-size: 40px 120px;
             background-attachment: fixed;
         }
 
-        /* ШАПКА (Как на главной) */
+        /* 1. ШАПКА */
         header {
+            height: var(--header-h);
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(0,0,0,0.08);
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            flex-shrink: 0;
+            display: flex; align-items: center;
             position: sticky; top: 0; z-index: 100;
         }
-        .container { max-width: 960px; margin: 0 auto; padding: 0 20px; }
-        
-        .nav-flex { 
-            display: flex; justify-content: space-between; align-items: center; 
-            height: 70px;
-        }
+        .container { width: 100%; max-width: 1000px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
 
-        .logo {
-            font-family: 'PrimoFont', cursive;
-            font-size: 32px; color: var(--ink);
-            text-decoration: none; text-shadow: 0 2px 0 #fff;
-        }
-        .menu { display: flex; gap: 20px; }
-        .menu a {
-            text-decoration: none; color: #333; font-weight: 500; font-size: 15px;
-            transition: color 0.2s;
-        }
-        .menu a:hover { color: var(--ink); }
+        .logo { font-family: 'PrimoFont', cursive; font-size: 28px; color: var(--ink); text-decoration: none; text-shadow: 0 1px 0 #fff; }
 
-        /* КОНТЕНТ */
-        .page-header { text-align: center; padding: 60px 0 40px; }
-        h1 {
-            font-size: 36px; font-weight: 800; margin-bottom: 10px; color: #111;
-            background: rgba(255,255,255,0.85); display: inline-block;
-            padding: 10px 25px; border-radius: 16px;
-        }
-        .desc {
-            font-size: 18px; color: #555; max-width: 600px; margin: 0 auto;
-            background: rgba(255,255,255,0.7); padding: 10px; border-radius: 8px;
-        }
+        .menu { display: flex; gap: 15px; }
+        .menu a { text-decoration: none; color: #333; font-weight: 500; font-size: 14px; transition: 0.2s; padding: 5px 8px; border-radius: 6px; }
+        .menu a:hover { color: var(--ink); background: rgba(0,122,255,0.05); }
+
+        /* 2. КОНТЕНТ */
+        main { flex: 1; padding: 40px 20px; max-width: 1000px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+
+        .section-title { text-align: center; margin-bottom: 30px; }
+        h1 { font-size: 32px; font-weight: 800; background: #fff; display: inline-block; padding: 10px 25px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin: 0; }
+        h2 { font-size: 22px; font-weight: 700; margin: 40px 0 20px; color: #333; padding-left: 10px; border-left: 4px solid var(--ink); }
 
         /* СЕТКА БУКВ */
-        .alphabet-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 15px;
-            padding-bottom: 60px;
-        }
-
+        .alphabet-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 12px; }
         .letter-card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            text-decoration: none;
-            color: var(--text);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 120px;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: 1px solid transparent;
-            position: relative;
-            overflow: hidden;
+            background: white; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            text-decoration: none; color: var(--text); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; height: 100px;
+            transition: transform 0.2s, border-color 0.2s; border: 1px solid transparent;
         }
-        
-        /* Синяя полоска сверху */
-        .letter-card::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-            background: var(--ink); opacity: 0.2; transition: opacity 0.2s;
-        }
+        .letter-card:hover { transform: translateY(-3px); border-color: var(--ink); box-shadow: 0 8px 20px rgba(0,122,255,0.1); }
+        .letter-big { font-family: 'PrimoFont', cursive; font-size: 36px; color: var(--ink); line-height: 1; }
+        .letter-label { font-size: 10px; color: #999; text-transform: uppercase; font-weight: 600; margin-top: 5px; }
 
-        .letter-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,122,255,0.15);
-            border-color: rgba(0,122,255,0.3);
+        /* СЕТКА ШАБЛОНОВ */
+        .templates-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        .template-card {
+            background: white; padding: 20px; border-radius: 18px; box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+            text-decoration: none; color: inherit; display: flex; align-items: center; gap: 15px;
+            transition: 0.2s; border: 1px solid rgba(0,0,0,0.03);
         }
-        .letter-card:hover::before { opacity: 1; }
+        .template-card:hover { transform: scale(1.02); border-color: var(--ink); }
+        .t-icon { font-size: 32px; background: #F2F2F7; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 12px; }
+        .t-info h3 { margin: 0; font-size: 15px; font-weight: 700; color: #111; }
+        .t-info p { margin: 3px 0 0; font-size: 12px; color: #777; }
 
-        .letter-big {
-            font-family: 'PrimoFont', cursive;
-            font-size: 48px;
-            color: var(--ink);
-            line-height: 1;
-            margin-bottom: 5px;
+        /* 3. ПОДВАЛ */
+        footer {
+            height: auto; min-height: var(--footer-h); flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; color: #888; background: rgba(255,255,255,0.95);
+            border-top: 1px solid rgba(0,0,0,0.05); text-align: center; padding: 15px;
         }
-        .letter-label {
-            font-size: 12px;
-            color: #999;
-            font-weight: 500;
-        }
-
-        /* ПОДВАЛ */
-        footer { 
-            text-align: center; padding: 40px 20px; background: white; 
-            border-top: 1px solid #eee; font-size: 13px; color: #999; 
-        }
-        footer a { color: #999; text-decoration: none; }
+        footer a { color: #888; text-decoration: none; border-bottom: 1px solid #eee; margin-left: 5px; }
 
         @media (max-width: 600px) {
-            .menu { display: none; } 
-            .nav-flex { justify-content: center; }
-            h1 { font-size: 28px; }
-            .alphabet-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
-            .letter-card { height: 100px; }
-            .letter-big { font-size: 36px; }
+            .menu { display: none; }
+            .container { justify-content: center; }
+            .alphabet-grid { grid-template-columns: repeat(4, 1fr); }
+            h1 { font-size: 24px; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="container nav-flex">
-            <a href="index.html" class="logo">Propisi.site</a>
+        <div class="container">
+            <a href="index.html" class="logo" id="logoLink">Сайт прописей</a>
             <nav class="menu">
                 <a href="board.html">Доска</a>
                 <a href="generator.html">Генератор</a>
@@ -161,51 +122,77 @@
         </div>
     </header>
 
-    <main class="container">
-        <div class="page-header">
-            <h1>Прописи по буквам</h1>
-            <p class="desc">Выберите букву, чтобы открыть готовый лист прописей для печати.</p>
+    <main>
+        <div class="section-title">
+            <h1>Алфавит и Шаблоны</h1>
         </div>
 
-        <div class="alphabet-grid" id="grid">
-            <div style="text-align:center; width:100%; color:#999;">Загрузка букв...</div>
+        <h2>📄 Чистые листы разлиновки (PDF)</h2>
+        <div class="templates-grid">
+            <a href="generator.html?text=%20" class="template-card">
+                <div class="t-icon">📉</div>
+                <div class="t-info">
+                    <h3>Узкая косая</h3>
+                    <p>Классика для 1 класса</p>
+                </div>
+            </a>
+            <a href="generator.html?text=%20&bg=propisi_lines" class="template-card">
+                <div class="t-icon">📏</div>
+                <div class="t-info">
+                    <h3>Узкая линейка</h3>
+                    <p>Для 2 класса</p>
+                </div>
+            </a>
+            <a href="generator.html?text=%20&bg=wide_lines" class="template-card">
+                <div class="t-icon">📖</div>
+                <div class="t-info">
+                    <h3>Широкая линейка</h3>
+                    <p>Для старших классов</p>
+                </div>
+            </a>
+            <a href="generator.html?text=%20&bg=cell" class="template-card">
+                <div class="t-icon">🟦</div>
+                <div class="t-info">
+                    <h3>Клетка 5 мм</h3>
+                    <p>Для математики</p>
+                </div>
+            </a>
         </div>
+
+        <h2>🔤 Прописи по буквам (А-Я)</h2>
+        <div class="alphabet-grid" id="grid">
+            </div>
     </main>
 
     <footer>
-        <p>© 2026 Propisi.site. Все права защищены.</p>
-        <p style="margin-top:5px;"><a href="index.html">На Главную</a></p>
+        <p>Сайт прописей (propisi.site) — сделано с любовью к образованию © 2026. &nbsp;|&nbsp; <a href="index.html">На Главную</a></p>
     </footer>
 
     <script>
+        // Движок для логотипа и генерации букв
+        function getHeadAndTail(char){const code=char.charCodeAt(0);const map={0x0410:{h:100,t:8},0x0411:{h:100,t:100},0x0412:{h:100,t:100},0x0413:{h:100,t:100},0x0414:{h:100,t:8},0x0415:{h:100,t:4},0x0416:{h:100,t:4},0x0417:{h:100,t:100},0x0418:{h:100,t:1},0x0419:{h:100,t:1},0x041A:{h:100,t:1},0x041B:{h:100,t:1},0x041C:{h:100,t:1},0x041D:{h:100,t:1},0x041E:{h:100,t:100},0x041F:{h:100,t:1},0x0420:{h:100,t:100},0x0421:{h:100,t:4},0x0422:{h:100,t:1},0x0423:{h:100,t:100},0x0424:{h:100,t:100},0x0425:{h:100,t:4},0x0426:{h:100,t:6},0x0427:{h:100,t:1},0x0428:{h:100,t:1},0x0429:{h:100,t:6},0x042A:{h:100,t:100},0x042B:{h:100,t:1},0x042C:{h:100,t:100},0x042D:{h:100,t:100},0x042E:{h:100,t:100},0x042F:{h:100,t:1},0x0401:{h:100,t:4},0x0430:{h:2,t:1},0x0431:{h:2,t:100},0x0432:{h:6,t:2},0x0433:{h:7,t:1},0x0434:{h:2,t:3},0x0435:{h:5,t:4},0x0436:{h:4,t:4},0x0437:{h:4,t:3},0x0438:{h:1,t:1},0x0439:{h:1,t:1},0x043A:{h:1,t:1},0x043B:{h:3,t:1},0x043C:{h:3,t:1},0x043D:{h:1,t:1},0x043E:{h:2,t:5},0x043F:{h:1,t:1},0x0440:{h:1,t:1},0x0441:{h:2,t:4},0x0442:{h:1,t:1},0x0443:{h:1,t:3},0x0444:{h:2,t:100},0x0445:{h:4,t:4},0x0446:{h:1,t:6},0x0447:{h:8,t:1},0x0448:{h:1,t:1},0x0449:{h:1,t:6},0x044A:{h:8,t:7},0x044B:{h:1,t:1},0x044C:{h:1,t:7},0x044D:{h:4,t:100},0x044E:{h:1,t:5},0x044F:{h:3,t:1},0x0451:{h:5,t:4}};if(map[code])return map[code];if(code>=0xE000)return{h:200,t:200};return{h:0,t:0}}
+        function ins(c1,c2){if(!c1||!c2)return"";const info1=getHeadAndTail(c1);const info2=getHeadAndTail(c2);const t=info1.t,h=info2.h;const n1=c1.charCodeAt(0),n2=c2.charCodeAt(0);if(t===200||h===200)return"";if(t===0){if(h===1||h===2||h===3||h===100)return"\uE402";if(h===4)return"\uE402\uE007";if(h===5)return"\uE402\uE005";if(h===6)return"\uE402\uE006";if(h===7)return"\uE402\uE007";if(h===8)return"\uE402\uE008"}if(t===1){if(h===1)return"\uE011";if(h===2)return"\uE012";if(h===100)return"\uE010\uE403"}if(t===100){if(h===1)return"\uE402\uE402";if(h===2)return"\uE402\uE401";if(h===100)return"\uE403"}return""}
+        function processPrimoText(text){if(!text)return"";let res="";let c1="";let c2=text[0];res+=ins(" ",c2)+c2;for(let i=1;i<text.length;i++){c1=c2;c2=text[i];res+=ins(c1,c2)+c2}res+=ins(c2," ");return res}
+
         document.addEventListener("DOMContentLoaded", function() {
+            // 1. Отрисовка логотипа
+            document.getElementById('logoLink').innerText = processPrimoText("Сайт прописей");
+
+            // 2. Генерация алфавита
             const letters = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
             const grid = document.getElementById('grid');
-            
-            if (!grid) return;
-            grid.innerHTML = ''; // Очистка
+            grid.innerHTML = '';
 
             letters.split('').forEach(char => {
                 const a = document.createElement('a');
-                
-                // 1. Формируем строку прописи: "А а  А а ..."
-                const singleLine = `${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}`;
-                
-                // 2. Размножаем на 12 строк
+                const singleLine = `${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}`;
                 const fullPageText = new Array(12).fill(singleLine).join('\n');
-                
-                // 3. Ссылка ведет в Генератор с параметром текста
                 a.href = `generator.html?text=${encodeURIComponent(fullPageText)}`;
-                
                 a.className = 'letter-card';
-                a.innerHTML = `
-                    <div class="letter-big">${char}</div>
-                    <div class="letter-label">Печать PDF</div>
-                `;
+                a.innerHTML = `<div class="letter-big">${char}</div><div class="letter-label">Печать</div>`;
                 grid.appendChild(a);
             });
         });
     </script>
-
 </body>
 </html>

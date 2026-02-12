@@ -40,19 +40,15 @@
             display: flex;
             flex-direction: column;
 
-            /* --- НОВЫЙ ФОН: БЕСШОВНАЯ УЗКАЯ КОСАЯ --- */
-            /* Геометрия паттерна 60x60:
-               1. Горизонтальные: y=15 и y=35. (Высота строки 20, Отступ 40. Пропорция 1:2).
-               2. Наклонные: 
-                  M 0,60 -> L 20,0
-                  M 20,60 -> L 40,0
-                  M 40,60 -> L 60,0
-                  Это создает угол ~71 градус и идеальный стык, так как шаг 20px кратен ширине 60px.
+            /* --- ФОН: БЕСШОВНАЯ УЗКАЯ КОСАЯ (Масштаб 80px) --- */
+            /* Паттерн 60x60 (пропорции 1:3).
+               Наклонные линии идут из низа (y=60) в верх (y=0) со смещением x+20.
+               Это обеспечивает идеальную стыковку при повторении.
             */
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='uzkaya' x='0' y='0' width='60' height='60' patternUnits='userSpaceOnUse'%3E%3C!-- Наклонные линии (3 штуки для частоты) --%3E%3Cpath d='M0,60 L20,0 M20,60 L40,0 M40,60 L60,0' stroke='%23D1D1D6' stroke-width='0.8' fill='none'/%3E%3C!-- Горизонтальные линии (Рабочая строка) --%3E%3Cline x1='0' y1='15' x2='60' y2='15' stroke='%23C7C7CC' stroke-width='1'/%3E%3Cline x1='0' y1='35' x2='60' y2='35' stroke='%23C7C7CC' stroke-width='1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23uzkaya)'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='uzkaya' x='0' y='0' width='60' height='60' patternUnits='userSpaceOnUse'%3E%3C!-- Наклонные линии (3 штуки) --%3E%3Cpath d='M0,60 L20,0 M20,60 L40,0 M40,60 L60,0' stroke='%23D1D1D6' stroke-width='0.8' fill='none'/%3E%3C!-- Горизонтальные линии --%3E%3Cline x1='0' y1='15' x2='60' y2='15' stroke='%23C7C7CC' stroke-width='1'/%3E%3Cline x1='0' y1='35' x2='60' y2='35' stroke='%23C7C7CC' stroke-width='1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23uzkaya)'/%3E%3C/svg%3E");
             
-            /* Увеличенный масштаб x2.5 (160px) для красоты */
-            background-size: 160px 160px; 
+            /* Размер 80px - оптимально для восприятия на экране */
+            background-size: 80px 80px; 
         }
 
         /* 1. ШАПКА */
@@ -134,7 +130,7 @@
 
         .card {
             flex: 1; background: white; padding: 2.5vh; border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.06); /* Мягкая глубокая тень */
+            box-shadow: 0 10px 40px rgba(0,0,0,0.06); 
             text-decoration: none; color: inherit;
             transition: transform 0.2s, border-color 0.2s;
             border: 2px solid transparent; position: relative; overflow: hidden;

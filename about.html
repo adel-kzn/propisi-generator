@@ -22,110 +22,130 @@
 
         :root {
             --ink: #007AFF;
-            --paper: #F9F9FB;
-            --lines: #E1E1E8;
+            --paper: #FFFFFF;
             --text: #1D1D1F;
+            --header-h: 60px;
+            --footer-h: 50px;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0; padding: 0;
         }
 
         body {
-            margin: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--paper);
             color: var(--text);
+            display: flex;
+            flex-direction: column;
             line-height: 1.6;
-            
-            /* Фон "Узкая косая" */
-            background-image: 
-                repeating-linear-gradient(0deg, var(--lines) 0px, var(--lines) 1px, transparent 1px, transparent 30px),
-                repeating-linear-gradient(65deg, var(--lines) 0px, var(--lines) 1px, transparent 1px, transparent 40px);
-            background-attachment: fixed;
+
+            /* --- ФОН: ИДЕАЛЬНАЯ КОПИЯ (КАК НА ГЛАВНОЙ) --- */
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='120' viewBox='0 0 40 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='exact_grid' x='0' y='0' width='40' height='120' patternUnits='userSpaceOnUse'%3E%3C!-- Наклонная линия --%3E%3Cpath d='M0,120 L40,0' stroke='%23D9D9D9' stroke-width='1' fill='none'/%3E%3C!-- Горизонтальные линии --%3E%3Cline x1='0' y1='30' x2='40' y2='30' stroke='%238CA6D6' stroke-width='1'/%3E%3Cline x1='0' y1='60' x2='40' y2='60' stroke='%238CA6D6' stroke-width='1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23exact_grid)'/%3E%3C/svg%3E");
+            background-size: 40px 120px;
+            background-attachment: fixed; /* Чтобы фон не скроллился вместе с текстом */
         }
 
-        /* ШАПКА */
+        /* 1. ШАПКА */
         header {
+            height: var(--header-h);
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(0,0,0,0.08);
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            flex-shrink: 0;
+            display: flex; align-items: center;
             position: sticky; top: 0; z-index: 100;
         }
-        .container { max-width: 960px; margin: 0 auto; padding: 0 20px; }
-        
-        .nav-flex { 
-            display: flex; justify-content: space-between; align-items: center; 
-            height: 70px;
+        .container-nav { 
+            width: 100%; max-width: 1000px; margin: 0 auto; padding: 0 20px;
+            display: flex; justify-content: space-between; align-items: center;
         }
 
         .logo {
             font-family: 'PrimoFont', cursive;
-            font-size: 32px; color: var(--ink);
-            text-decoration: none; text-shadow: 0 2px 0 #fff;
+            font-size: 28px; color: var(--ink);
+            text-decoration: none; 
+            text-shadow: 0 1px 0 #fff;
+            white-space: nowrap;
         }
-        .menu { display: flex; gap: 20px; }
-        .menu a {
-            text-decoration: none; color: #333; font-weight: 500; font-size: 15px;
-            transition: color 0.2s;
-        }
-        .menu a:hover { color: var(--ink); }
 
-        /* КОНТЕНТ */
-        .page-title {
-            text-align: center; margin: 50px 0 40px;
+        .menu { display: flex; gap: 15px; }
+        .menu a {
+            text-decoration: none; color: #333; font-weight: 500; font-size: 14px;
+            transition: 0.2s; padding: 5px 8px; border-radius: 6px;
         }
+        .menu a:hover { color: var(--ink); background: rgba(0,122,255,0.05); }
+
+        /* 2. КОНТЕНТ */
+        main {
+            flex: 1;
+            padding: 40px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .page-title { text-align: center; margin-bottom: 40px; }
         h1 {
             font-size: 36px; font-weight: 800; margin: 0; color: #111;
-            background: rgba(255,255,255,0.85); display: inline-block;
-            padding: 10px 25px; border-radius: 16px;
+            background: #FFFFFF; display: inline-block;
+            padding: 10px 30px; border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
         }
 
-        .content-grid {
-            display: grid; gap: 30px; margin-bottom: 60px;
-        }
+        .content-grid { display: grid; gap: 30px; }
 
         .article-card {
-            background: white;
-            padding: 40px;
-            border-radius: 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
-            position: relative;
-            overflow: hidden;
+            background: white; padding: 40px; border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+            position: relative; overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.05);
         }
-        /* Цветная полоска слева */
+        /* Синяя полоска слева */
         .article-card::before {
             content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 6px;
             background: var(--ink); opacity: 0.5;
         }
 
         h2 { font-size: 24px; margin-top: 0; color: #333; display: flex; align-items: center; gap: 10px; }
-        h3 { font-size: 18px; margin-top: 25px; color: var(--ink); }
+        h3 { font-size: 18px; margin-top: 25px; color: var(--ink); font-weight: 600; }
         
         p { color: #555; margin-bottom: 15px; }
-        ul { color: #555; padding-left: 20px; }
-        li { margin-bottom: 10px; }
+        ul { color: #555; padding-left: 20px; margin-bottom: 15px; }
+        li { margin-bottom: 8px; }
         
         .note {
-            background: #F2F2F7; padding: 15px; border-radius: 12px;
-            font-size: 14px; color: #666; margin-top: 20px;
+            background: #F2F2F7; padding: 15px 20px; border-radius: 12px;
+            font-size: 14px; color: #666; margin-top: 20px; border-left: 3px solid #ccc;
         }
 
-        footer { 
-            text-align: center; padding: 40px 20px; background: white; 
-            border-top: 1px solid #eee; font-size: 13px; color: #999; 
+        /* 3. ПОДВАЛ */
+        footer {
+            height: auto; min-height: var(--footer-h); flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; color: #888;
+            background: rgba(255,255,255,0.95);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            text-align: center; padding: 15px;
         }
-        footer a { color: #999; text-decoration: none; }
+        footer a { color: #888; text-decoration: none; border-bottom: 1px solid #eee; margin-left: 5px; }
 
+        /* АДАПТИВ */
         @media (max-width: 600px) {
             .menu { display: none; }
-            .nav-flex { justify-content: center; }
+            .container-nav { justify-content: center; }
             .article-card { padding: 25px; }
-            h1 { font-size: 28px; }
+            h1 { font-size: 28px; padding: 10px 20px; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="container nav-flex">
-            <a href="index.html" class="logo">Propisi.site</a>
+        <div class="container-nav">
+            <a href="index.html" class="logo" id="logoLink">Сайт прописей</a>
             <nav class="menu">
                 <a href="board.html">Доска</a>
                 <a href="generator.html">Генератор</a>
@@ -135,7 +155,7 @@
         </div>
     </header>
 
-    <main class="container">
+    <main>
         <div class="page-title">
             <h1>Как это работает?</h1>
         </div>
@@ -144,46 +164,58 @@
             
             <div class="article-card">
                 <h2>📄 Генератор Прописей (PDF)</h2>
-                <p>Этот инструмент позволяет создавать рабочие листы для домашней печати. Вы вводите текст, а сайт превращает его в красивые прописи.</p>
+                <p>Инструмент для создания рабочих листов для домашней печати. Вы вводите любой текст, а сайт превращает его в красивые прописи.</p>
                 
                 <h3>Возможности:</h3>
                 <ul>
-                    <li><strong>4 стиля текста:</strong> Сплошной (черный), Серый (обводка), Пунктирный (для уверенности) и Контурный (раскраска).</li>
-                    <li><strong>Умные соединения:</strong> Шрифт автоматически подбирает правильные "хвостики" для соединения букв (например, "о" с верхним или нижним соединением).</li>
-                    <li><strong>Разлиновка:</strong> Узкая косая, Сетка Мазиной, Клетка и другие.</li>
+                    <li><strong>4 стиля текста:</strong> Сплошной (черный), Серый (для обводки), Точечный (заливка паттерном) и Контурный.</li>
+                    <li><strong>Умные соединения:</strong> Шрифт автоматически подбирает правильные "хвостики" для соединения букв.</li>
+                    <li><strong>Разлиновка:</strong> Узкая косая (1 класс), Узкая линейка (2 класс), Широкая линейка и Клетка.</li>
                 </ul>
 
                 <div class="note">
-                    <strong>Совет:</strong> Используйте "Серый" стиль для начала обучения — ребенку проще обводить по линии, чем по точкам.
+                    <strong>Обратите внимание:</strong> Сетка Мазиной доступна только в режиме "Интерактивная доска". В генераторе для печати используются классические школьные разлиновки.
                 </div>
             </div>
 
             <div class="article-card">
                 <h2>🎨 Интерактивная Доска</h2>
-                <p>Инструмент для учителей, репетиторов и онлайн-уроков. Работает в браузере на компьютере или планшете.</p>
+                <p>Виртуальное пространство для учителей и репетиторов. Идеально для показа на проекторе в классе или демонстрации экрана в Zoom/Skype.</p>
                 
-                <h3>Как использовать на уроке:</h3>
+                <h3>Функции:</h3>
                 <ul>
-                    <li><strong>В классе:</strong> Выведите картинку на проектор или интерактивную доску и пишите поверх линий электронным маркером.</li>
-                    <li><strong>В Zoom / Skype:</strong> Включите демонстрацию экрана и объясняйте написание букв, используя мышку или графический планшет.</li>
-                    <li><strong>Запись видео:</strong> Нажмите кнопку "📹 Записать Видео", напишите букву, и сайт сохранит это как видео-урок, который можно отправить ученикам.</li>
+                    <li><strong>Рисование:</strong> Пишите "пером" поверх линий, как мелом на доске.</li>
+                    <li><strong>Сетки:</strong> Включает специальную <strong>Сетку Мазиной</strong> (для отработки ритма), Узкую косую и Клетку.</li>
+                    <li><strong>Запись видео:</strong> Нажмите кнопку "📹 Записать", напишите букву, и сайт сохранит видео-файл урока.</li>
+                    <li><strong>Свой фон:</strong> Вы можете загрузить фото тетради ученика и проверить работу прямо на экране.</li>
                 </ul>
             </div>
 
             <div class="article-card">
                 <h2>🖋 О шрифте Primo</h2>
-                <p>На сайте используется уникальный шрифт <strong>Primo</strong>, который имитирует каллиграфический почерк советской школы.</p>
-                <p>Автором и разработчиком шрифта является <strong>Леонид Некин</strong> (<a href="http://nekin.info" target="_blank" style="color:var(--ink);">nekin.info</a>).</p>
-                <p>Мы используем этот шрифт на законных основаниях с целью популяризации чистописания. Сайт Propisi.site является бесплатным образовательным проектом.</p>
+                <p>На сайте используется уникальный шрифт <strong>Primo</strong>, который имитирует каллиграфический почерк советской школы с правильными соединениями.</p>
+                <p>Автором и разработчиком шрифта является <strong>Леонид Некин</strong> (<a href="http://nekin.info" target="_blank" style="color:var(--ink);">nekin.info</a>). Мы используем этот шрифт на законных основаниях с целью популяризации чистописания.</p>
             </div>
 
         </div>
     </main>
 
     <footer>
-        <p>© 2026 Propisi.site. Все права защищены.</p>
-        <p style="margin-top:5px;"><a href="index.html">На Главную</a></p>
+        <p>Сайт прописей (propisi.site) — сделано с любовью к образованию © 2026. &nbsp;|&nbsp; <a href="index.html">На Главную</a></p>
     </footer>
+
+    <script>
+        function getHeadAndTail(char){const code=char.charCodeAt(0);const map={0x0410:{h:100,t:8},0x0411:{h:100,t:100},0x0412:{h:100,t:100},0x0413:{h:100,t:100},0x0414:{h:100,t:8},0x0415:{h:100,t:4},0x0416:{h:100,t:4},0x0417:{h:100,t:100},0x0418:{h:100,t:1},0x0419:{h:100,t:1},0x041A:{h:100,t:1},0x041B:{h:100,t:1},0x041C:{h:100,t:1},0x041D:{h:100,t:1},0x041E:{h:100,t:100},0x041F:{h:100,t:1},0x0420:{h:100,t:100},0x0421:{h:100,t:4},0x0422:{h:100,t:1},0x0423:{h:100,t:100},0x0424:{h:100,t:100},0x0425:{h:100,t:4},0x0426:{h:100,t:6},0x0427:{h:100,t:1},0x0428:{h:100,t:1},0x0429:{h:100,t:6},0x042A:{h:100,t:100},0x042B:{h:100,t:1},0x042C:{h:100,t:100},0x042D:{h:100,t:100},0x042E:{h:100,t:100},0x042F:{h:100,t:1},0x0401:{h:100,t:4},0x0430:{h:2,t:1},0x0431:{h:2,t:100},0x0432:{h:6,t:2},0x0433:{h:7,t:1},0x0434:{h:2,t:3},0x0435:{h:5,t:4},0x0436:{h:4,t:4},0x0437:{h:4,t:3},0x0438:{h:1,t:1},0x0439:{h:1,t:1},0x043A:{h:1,t:1},0x043B:{h:3,t:1},0x043C:{h:3,t:1},0x043D:{h:1,t:1},0x043E:{h:2,t:5},0x043F:{h:1,t:1},0x0440:{h:1,t:1},0x0441:{h:2,t:4},0x0442:{h:1,t:1},0x0443:{h:1,t:3},0x0444:{h:2,t:100},0x0445:{h:4,t:4},0x0446:{h:1,t:6},0x0447:{h:8,t:1},0x0448:{h:1,t:1},0x0449:{h:1,t:6},0x044A:{h:8,t:7},0x044B:{h:1,t:1},0x044C:{h:1,t:7},0x044D:{h:4,t:100},0x044E:{h:1,t:5},0x044F:{h:3,t:1},0x0451:{h:5,t:4}};if(map[code])return map[code];if(code>=0xE000)return{h:200,t:200};return{h:0,t:0}}
+        function insGRF(c0Code,cCode,h){if(c0Code!==0x0413&&c0Code!==0x0420&&c0Code!==0x0424)return"";if(c0Code===0x0413){if(h===0||h===100||[0x431,0x432,0x439,0x451].includes(cCode))return"\uE403";if([0x438,0x439,0x443,0x448,0x449,0x446,0x44F].includes(cCode))return"\uE401"}else if(c0Code===0x0420){if(cCode!==0x43B&&cCode!==0x43C)return"\uE402"}else if(c0Code===0x0424){if(cCode!==0x43B&&cCode!==0x43C)return"\uE401"}return""}
+        function ins(c1,c2){if(!c1||!c2)return"";const info1=getHeadAndTail(c1);const info2=getHeadAndTail(c2);const t=info1.t,h=info2.h;const n1=c1.charCodeAt(0),n2=c2.charCodeAt(0);if(t===200||h===200)return"";if((n1===0x41F||n1===0x422)&&n2===0x432)return"\uE410";if((n1===0x41F||n1===0x422)&&n2===0x431)return"\uE411";const set1=[0x438,0x439,0x43B,0x43C,0x448];const set2=[0x438,0x439,0x446,0x448,0x449];if(set1.includes(n1)&&set2.includes(n2))return"\uE413";if([0x41D,0x41F,0x422].includes(n1)&&[0x456,0x457].includes(n2))return"\uE413";if(t===0){if(h===1||h===2||h===3||h===100)return"\uE402";if(h===4)return"\uE402\uE007";if(h===5)return"\uE402\uE005";if(h===6)return"\uE402\uE006";if(h===7)return"\uE402\uE007";if(h===8)return"\uE402\uE008"}if(t===1){if(h===0)return"\uE010\uE402";if(h===1)return"\uE011";if(h===2)return"\uE012";if(h===3)return"\uE010";if(h===4)return"\uE014";if(h===5)return"\uE015";if(h===6)return"\uE016";if(h===7)return"\uE017";if(h===8)return"\uE018";if(h===100)return"\uE010\uE403"}if(t===2){if(h===0)return"\uE020\uE402";if(h===1)return"\uE021";if(h===2)return"\uE022";if(h===3)return"\uE023";if(h===4)return"\uE024";if(h===5)return"\uE025";if(h===6)return"\uE026";if(h===7)return"\uE027";if(h===8)return"\uE028";if(h===100)return"\uE020\uE403"}if(t===3){if(h===0)return"\uE030\uE402";if(h===1)return"\uE031";if(h===2)return"\uE032";if(h===3)return"\uE033";if(h===4)return"\uE034";if(h===5)return"\uE035";if(h===6)return"\uE036";if(h===7)return"\uE037";if(h===8)return"\uE038";if(h===100)return"\uE030\uE403"}if(t===4){if(h===0)return"\uE040\uE402";if(h===1)return"\uE041";if(h===2)return"\uE042";if(h===3)return"\uE043";if(h===4)return"\uE044";if(h===5)return"\uE045";if(h===6)return"\uE046";if(h===7)return"\uE047";if(h===8)return"\uE048";if(h===100)return"\uE040\uE403"}if(t===5){if(h===0)return"\uE402";if(h===1)return"\uE051";if(h===2)return"\uE052";if(h===3)return"\uE053";if(h===4)return"\uE054";if(h===5)return"\uE055";if(h===6)return"\uE056";if(h===7)return"\uE057";if(h===8)return"\uE058";if(h===100)return"\uE403"}if(t===6){if(h===0)return"\uE060\uE402";if(h===1)return"\uE061";if(h===2)return"\uE062";if(h===3)return"\uE063";if(h===4)return"\uE064";if(h===5)return"\uE065";if(h===6)return"\uE066";if(h===7)return"\uE067";if(h===8)return"\uE068";if(h===100)return"\uE060\uE403"}if(t===7){if(h===0)return"\uE070\uE402";if(h===1)return"\uE071";if(h===2)return"\uE072";if(h===3)return"\uE073";if(h===4)return"\uE074";if(h===5)return"\uE075";if(h===6)return"\uE076";if(h===7)return"\uE077";if(h===8)return"\uE078";if(h===100)return"\uE070\uE403"}if(t===8){if(h===0)return"\uE080\uE402";if(h===1)return"\uE081";if(h===2)return"\uE082";if(h===3)return"\uE083";if(h===4)return"\uE084";if(h===5)return"\uE085";if(h===6)return"\uE086";if(h===7)return"\uE087";if(h===8)return"\uE088";if(h===100)return"\uE080\uE403"}if(t===100){if(h===0)return"\uE402";if(h===1)return"\uE402\uE402";if(h===2)return"\uE402\uE401";if(h===3)return"\uE402";if(h===4)return"\uE402\uE401\uE007";if(h===5)return"\uE402\uE005";if(h===6)return"\uE402\uE401\uE006";if(h===7)return"\uE402\uE007";if(h===8)return"\uE402\uE008";if(h===100)return"\uE403"}const grf=insGRF(n1,n2,h);if(grf)return grf;return""}
+        function processPrimoText(text){if(!text)return"";let res="";let c1="";let c2=text[0];res+=ins(" ",c2)+c2;for(let i=1;i<text.length;i++){c1=c2;c2=text[i];res+=ins(c1,c2)+c2}res+=ins(c2," ");return res}
+
+        window.onload = function() {
+            const raw = "Сайт прописей";
+            const processed = processPrimoText(raw);
+            document.getElementById('logoLink').innerText = processed;
+        };
+    </script>
 
 </body>
 </html>

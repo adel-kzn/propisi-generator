@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Propisi.site — Чистописание и коррекция почерка</title>
+    <meta name="description" content="Бесплатные инструменты для обучения письму: Интерактивная доска для учителей, Генератор прописей PDF и шаблоны линовки.">
+    
+    <link rel="icon" type="image/png" href="favicon.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="favicon.png">
+
+    <script type="text/javascript" >
+       (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+       m[i].l=1*new Date();
+       for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+       k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+       (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+       ym(106467293, "init", {clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/106467293" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+    <style>
+        /* --- СТИЛИ ЛЕНДИНГА (Встроены для скорости) --- */
+        
+        /* Подключаем шрифт Primo */
+        @font-face { 
+            font-family: 'PrimoFont'; 
+            src: url('primo.ttf'); 
+        }
+
+        :root {
+            --ink: #007AFF;         /* Синие чернила */
+            --paper: #F9F9FB;       /* Цвет бумаги */
+            --lines: #E1E1E8;       /* Цвет линеек */
+            --text: #1D1D1F;        /* Основной текст */
+            --text-secondary: #86868B;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--paper);
+            color: var(--text);
+            line-height: 1.5;
+
+            /* ПАТТЕРН: УЗКАЯ КОСАЯ ЛИНЕЙКА (CSS) */
+            background-image: 
+                repeating-linear-gradient(0deg, var(--lines) 0px, var(--lines) 1px, transparent 1px, transparent 30px),
+                repeating-linear-gradient(65deg, var(--lines) 0px, var(--lines) 1px, transparent 1px, transparent 40px);
+            background-attachment: fixed; /* Фон стоит на месте при прокрутке */
+        }
+
+        /* ШАПКА */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .container { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+        
+        .nav-flex { 
+            display: flex; justify-content: space-between; align-items: center; 
+            height: 70px;
+        }
+
+        .logo {
+            font-family: 'PrimoFont', cursive;
+            font-size: 32px; color: var(--ink);
+            text-decoration: none; 
+            text-shadow: 0 2px 0 #fff; /* Белая обводка для контраста */
+            transition: opacity 0.2s;
+        }
+        .logo:hover { opacity: 0.8; }
+
+        .menu { display: flex; gap: 20px; }
+        .menu a {
+            text-decoration: none; color: #333; font-weight: 500; font-size: 15px;
+            transition: color 0.2s;
+        }
+        .menu a:hover { color: var(--ink); }
+
+        /* ГЛАВНЫЙ ЭКРАН (HERO) */
+        .hero { text-align: center; padding: 100px 0 80px; }
+
+        h1 {
+            font-size: 46px; font-weight: 800; margin-bottom: 20px; color: #111; letter-spacing: -0.02em;
+            /* Белая плашка под текстом */
+            background: rgba(255,255,255,0.85); display: inline-block;
+            padding: 10px 30px; border-radius: 16px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        }
+
+        .subtitle {
+            font-size: 20px; color: #444; margin-bottom: 40px; max-width: 640px; margin-left: auto; margin-right: auto;
+            background: rgba(255,255,255,0.7); padding: 15px; border-radius: 12px;
+        }
+
+        /* КНОПКИ */
+        .cta-group { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        
+        .btn {
+            padding: 16px 32px; border-radius: 14px; font-size: 18px; font-weight: 600;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover { transform: translateY(-3px); }
+        
+        .btn-primary { 
+            background: var(--ink); color: white; 
+            box-shadow: 0 4px 15px rgba(0,122,255,0.3); 
+        }
+        .btn-secondary { 
+            background: white; color: var(--text); 
+            border: 1px solid #ddd; 
+        }
+
+        /* КАРТОЧКИ */
+        .grid {
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px; margin-bottom: 80px;
+        }
+
+        .card {
+            background: white; padding: 35px; border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04); 
+            text-decoration: none; color: inherit; 
+            transition: transform 0.3s, border-color 0.3s;
+            border: 1px solid transparent;
+            position: relative; overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+        
+        /* Эффект полей тетради сверху */
+        .card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px;
+            background: var(--ink); opacity: 0.1; transition: opacity 0.3s;
+        }
+        
+        .card:hover { transform: translateY(-7px); border-color: rgba(0,122,255,0.3); }
+        .card:hover::before { opacity: 1; }
+
+        .card-icon { font-size: 48px; margin-bottom: 20px; }
+        .card h3 { margin: 0 0 10px; font-size: 22px; font-weight: 700; color: #111; }
+        .card p { color: var(--text-secondary); font-size: 16px; margin: 0; line-height: 1.6; flex-grow: 1; }
+        .card-arrow { 
+            margin-top: 25px; color: var(--ink); font-weight: 600; font-size: 15px; 
+            display: flex; align-items: center;
+        }
+
+        /* ПОДВАЛ */
+        footer { 
+            text-align: center; padding: 40px 20px; 
+            background: white; border-top: 1px solid #eee; 
+            font-size: 13px; color: #999; 
+            position: relative; z-index: 10;
+        }
+        footer a { color: #888; text-decoration: none; border-bottom: 1px solid #eee; padding-bottom: 2px; }
+        footer a:hover { color: var(--ink); border-color: var(--ink); }
+
+        /* Мобильная адаптация */
+        @media (max-width: 600px) {
+            h1 { font-size: 32px; padding: 10px; }
+            .menu { display: none; } /* Скрываем текстовое меню на мобильном */
+            .btn { width: 100%; justify-content: center; }
+            .nav-flex { justify-content: center; } 
+            .hero { padding-top: 60px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container nav-flex">
+            <a href="index.html" class="logo">Propisi.site</a>
+            
+            <nav class="menu">
+                <a href="board.html">Доска</a>
+                <a href="generator.html">Генератор</a>
+                <a href="propisi-alfavit.html">Алфавит</a>
+                <a href="about.html">О нас</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        
+        <section class="hero">
+            <h1>Научитесь писать красиво.<br>Легко и бесплатно.</h1>
+            <div class="subtitle">
+                Профессиональные онлайн-инструменты для учителей начальных классов, логопедов и заботливых родителей.
+            </div>
+            
+            <div class="cta-group">
+                <a href="board.html" class="btn btn-primary">
+                    ✏️ Открыть Доску
+                </a>
+                <a href="generator.html" class="btn btn-secondary">
+                    🖨 Создать Прописи (PDF)
+                </a>
+            </div>
+        </section>
+
+        <section class="grid">
+            
+            <a href="board.html" class="card">
+                <div class="card-icon">🎨</div>
+                <h3>Интерактивная доска</h3>
+                <p>Рисуйте на экране поверх сетки Мазиной или косой линейки. Идеально для показа уроков через проектор или в Zoom.</p>
+                <div class="card-arrow">Запустить →</div>
+            </a>
+
+            <a href="generator.html" class="card">
+                <div class="card-icon">📄</div>
+                <h3>Генератор прописей</h3>
+                <p>Введите любой текст. Умный шрифт "Primo" автоматически соединит буквы. Скачайте PDF для печати дома.</p>
+                <div class="card-arrow">Создать →</div>
+            </a>
+
+            <a href="propisi-alfavit.html" class="card">
+                <div class="card-icon">🅰️</div>
+                <h3>Алфавит и Шаблоны</h3>
+                <p>Каталог готовых прописей для каждой буквы (А-Я) и чистые листы разлиновки (косая, клетка, линейка).</p>
+                <div class="card-arrow">Выбрать букву →</div>
+            </a>
+
+        </section>
+
+    </main>
+
+    <footer>
+        <p>© 2026 Propisi.site. Сделано с любовью к образованию.</p>
+        <p style="margin-top:10px;">
+            <a href="about.html">Инструкция</a> &nbsp;|&nbsp; 
+            <a href="shablon-uzkaya-kosaya.html">Шаблоны</a> &nbsp;|&nbsp; 
+            <a href="propisi-alfavit.html">Алфавит</a>
+        </p>
+    </footer>
+
+</body>
+</html>

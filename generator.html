@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Генератор Прописей Онлайн | Скачать PDF</title>
 
-    <meta name="description" content="Бесплатный генератор прописей. Создайте свои прописи или выберите готовые шаблоны букв алфавита. Умный шрифт Primo.">
+    <meta name="description" content="Бесплатный генератор прописей. Создайте свои прописи или выберите готовые шаблоны букв алфавита.">
     <link rel="icon" type="image/png" href="favicon.png">
 
     <script type="text/javascript" >
@@ -21,7 +21,6 @@
 
     <style>
         @font-face { font-family: 'PrimoFont'; src: url('primo.ttf'); }
-        
         :root { --app-bg: #Eef2F5; --sidebar-bg: #FFFFFF; --text-primary: #1C1C1E; --text-secondary: #8E8E93; --accent: #007AFF; --radius-M: 10px; }
         * { box-sizing: border-box; }
         body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--app-bg); height: 100vh; display: flex; overflow: hidden; }
@@ -55,7 +54,7 @@
         .main-area { flex-grow: 1; background-color: var(--app-bg); display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; padding: 40px; width: 100%; }
         .a4-container { width: 100%; max-width: 800px; aspect-ratio: 210 / 297; background: white; box-shadow: 0 4px 24px rgba(0,0,0,0.08); flex-shrink: 0; }
         canvas { width: 100%; height: 100%; display: block; }
-        #status { text-align: center; font-size: 11px; color: #888; margin-top: 5px; }
+        #status { text-align: center; font-size: 11px; color: #888; }
 
         @media (max-width: 900px) {
             .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 85%; max-width: 320px; box-shadow: 4px 0 20px rgba(0,0,0,0.2); }
@@ -71,8 +70,8 @@
 
     <div class="sidebar" id="appSidebar">
         <div class="app-header">
-            <h1>Прописи</h1>
-            <p>Генератор v11.7 (Точечный)</p>
+            <h1 class="app-title">Прописи</h1>
+            <p class="app-subtitle">Генератор v11.8 (SVG)</p>
         </div>
 
         <div class="nav-tabs">
@@ -101,15 +100,15 @@
         <div class="section">
             <div class="section-label">3. Стиль текста</div>
             <select id="textStyle" onchange="updatePreview()">
-                <option value="pale">⚪️ Серый (Для обводки)</option>
-                <option value="dotted">::: Точечный (Заливка)</option>
+                <option value="dotted">::: Пунктирный (Точки)</option>
                 <option value="outline">🔲 Контурный (Полый)</option>
+                <option value="pale">⚪️ Серый (Для обводки)</option>
                 <option value="black">⚫️ Черный (Сплошной)</option>
             </select>
         </div>
         
         <div class="section">
-             <button class="btn-primary" onclick="generatePDF()" id="downloadBtn" disabled>Скачать PDF</button>
+             <button class="btn-primary" onclick="generatePDF()" id="downloadBtn">Скачать PDF</button>
             <div id="status">Загрузка шрифта...</div>
         </div>
 
@@ -139,10 +138,7 @@
         const sidebar = document.getElementById('appSidebar');
         const fontFile = 'primo.ttf'; 
         let fontBase64 = null;
-        let isFontLoaded = false;
-        let dotPattern = null; // Паттерн для точек
 
-        // Константы размеров (A4 при 300 DPI)
         const MM_TO_PX = 11.81; 
         const ROW_H = 4 * MM_TO_PX;
         const GAP_H = 8 * MM_TO_PX;
@@ -162,9 +158,6 @@
 
         window.onload = async function() {
             try {
-                // Создаем паттерн для точек
-                createDotPattern();
-
                 const response = await fetch(fontFile);
                 if (!response.ok) throw new Error("Нет файла");
                 const blob = await response.blob();
@@ -172,41 +165,22 @@
                 const reader = new FileReader();
                 reader.onloadend = function() {
                     fontBase64 = reader.result;
-                    const f = new FontFace('PrimoFont', `url(${fontBase64})`);
-                    f.load().then(loadedFace => {
-                        document.fonts.add(loadedFace);
-                        isFontLoaded = true;
-                        document.getElementById('status').innerText = 'Готов к работе';
-                        document.getElementById('downloadBtn').disabled = false;
-                        
-                        const urlParams = new URLSearchParams(window.location.search);
-                        const textParam = urlParams.get('text');
-                        if (textParam) {
-                            document.getElementById('textInput').value = textParam;
-                        }
-                        updatePreview();
-                    });
+                    document.getElementById('status').innerText = 'Готов к работе';
+                    
+                    // Вставка текста из URL
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const textParam = urlParams.get('text');
+                    if (textParam) {
+                        document.getElementById('textInput').value = textParam;
+                    }
+                    
+                    updatePreview();
                 };
                 reader.readAsDataURL(blob);
             } catch (e) {
-                document.getElementById('status').innerText = 'Ошибка: нет файла primo.ttf';
-                updatePreview();
+                document.getElementById('status').innerText = 'Ошибка: положите файл ' + fontFile;
             }
         };
-
-        function createDotPattern() {
-            // Создаем маленький холст для паттерна (точки)
-            const pCanvas = document.createElement('canvas');
-            pCanvas.width = 4;
-            pCanvas.height = 4;
-            const pCtx = pCanvas.getContext('2d');
-            pCtx.fillStyle = '#000000';
-            pCtx.beginPath();
-            pCtx.arc(2, 2, 1, 0, Math.PI * 2); // Маленькая точка
-            pCtx.fill();
-            // Сохраняем паттерн глобально
-            dotPattern = ctx.createPattern(pCanvas, 'repeat');
-        }
 
         function handleInput() {
             const input = document.getElementById('textInput');
@@ -252,6 +226,7 @@
         }
 
         function updatePreview() {
+            if (!fontBase64) return;
             const w = canvas.width;
             const h = canvas.height;
             const type = document.getElementById('bgSelect').value;
@@ -262,59 +237,16 @@
             ctx.fillRect(0, 0, w, h);
             drawBackground(w, h, type);
 
-            if (!rawText || !isFontLoaded) return;
+            if (!rawText) return;
 
-            const maxTextWidth = w - MARGIN_LEFT - MARGIN_RIGHT;
-            const lines = getLines(rawText, maxTextWidth);
-            const processedLines = lines.map(line => processPrimoText(line));
-            
-            ctx.font = `${FONT_SIZE_PX}px PrimoFont`;
-            ctx.textBaseline = 'alphabetic'; 
-
-            processedLines.forEach((line, i) => {
-                let currentLineHeight = ROW_H; 
-                const fullRowH = currentLineHeight + GAP_H;
-                let y;
-                
-                if (type === 'wide_lines') {
-                    const lineStep = 9 * MM_TO_PX;
-                    y = MARGIN_TOP + (i + 1) * lineStep + OFFSET_PX - (2 * MM_TO_PX);
-                } else {
-                    y = MARGIN_TOP + (i * fullRowH) + currentLineHeight + OFFSET_PX;
-                }
-
-                ctx.save(); 
-
-                if (styleMode === 'black') {
-                    ctx.fillStyle = 'black';
-                    ctx.fillText(line, MARGIN_LEFT, y);
-                } else if (styleMode === 'pale') {
-                    ctx.fillStyle = '#D1D1D6'; // Светлый серый для обводки
-                    ctx.fillText(line, MARGIN_LEFT, y);
-                } else if (styleMode === 'outline') {
-                    ctx.strokeStyle = 'black';
-                    ctx.lineWidth = 1.5;
-                    ctx.strokeText(line, MARGIN_LEFT, y);
-                } else if (styleMode === 'dotted') {
-                    // ИСПОЛЬЗУЕМ ЗАЛИВКУ ПАТТЕРНОМ (Точки внутри букв)
-                    // Это решает проблему "двойного контура"
-                    if (dotPattern) {
-                        ctx.fillStyle = dotPattern;
-                        ctx.fillText(line, MARGIN_LEFT, y);
-                    } else {
-                        ctx.fillStyle = '#999';
-                        ctx.fillText(line, MARGIN_LEFT, y);
-                    }
-                }
-                
-                ctx.restore(); 
+            const f = new FontFace('PrimoFont', `url(${fontBase64})`);
+            f.load().then(loadedFace => {
+                document.fonts.add(loadedFace);
+                const maxTextWidth = w - MARGIN_LEFT - MARGIN_RIGHT;
+                const lines = getLines(rawText, maxTextWidth);
+                const processedLines = lines.map(line => processPrimoText(line));
+                drawTextViaSVG(processedLines, w, h, styleMode, type);
             });
-            
-            ctx.save();
-            ctx.font = "30px sans-serif";
-            ctx.fillStyle = "#ccc";
-            ctx.fillText("Propisi.site", 40, h - 40);
-            ctx.restore();
         }
 
         function drawBackground(w, h, type) {
@@ -322,7 +254,6 @@
 
             ctx.lineWidth = 2;
             ctx.setLineDash([]);
-            
             ctx.beginPath(); ctx.strokeStyle = '#FF8080'; ctx.lineWidth = 4;
             ctx.moveTo(MARGIN_LEFT, 0); ctx.lineTo(MARGIN_LEFT, h); ctx.stroke();
             
@@ -360,11 +291,15 @@
 
             while(y < h - MARGIN_TOP) {
                 ctx.lineWidth = 2; ctx.strokeStyle = '#5096F2'; ctx.setLineDash([]);
-                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(0, y + lineHeight); ctx.lineTo(w, y + lineHeight); ctx.stroke();
+                ctx.beginPath(); 
+                ctx.moveTo(0, y); ctx.lineTo(w, y); 
+                ctx.stroke();
+                
+                ctx.beginPath(); 
+                ctx.moveTo(0, y + lineHeight); ctx.lineTo(w, y + lineHeight); 
+                ctx.stroke();
                 y += totalH;
             }
-            
             if (drawSlant) {
                 ctx.lineWidth = 2;
                 ctx.strokeStyle = '#D1D1D6';
@@ -378,22 +313,86 @@
             }
         }
 
-        function generatePDF() {
-            if (!isFontLoaded) { alert("Шрифт еще не загрузился!"); return; }
+        function drawTextViaSVG(lines, w, h, styleMode, bgType) {
+            let currentLineHeight = ROW_H; 
+            const fullRowH = currentLineHeight + GAP_H;
+            let tspans = '';
             
-            const btn = document.getElementById('downloadBtn');
-            btn.innerText = "Генерация...";
-            btn.disabled = true;
+            lines.forEach((line, i) => {
+                let y;
+                if (bgType === 'wide_lines') {
+                    const lineStep = 9 * MM_TO_PX;
+                    y = MARGIN_TOP + (i + 1) * lineStep + OFFSET_PX;
+                } else {
+                    y = MARGIN_TOP + (i * fullRowH) + currentLineHeight + OFFSET_PX;
+                }
+                const safeLine = line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                tspans += `<text x="${MARGIN_LEFT}" y="${y}">${safeLine}</text>`;
+            });
 
-            setTimeout(() => {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-                const imgData = canvas.toDataURL('image/jpeg', 0.85);
-                doc.addImage(imgData, 'JPEG', 0, 0, 210, 297);
-                doc.save("propisi.pdf");
-                btn.innerText = "Скачать PDF";
-                btn.disabled = false;
-            }, 100);
+            let svgStyle = '';
+            let defs = '';
+
+            if (styleMode === 'black') {
+                svgStyle = `fill: black;`;
+            } else if (styleMode === 'pale') {
+                svgStyle = `fill: rgba(0,0,0,0.25);`;
+            } else if (styleMode === 'outline') {
+                svgStyle = `fill: white; stroke: rgba(0,0,0,0.5); stroke-width: 1px;`;
+            } else if (styleMode === 'dotted') {
+                // ПУНКТИР ЧЕРЕЗ ПАТТЕРН (Ваш рабочий вариант)
+                defs = `
+                <defs>
+                    <pattern id="dotPattern" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
+                        <circle cx="3" cy="3" r="1.5" fill="black" />
+                    </pattern>
+                    <style>
+                        @font-face { font-family: 'PrimoFont'; src: url('${fontBase64}') format('truetype'); }
+                        text { font-family: 'PrimoFont'; font-size: ${FONT_SIZE_PX}px; fill: url(#dotPattern); white-space: pre; }
+                    </style>
+                </defs>`;
+                svgStyle = `fill: url(#dotPattern);`;
+            }
+
+            if (styleMode !== 'dotted') {
+                defs = `
+                <defs>
+                    <style>
+                        @font-face { font-family: 'PrimoFont'; src: url('${fontBase64}') format('truetype'); }
+                        text { font-family: 'PrimoFont'; font-size: ${FONT_SIZE_PX}px; ${svgStyle} white-space: pre; }
+                    </style>
+                </defs>`;
+            }
+
+            const svgData = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
+                ${defs}
+                ${tspans}
+            </svg>`;
+
+            const img = new Image();
+            img.onload = function() { ctx.drawImage(img, 0, 0); };
+            const blob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+            const url = URL.createObjectURL(blob);
+            img.src = url;
+        }
+
+       function generatePDF() {
+            if (!fontBase64) { alert("Шрифт не готов!"); return; }
+            
+            // 1. Рисуем подпись на картинке (Canvas)
+            ctx.save(); 
+            ctx.font = "30px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"; 
+            ctx.fillStyle = "#aaaaaa"; 
+            ctx.fillText("Сгенерировано бесплатно на https://propisi.site", 60, 3450);
+            ctx.restore(); 
+
+            // 2. Создаем PDF из картинки
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+            const imgData = canvas.toDataURL('image/jpeg', 0.85);
+            doc.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+            doc.save("propisi.pdf");
         }
     </script>
 </body>

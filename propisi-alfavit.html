@@ -54,7 +54,9 @@
         }
         .container { width: 100%; max-width: 1000px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
 
-        .logo { font-family: 'PrimoFont', cursive; font-size: 28px; color: var(--ink); text-decoration: none; text-shadow: 0 1px 0 #fff; }
+        /* ЛОГОТИП С ПРАВИЛЬНЫМИ СВЯЗКАМИ (Шрифт Primo) */
+        .logo { font-family: 'PrimoFont', cursive; font-size: 28px; color: var(--ink); text-decoration: none; text-shadow: 0 1px 0 #fff; visibility: hidden; }
+        .logo.loaded { visibility: visible; }
 
         .menu { display: flex; gap: 15px; }
         .menu a { text-decoration: none; color: #333; font-weight: 500; font-size: 14px; transition: 0.2s; padding: 5px 8px; border-radius: 6px; }
@@ -64,12 +66,14 @@
         main { flex: 1; padding: 40px 20px; max-width: 1000px; margin: 0 auto; width: 100%; box-sizing: border-box; }
 
         .section-title { text-align: center; margin-bottom: 30px; }
+        
+        /* ВОЗВРАЩЕН СТРОГИЙ ШРИФТ ДЛЯ ЗАГОЛОВКА */
         h1 { 
-            font-family: 'PrimoFont', cursive;
-            font-size: 36px; font-weight: 400; background: #fff; display: inline-block; padding: 10px 25px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin: 0; 
-            color: var(--text);
+            font-size: 32px; font-weight: 800; background: #fff; display: inline-block; padding: 12px 25px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin: 0; 
+            color: var(--text); letter-spacing: -0.02em;
         }
-        h2 { font-size: 20px; font-weight: 700; margin: 40px 0 20px; color: #333; padding-left: 12px; border-left: 4px solid var(--ink); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        h2 { font-size: 18px; font-weight: 700; margin: 40px 0 20px; color: #333; padding-left: 12px; border-left: 4px solid var(--ink); text-transform: uppercase; letter-spacing: 0.5px; }
 
         /* СЕТКА БУКВ */
         .alphabet-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 12px; }
@@ -83,7 +87,7 @@
         .letter-big { font-family: 'PrimoFont', cursive; font-size: 36px; color: var(--ink); line-height: 1; }
         .letter-label { font-size: 10px; color: #999; text-transform: uppercase; font-weight: 600; margin-top: 5px; }
 
-        /* СЕТКА ШАБЛОНОВ (БЕЗ ИКОНОК) */
+        /* СЕТКА ШАБЛОНОВ */
         .templates-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
         .template-card {
             background: white; padding: 25px; border-radius: 18px; box-shadow: 0 6px 20px rgba(0,0,0,0.05);
@@ -91,8 +95,8 @@
             transition: 0.2s; border: 1px solid rgba(0,0,0,0.03); text-align: center;
         }
         .template-card:hover { transform: scale(1.02); border-color: var(--ink); box-shadow: 0 10px 25px rgba(0,122,255,0.1); }
-        .template-card h3 { margin: 0; font-size: 17px; font-weight: 700; color: var(--ink); }
-        .template-card p { margin: 5px 0 0; font-size: 13px; color: #777; font-weight: 500; }
+        .template-card h3 { margin: 0; font-size: 16px; font-weight: 700; color: var(--ink); }
+        .template-card p { margin: 5px 0 0; font-size: 12px; color: #777; font-weight: 500; }
 
         /* 3. ПОДВАЛ */
         footer {
@@ -106,7 +110,7 @@
             .menu { display: none; }
             .container { justify-content: center; }
             .alphabet-grid { grid-template-columns: repeat(4, 1fr); }
-            h1 { font-size: 28px; }
+            h1 { font-size: 24px; }
         }
     </style>
 </head>
@@ -126,7 +130,7 @@
 
     <main>
         <div class="section-title">
-            <h1 id="pageHeading">Алфавит и Шаблоны</h1>
+            <h1>Алфавит и Шаблоны</h1>
         </div>
 
         <h2>📄 Чистые шаблоны для печати</h2>
@@ -160,14 +164,15 @@
 
     <script>
         // ДВИЖОК PRIMO ДЛЯ СОЕДИНЕНИЙ
-        function getHeadAndTail(char){const code=char.charCodeAt(0);const map={0x0410:{h:100,t:8},0x0411:{h:100,t:100},0x0412:{h:100,t:100},0x0413:{h:100,t:100},0x0414:{h:100,t:8},0x0415:{h:100,t:4},0x0416:{h:100,t:4},0x0417:{h:100,t:100},0x0418:{h:100,t:1},0x0419:{h:100,t:1},0x041A:{h:100,t:1},0x041B:{h:100,t:1},0x041C:{h:100,t:1},0x041D:{h:100,t:1},0x041E:{h:100,t:100},0x041F:{h:100,t:1},0x0420:{h:100,t:100},0x0421:{h:100,t:4},0x0422:{h:100,t:1},0x0423:{h:100,t:100},0x0424:{h:100,t:100},0x0425:{h:100,t:4},0x0426:{h:100,t:6},0x0427:{h:100,t:1},0x0428:{h:100,t:1},0x0429:{h:100,t:6},0x042A:{h:100,t:100},0x042B:{h:100,t:1},0x042C:{h:100,t:100},0x042D:{h:100,t:100},0x042E:{h:100,t:100},0x042F:{h:100,t:1},0x0401:{h:100,t:4},0x0430:{h:2,t:1},0x0431:{h:2,t:100},0x0432:{h:6,t:2},0x0433:{h:7,t:1},0x0434:{h:2,t:3},0x0435:{h:5,t:4},0x0436:{h:4,t:4},0x0437:{h:4,t:3},0x0438:{h:1,t:1},0x0439:{h:1,t:1},0x043A:{h:1,t:1},0x043B:{h:3,t:1},0x043C:{h:3,t:1},0x043D:{h:1,t:1},0x043E:{h:2,t:5},0x043F:{h:1,t:1},0x0440:{h:1,t:1},0x0441:{h:2,t:4},0x0442:{h:1,t:1},0x0443:{h:1,t:3},0x0444:{h:2,t:100},0x0445:{h:4,t:4},0x0446:{h:1,t:6},0x0447:{h:8,t:1},0x0448:{h:1,t:1},0x0449:{h:1,t:6},0x044A:{h:8,t:7},0x044B:{h:1,t:1},0x044C:{h:1,t:7},0x044D:{h:4,t:100},0x044E:{h:1,t:5},0x044F:{h:3,t:1},0x0451:{h:5,t:4}};if(map[code])return map[code];if(code>=0xE000)return{h:200,t:200};return{h:0,t:0}}function insGRF(c0Code,cCode,h){if(c0Code!==0x0413&&c0Code!==0x0420&&c0Code!==0x0424)return"";if(c0Code===0x0413){if(h===0||h===100||[0x431,0x432,0x439,0x451].includes(cCode))return"\uE403";if([0x438,0x439,0x443,0x448,0x449,0x446,0x44F].includes(cCode))return"\uE401"}else if(c0Code===0x0420){if(cCode!==0x43B&&cCode!==0x43C)return"\uE402"}else if(c0Code===0x0424){if(cCode!==0x43B&&cCode!==0x43C)return"\uE401"}return""}function ins(c1,c2){if(!c1||!c2)return"";const info1=getHeadAndTail(c1);const info2=getHeadAndTail(c2);const t=info1.t,h=info2.h;const n1=c1.charCodeAt(0),n2=c2.charCodeAt(0);if(t===200||h===200)return"";if((n1===0x41F||n1===0x422)&&n2===0x432)return"\uE410";if((n1===0x41F||n1===0x422)&&n2===0x431)return"\uE411";if(t===0){if(h===1||h===2||h===3||h===100)return"\uE402";if(h===4)return"\uE402\uE007";if(h===5)return"\uE402\uE005";if(h===6)return"\uE402\uE006";if(h===7)return"\uE402\uE007";if(h===8)return"\uE402\uE008"}if(t===100){if(h===0)return"\uE402";if(h===1)return"\uE402\uE402";if(h===2)return"\uE402\uE401";if(h===100)return"\uE403"}return""}function processPrimoText(text){if(!text)return"";let res="";let c1="";let c2=text[0];res+=ins(" ",c2)+c2;for(let i=1;i<text.length;i++){c1=c2;c2=text[i];res+=ins(c1,c2)+c2}res+=ins(c2," ");return res}
+        function getHeadAndTail(char){const code=char.charCodeAt(0);const map={0x0410:{h:100,t:8},0x0411:{h:100,t:100},0x0412:{h:100,t:100},0x0413:{h:100,t:100},0x0414:{h:100,t:8},0x0415:{h:100,t:4},0x0416:{h:100,t:4},0x0417:{h:100,t:100},0x0418:{h:100,t:1},0x0419:{h:100,t:1},0x041A:{h:100,t:1},0x041B:{h:100,t:1},0x041C:{h:100,t:1},0x041D:{h:100,t:1},0x041E:{h:100,t:100},0x041F:{h:100,t:1},0x0420:{h:100,t:100},0x0421:{h:100,t:4},0x0422:{h:100,t:1},0x0423:{h:100,t:100},0x0424:{h:100,t:100},0x0425:{h:100,t:4},0x0426:{h:100,t:6},0x0427:{h:100,t:1},0x0428:{h:100,t:1},0x0429:{h:100,t:6},0x042A:{h:100,t:100},0x042B:{h:100,t:1},0x042C:{h:100,t:100},0x042D:{h:100,t:100},0x042E:{h:100,t:100},0x042F:{h:100,t:1},0x0401:{h:100,t:4},0x0430:{h:2,t:1},0x0431:{h:2,t:100},0x0432:{h:6,t:2},0x0433:{h:7,t:1},0x0434:{h:2,t:3},0x0435:{h:5,t:4},0x0436:{h:4,t:4},0x0437:{h:4,t:3},0x0438:{h:1,t:1},0x0439:{h:1,t:1},0x043A:{h:1,t:1},0x043B:{h:3,t:1},0x043C:{h:3,t:1},0x043D:{h:1,t:1},0x043E:{h:2,t:5},0x043F:{h:1,t:1},0x0440:{h:1,t:1},0x0441:{h:2,t:4},0x0442:{h:1,t:1},0x0443:{h:1,t:3},0x0444:{h:2,t:100},0x0445:{h:4,t:4},0x0446:{h:1,t:6},0x0447:{h:8,t:1},0x0448:{h:1,t:1},0x0449:{h:1,t:6},0x044A:{h:8,t:7},0x044B:{h:1,t:1},0x044C:{h:1,t:7},0x044D:{h:4,t:100},0x044E:{h:1,t:5},0x044F:{h:3,t:1},0x0451:{h:5,t:4}};if(map[code])return map[code];if(code>=0xE000)return{h:200,t:200};return{h:0,t:0}}function insGRF(c0Code,cCode,h){if(c0Code!==0x0413&&c0Code!==0x0420&&c0Code!==0x0424)return"";if(c0Code===0x0413){if(h===0||h===100||[0x431,0x432,0x439,0x451].includes(cCode))return"\uE403";if([0x438,0x439,0x443,0x448,0x449,0x446,0x44F].includes(cCode))return"\uE401"}else if(c0Code===0x0420){if(cCode!==0x43B&&cCode!==0x43C)return"\uE402"}else if(c0Code===0x0424){if(cCode!==0x43B&&cCode!==0x43C)return"\uE401"}return""}function ins(c1,c2){if(!c1||!c2)return"";const info1=getHeadAndTail(c1);const info2=getHeadAndTail(c2);const t=info1.t,h=info2.h;const n1=c1.charCodeAt(0),n2=c2.charCodeAt(0);if(t===200||h===200)return"";if((n1===0x41F||n1===0x422)&&n2===0x432)return"\uE410";if((n1===0x41F||n1===0x422)&&n2===0x431)return"\uE411";const set1=[0x438,0x439,0x43B,0x43C,0x448];const set2=[0x438,0x439,0x446,0x448,0x449];if(set1.includes(n1)&&set2.includes(n2))return"\uE413";if([0x41D,0x41F,0x422].includes(n1)&&[0x456,0x457].includes(n2))return"\uE413";if(t===0){if(h===1||h===2||h===3||h===100)return"\uE402";if(h===4)return"\uE402\uE007";if(h===5)return"\uE402\uE005";if(h===6)return"\uE402\uE006";if(h===7)return"\uE402\uE007";if(h===8)return"\uE402\uE008"}if(t===1){if(h===0)return"\uE010\uE402";if(h===1)return"\uE011";if(h===2)return"\uE012";if(h===3)return"\uE010";if(h===4)return"\uE014";if(h===5)return"\uE015";if(h===6)return"\uE016";if(h===7)return"\uE017";if(h===8)return"\uE018";if(h===100)return"\uE010\uE403"}if(t===2){if(h===0)return"\uE020\uE402";if(h===1)return"\uE021";if(h===2)return"\uE022";if(h===3)return"\uE023";if(h===4)return"\uE024";if(h===5)return"\uE025";if(h===6)return"\uE026";if(h===7)return"\uE027";if(h===8)return"\uE028";if(h===100)return"\uE020\uE403"}if(t===3){if(h===0)return"\uE030\uE402";if(h===1)return"\uE031";if(h===2)return"\uE032";if(h===3)return"\uE033";if(h===4)return"\uE034";if(h===5)return"\uE035";if(h===6)return"\uE036";if(h===7)return"\uE037";if(h===8)return"\uE038";if(h===100)return"\uE030\uE403"}if(t===4){if(h===0)return"\uE040\uE402";if(h===1)return"\uE041";if(h===2)return"\uE042";if(h===3)return"\uE043";if(hLog===4)return"\uE044";if(h===5)return"\uE045";if(h===6)return"\uE046";if(h===7)return"\uE047";if(h===8)return"\uE048";if(h===100)return"\uE040\uE403"}if(t===5){if(h===0)return"\uE402";if(h===1)return"\uE051";if(h===2)return"\uE052";if(h===3)return"\uE053";if(h===4)return"\uE054";if(h===5)return"\uE055";if(h===6)return"\uE056";if(h===7)return"\uE057";if(h===8)return"\uE058";if(h===100)return"\uE403"}if(t===6){if(h===0)return"\uE060\uE402";if(h===1)return"\uE061";if(h===2)return"\uE062";if(h===3)return"\uE063";if(h===4)return"\uE064";if(h===5)return"\uE065";if(h===6)return"\uE066";if(h===7)return"\uE067";if(h===8)return"\uE068";if(h===100)return"\uE060\uE403"}if(t===7){if(h===0)return"\uE070\uE402";if(h===1)return"\uE071";if(h===2)return"\uE072";if(h===3)return"\uE073";if(h===4)return"\uE074";if(h===5)return"\uE075";if(h===6)return"\uE076";if(h===7)return"\uE077";if(h===8)return"\uE078";if(h===100)return"\uE070\uE403"}if(t===8){if(h===0)return"\uE080\uE402";if(h===1)return"\uE081";if(h===2)return"\uE082";if(h===3)return"\uE083";if(h===4)return"\uE084";if(h===5)return"\uE085";if(h===6)return"\uE086";if(h===7)return"\uE087";if(h===8)return"\uE088";if(h===100)return"\uE080\uE403"}if(t===100){if(h===0)return"\uE402";if(h===1)return"\uE402\uE402";if(h===2)return"\uE402\uE401";if(h===3)return"\uE402";if(h===4)return"\uE402\uE401\uE007";if(h===5)return"\uE402\uE005";if(h===6)return"\uE402\uE401\uE006";if(h===7)return"\uE402\uE007";if(h===8)return"\uE402\uE008";if(h===100)return"\uE403"}const grf=insGRF(n1,n2,h);if(grf)return grf;return""}function processPrimoText(text){if(!text)return"";let res="";let c1="";let c2=text[0];res+=ins(" ",c2)+c2;for(let i=1;i<text.length;i++){c1=c2;c2=text[i];res+=ins(c1,c2)+c2}res+=ins(c2," ");return res}
 
         document.addEventListener("DOMContentLoaded", function() {
-            // 1. Отрисовка логотипа и заголовка со связками
-            document.getElementById('logoLink').innerText = processPrimoText("Сайт прописей");
-            document.getElementById('pageHeading').innerText = processPrimoText("Алфавит и Шаблоны");
+            // Инициализация логотипа со связками
+            const logo = document.getElementById('logoLink');
+            logo.innerText = processPrimoText("Сайт прописей");
+            logo.classList.add('loaded');
 
-            // 2. Генерация сетки алфавита
+            // Генерация сетки алфавита
             const letters = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
             const grid = document.getElementById('grid');
             grid.innerHTML = '';

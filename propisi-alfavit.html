@@ -27,6 +27,9 @@
             --footer-h: 50px;
         }
 
+        /* Это правило убирает "прыжки" размеров на странице */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
         body {
             margin: 0; padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -41,25 +44,21 @@
             background-attachment: fixed;
         }
 
-        /* --- 1. ШАПКА --- */
+        /* --- 1. ШАПКА (ТОЧНАЯ КОПИЯ ИЗ ГЕНЕРАТОРА/ДОСКИ) --- */
         header {
-            height: var(--header-h);
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(5px);
-            border-bottom: 1px solid rgba(0,0,0,0.06);
-            flex-shrink: 0;
-            display: flex; align-items: center;
-            position: sticky; top: 0; z-index: 100;
+            height: var(--header-h); background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px); border-bottom: 1px solid rgba(0,0,0,0.06);
+            flex-shrink: 0; display: flex; align-items: center; z-index: 1100;
+            position: sticky; top: 0;
         }
-        .container { width: 100%; max-width: 1000px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
-
-        /* Логотип как картинка */
+        .header-container { width: 100%; max-width: 1000px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
+        
         .logo { display: flex; align-items: center; text-decoration: none; }
         .logo img { height: 38px !important; width: auto !important; object-fit: contain; display: block; }
 
-        .menu { display: flex; gap: 15px; }
-        .menu a { text-decoration: none; color: #333; font-weight: 500; font-size: 14px; transition: 0.2s; padding: 5px 8px; border-radius: 6px; }
-        .menu a:hover { color: var(--ink); background: rgba(0,122,255,0.05); }
+        .top-menu { display: flex; gap: 15px; }
+        .top-menu a { text-decoration: none; color: #333; font-weight: 500; font-size: 14px; transition: 0.2s; padding: 5px 8px; border-radius: 6px; }
+        .top-menu a:hover { color: var(--ink); background: rgba(0,122,255,0.05); }
 
         /* --- 2. КОНТЕНТ --- */
         main { flex: 1; padding: 40px 20px; max-width: 1000px; margin: 0 auto; width: 100%; box-sizing: border-box; }
@@ -94,13 +93,12 @@
         }
         .letter-card:hover { transform: translateY(-3px); border-color: var(--ink); box-shadow: 0 8px 20px rgba(0,122,255,0.1); }
         
-        /* Стандартный шрифт для карточек алфавита */
         .letter-big { 
             font-size: 42px; 
             font-weight: 400; 
             color: var(--ink); 
             line-height: 1;
-            font-family: Georgia, "Times New Roman", serif; /* Понятный шрифт с засечками для алфавита */
+            font-family: Georgia, "Times New Roman", serif; 
             font-style: italic;
         }
         .letter-label { font-size: 10px; color: #999; text-transform: uppercase; font-weight: 600; margin-top: 5px; }
@@ -110,12 +108,12 @@
             height: auto; min-height: var(--footer-h); flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
             font-size: 12px; color: #888; background: rgba(255,255,255,0.95);
-            border-top: 1px solid rgba(0,0,0,0.05); text-align: center; padding: 15px;
+            border-top: 1px solid rgba(0,0,0,0.05); text-align: center; padding: 15px; z-index: 1100;
         }
 
         @media (max-width: 600px) {
-            .menu { display: none; }
-            .container { justify-content: center; }
+            .top-menu { display: none; }
+            .header-container { justify-content: center; }
             .alphabet-grid { grid-template-columns: repeat(4, 1fr); }
             h1 { font-size: 24px; }
         }
@@ -124,11 +122,11 @@
 <body>
 
     <header>
-        <div class="container">
+        <div class="header-container">
             <a href="index.html" class="logo">
                 <img src="logo.png" alt="Сайт прописей">
             </a>
-            <nav class="menu">
+            <nav class="top-menu">
                 <a href="board.html">Доска</a>
                 <a href="generator.html">Генератор</a>
                 <a href="propisi-alfavit.html" style="color:var(--ink);">Алфавит</a>
@@ -173,7 +171,6 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Генерация ссылок для алфавита (перенаправляют в генератор)
             const letters = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
             const grid = document.getElementById('grid');
             grid.innerHTML = '';
@@ -181,12 +178,9 @@
             letters.split('').forEach(char => {
                 const a = document.createElement('a');
                 
-                // Формируем текст: "А а  А а  А а  А а" (на всю строку)
                 const singleLine = `${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}  ${char} ${char.toLowerCase()}`;
-                // Повторяем на 12 строк для формата А4
                 const fullPageText = new Array(12).fill(singleLine).join('\n');
                 
-                // Ссылка ведет на генератор с готовым текстом
                 a.href = `generator.html?text=${encodeURIComponent(fullPageText)}`;
                 a.className = 'letter-card';
                 a.innerHTML = `<div class="letter-big">${char}</div><div class="letter-label">Печать</div>`;

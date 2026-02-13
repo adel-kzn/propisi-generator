@@ -77,14 +77,24 @@
 
         footer { height: var(--footer-h); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #888; background: rgba(255, 255, 255, 0.95); border-top: 1px solid rgba(0,0,0,0.05); z-index: 1100; }
 
-        @media (max-width: 900px) {
-            .sidebar { position: fixed; left: 0; top: 60px; bottom: 50px; width: 85%; max-width: 320px; box-shadow: 4px 0 20px rgba(0,0,0,0.2); }
+   @media (max-width: 900px) {
+            /* Возвращаем меню в шапку (выстраиваем под логотипом) */
+            header { height: auto; min-height: var(--header-h); padding-bottom: 12px; }
+            .header-container { height: auto; flex-direction: column; align-items: center; padding: 12px 15px; gap: 12px; }
+            .top-menu { display: flex !important; flex-wrap: wrap; justify-content: center; gap: 8px; }
+            .top-menu a { font-size: 13px; padding: 8px 14px; border-radius: 8px; background: rgba(0, 122, 255, 0.08); border: 1px solid rgba(0, 122, 255, 0.1); }
+
+            /* Чиним левую панель и Гамбургер */
+            .sidebar { position: fixed; left: 0; top: 0; bottom: 0; height: 100%; width: 85%; max-width: 320px; box-shadow: 4px 0 20px rgba(0,0,0,0.2); z-index: 3000; }
             .sidebar.closed { transform: translateX(-100%); }
-            .top-menu { display: none; }
-            .header-container { justify-content: center; }
-            .toggle-btn { right: 10px; top: 10px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-            .main-area { padding: 10px; padding-top: 20px; display: block; overflow: scroll; }
-            .a4-container { margin: 0 auto; }
+            
+            /* Гамбургер "торчит" снаружи, когда панель закрыта */
+            .sidebar.closed .toggle-btn { right: -54px !important; top: 12px !important; border-radius: 0 12px 12px 0 !important; box-shadow: 4px 0 10px rgba(0,0,0,0.1); background: white; }
+            /* Гамбургер уходит внутрь, когда панель открыта */
+            .sidebar:not(.closed) .toggle-btn { right: 15px !important; top: 15px !important; border-radius: 12px !important; background: #F2F2F7; }
+
+            .main-area { padding: 10px; padding-top: 20px; display: block; overflow: auto; }
+            .canvas-wrapper, .a4-container { margin: 0 auto; }
         }
     </style>
 </head>

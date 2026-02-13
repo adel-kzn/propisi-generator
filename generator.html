@@ -6,10 +6,7 @@
     <title>Генератор Прописей Онлайн | Скачать PDF</title>
 
     <meta name="description" content="Бесплатный генератор прописей. Создайте свои прописи или выберите готовые шаблоны букв алфавита.">
-    <meta name="keywords" content="генератор прописей, алфавит прописи, прописи онлайн, 1 класс, обучение письму">
-    
-     <link rel="icon" type="image/png" href="/favicon.png" sizes="192x192">
-<link rel="icon" type="image/png" href="/favicon.png"> 
+    <link rel="icon" type="image/png" href="favicon.png"> 
 
     <script type="text/javascript" >
        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -25,21 +22,44 @@
 
     <style>
         @font-face { font-family: 'PrimoFont'; src: url('primo.ttf'); }
-        :root { --app-bg: #Eef2F5; --sidebar-bg: #FFFFFF; --text-primary: #1C1C1E; --text-secondary: #8E8E93; --accent: #007AFF; --radius-M: 10px; }
-        * { box-sizing: border-box; }
-        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--app-bg); height: 100vh; display: flex; overflow: hidden; }
+        :root { 
+            --app-bg: #Eef2F5; 
+            --sidebar-bg: #FFFFFF; 
+            --text-primary: #1C1C1E; 
+            --text-secondary: #8E8E93; 
+            --accent: #007AFF; 
+            --ink: #007AFF;
+            --radius-M: 10px;
+            --header-h: 60px;
+            --footer-h: 50px;
+        }
         
-        .toggle-btn { position: fixed; top: 15px; left: 15px; width: 44px; height: 44px; background: white; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; font-size: 24px; border: none; cursor: pointer; z-index: 2000; color: var(--accent); }
-        
-        .sidebar { width: 360px; min-width: 360px; height: 100%; background: var(--sidebar-bg); border-right: 1px solid rgba(0,0,0,0.1); display: flex; flex-direction: column; padding: 20px; padding-top: 70px; gap: 15px; overflow-y: auto; z-index: 1000; transition: transform 0.3s; position: relative; }
-        .sidebar.closed { transform: translateX(-100%); position: absolute; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--app-bg); color: var(--text-primary); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        .app-title { font-size: 20px; font-weight: 700; margin: 0; }
-        .app-subtitle { font-size: 12px; color: var(--text-secondary); margin: 0; }
+        /* --- ШАПКА И ЛОГОТИП --- */
+        header {
+            height: var(--header-h); background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px); border-bottom: 1px solid rgba(0,0,0,0.06);
+            flex-shrink: 0; display: flex; align-items: center; z-index: 1100;
+        }
+        .header-container { width: 100%; max-width: 1000px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
         
-        .nav-tabs { display: flex; background: #F2F2F7; padding: 4px; border-radius: 10px; }
-        .nav-tab { flex: 1; text-align: center; padding: 8px 12px; font-size: 13px; font-weight: 500; text-decoration: none; color: var(--text-primary); border-radius: 7px; transition: 0.2s; }
-        .nav-tab.active { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .logo { display: flex; align-items: center; text-decoration: none; }
+        .logo img { height: 38px !important; width: auto !important; object-fit: contain; display: block; }
+
+        .top-menu { display: flex; gap: 15px; }
+        .top-menu a { text-decoration: none; color: #333; font-weight: 500; font-size: 14px; transition: 0.2s; padding: 5px 8px; border-radius: 6px; }
+        .top-menu a:hover { color: var(--ink); background: rgba(0,122,255,0.05); }
+
+        /* --- ПРИЛОЖЕНИЕ --- */
+        .app-body { display: flex; flex: 1; overflow: hidden; position: relative; }
+
+        .sidebar { width: 360px; min-width: 360px; height: 100%; background: var(--sidebar-bg); border-right: 1px solid rgba(0,0,0,0.1); display: flex; flex-direction: column; padding: 20px; padding-top: 20px; gap: 15px; overflow-y: auto; z-index: 1000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+        .sidebar.closed { transform: translateX(-100%); position: absolute; }
+        
+        .toggle-btn { position: absolute; top: 10px; right: -54px; width: 44px; height: 44px; background: white; border-radius: 10px; box-shadow: 4px 0 10px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; font-size: 24px; border: 1px solid #eee; cursor: pointer; z-index: 2000; color: var(--accent); transition: transform 0.2s; }
+        .toggle-btn:active { transform: scale(0.9); }
 
         .section { display: flex; flex-direction: column; gap: 8px; }
         .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px; }
@@ -50,88 +70,87 @@
         button.btn-primary { border: none; height: 48px; border-radius: var(--radius-M); font-size: 17px; font-weight: 600; cursor: pointer; background-color: var(--accent); color: white; width: 100%; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; }
         button.btn-primary:active { opacity: 0.8; }
 
-        .sidebar-footer { font-size: 11px; color: #999; margin-top: 5px; line-height: 1.4; text-align: center; padding-top: 10px; border-top: 1px solid #f0f0f0; }
-        .sidebar-footer a { color: #999; text-decoration: underline; }
-
         .main-area { flex-grow: 1; background-color: var(--app-bg); display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; padding: 40px; width: 100%; }
-        .a4-container { width: 100%; max-width: 800px; aspect-ratio: 210 / 297; background: white; box-shadow: 0 4px 24px rgba(0,0,0,0.08); flex-shrink: 0; }
+        .a4-container { width: 100%; max-width: 800px; aspect-ratio: 210 / 297; background: white; box-shadow: 0 10px 40px rgba(0,0,0,0.15); flex-shrink: 0; }
         canvas { width: 100%; height: 100%; display: block; }
-        #status { text-align: center; font-size: 11px; color: #888; }
+        #status { text-align: center; font-size: 11px; color: #888; margin-top: 5px; }
+
+        footer { height: var(--footer-h); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #888; background: rgba(255, 255, 255, 0.95); border-top: 1px solid rgba(0,0,0,0.05); z-index: 1100; }
 
         @media (max-width: 900px) {
-            .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 85%; max-width: 320px; box-shadow: 4px 0 20px rgba(0,0,0,0.2); }
+            .sidebar { position: fixed; left: 0; top: 60px; bottom: 50px; width: 85%; max-width: 320px; box-shadow: 4px 0 20px rgba(0,0,0,0.2); }
             .sidebar.closed { transform: translateX(-100%); }
-            .main-area { padding: 10px; padding-top: 60px; display: block; overflow: scroll; }
+            .top-menu { display: none; }
+            .header-container { justify-content: center; }
+            .toggle-btn { right: 10px; top: 10px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+            .main-area { padding: 10px; padding-top: 20px; display: block; overflow: scroll; }
             .a4-container { margin: 0 auto; }
         }
     </style>
 </head>
 <body>
 
-    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
-
-    <div class="sidebar" id="appSidebar">
-        <div class="app-header">
-            <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Генератор v10.1</p>
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <img src="logo.png" alt="Сайт прописей">
+            </a>
+            <nav class="top-menu">
+                <a href="board.html">Доска</a>
+                <a href="generator.html" style="color:var(--ink);">Генератор</a>
+                <a href="propisi-alfavit.html">Алфавит</a>
+                <a href="about.html">О нас</a>
+            </nav>
         </div>
+    </header>
 
-        <div class="nav-tabs">
-            <a href="index.html" class="nav-tab">Рисование</a>
-            <a href="generator.html" class="nav-tab active">Генератор</a>
-        </div>
+    <div class="app-body">
+        <div class="sidebar" id="appSidebar">
+            <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
 
-        <div class="section">
-            <div class="section-label">1. Разлиновка</div>
-            <select id="bgSelect" onchange="updatePreview()">
-                <option value="propisi_often" selected>Узкая косая (1 класс)</option>
-                <option value="propisi_lines">Узкая линейка (2 класс)</option>
-                <option value="wide_lines">Широкая линейка (Старшие)</option>
-                <option value="cell">Клетка (5 мм)</option>
-                <option value="white">Чистый лист</option>
-            </select>
-        </div>
+            <div class="section">
+                <div class="section-label">1. Разлиновка</div>
+                <select id="bgSelect" onchange="updatePreview()">
+                    <option value="propisi_often" selected>Узкая косая (1 класс)</option>
+                    <option value="propisi_lines">Узкая линейка (2 класс)</option>
+                    <option value="wide_lines">Широкая линейка (Старшие)</option>
+                    <option value="cell">Клетка (5 мм)</option>
+                    <option value="white">Чистый лист</option>
+                </select>
+            </div>
 
-        <div class="section">
-            <div class="section-label">2. Текст</div>
-            <textarea id="textInput" oninput="handleInput()" placeholder="Введите текст..."></textarea>
-            <div style="font-size: 10px; color: #8E8E93;">* Авто-соединение букв.</div>
-        </div>
+            <div class="section">
+                <div class="section-label">2. Текст</div>
+                <textarea id="textInput" oninput="handleInput()" placeholder="Введите текст..."></textarea>
+                <div style="font-size: 10px; color: #8E8E93;">* Авто-соединение букв.</div>
+            </div>
 
-        <div class="section">
-            <div class="section-label">3. Стиль текста</div>
-            <select id="textStyle" onchange="updatePreview()">
-                <option value="dotted">::: Пунктирный (Точки)</option>
-                <option value="outline">🔲 Контурный (Полый)</option>
-                <option value="pale">⚪️ Серый (Для обводки)</option>
-                <option value="black">⚫️ Черный (Сплошной)</option>
-            </select>
-        </div>
-        
-        <div class="section">
-             <button class="btn-primary" onclick="generatePDF()" id="downloadBtn">Скачать PDF</button>
-            <div id="status">Загрузка шрифта...</div>
-        </div>
-
-        <div class="section" style="margin-top: auto; border-top: 1px solid #f0f0f0; padding-top: 10px;">
-            <div class="section-label">📚 Готовые прописи</div>
-            <div style="display: flex; flex-direction: column; gap: 6px;">
-                <a href="shablon-uzkaya-kosaya.html" style="font-size: 13px; text-decoration: none; color: #007AFF;">📄 Шаблон: Узкая косая</a>
-                <a href="propisi-alfavit.html" style="font-size: 13px; text-decoration: none; color: #007AFF;">🔤 Весь Алфавит (А-Я)</a>
+            <div class="section">
+                <div class="section-label">3. Стиль текста</div>
+                <select id="textStyle" onchange="updatePreview()">
+                    <option value="dotted">::: Пунктирный (Точки)</option>
+                    <option value="outline">🔲 Контурный (Полый)</option>
+                    <option value="pale">⚪️ Серый (Для обводки)</option>
+                    <option value="black">⚫️ Черный (Сплошной)</option>
+                </select>
+            </div>
+            
+            <div class="section" style="margin-top: auto;">
+                 <button class="btn-primary" onclick="generatePDF()" id="downloadBtn">Скачать PDF</button>
+                <div id="status">Загрузка шрифта...</div>
             </div>
         </div>
 
-        <div class="sidebar-footer">
-            <a href="about.html">Инструкция</a> | <a href="propisi-alfavit.html">Алфавит</a><br>
-            <span style="font-size:10px; color:#ccc;">© 2026 Propisi.site</span>
+        <div class="main-area">
+            <div class="a4-container">
+                <canvas id="previewCanvas" width="2480" height="3508"></canvas>
+            </div>
         </div>
     </div>
 
-    <div class="main-area">
-        <div class="a4-container">
-            <canvas id="previewCanvas" width="2480" height="3508"></canvas>
-        </div>
-    </div>
+    <footer>
+        <p>Сайт прописей (propisi.site) — сделано с любовью к образованию © 2026.</p>
+    </footer>
 
     <script>
         const canvas = document.getElementById('previewCanvas');
@@ -151,12 +170,10 @@
 
         function toggleSidebar() { sidebar.classList.toggle('closed'); }
 
-        // Logic functions (getHeadAndTail, insGRF, ins, processPrimoText) - same as before
-        // ... (Сократил для удобства копирования, функции логики шрифта те же, что и раньше) ...
-        // ВАЖНО: Вставьте сюда полные функции getHeadAndTail, insGRF, ins, processPrimoText из предыдущего файла, 
-        // чтобы не раздувать этот ответ. Логика шрифта не менялась.
-        
-        function getHeadAndTail(char){const code=char.charCodeAt(0);const map={0x0410:{h:100,t:8},0x0411:{h:100,t:100},0x0412:{h:100,t:100},0x0413:{h:100,t:100},0x0414:{h:100,t:8},0x0415:{h:100,t:4},0x0416:{h:100,t:4},0x0417:{h:100,t:100},0x0418:{h:100,t:1},0x0419:{h:100,t:1},0x041A:{h:100,t:1},0x041B:{h:100,t:1},0x041C:{h:100,t:1},0x041D:{h:100,t:1},0x041E:{h:100,t:100},0x041F:{h:100,t:1},0x0420:{h:100,t:100},0x0421:{h:100,t:4},0x0422:{h:100,t:1},0x0423:{h:100,t:100},0x0424:{h:100,t:100},0x0425:{h:100,t:4},0x0426:{h:100,t:6},0x0427:{h:100,t:1},0x0428:{h:100,t:1},0x0429:{h:100,t:6},0x042A:{h:100,t:100},0x042B:{h:100,t:1},0x042C:{h:100,t:100},0x042D:{h:100,t:100},0x042E:{h:100,t:100},0x042F:{h:100,t:1},0x0401:{h:100,t:4},0x0430:{h:2,t:1},0x0431:{h:2,t:100},0x0432:{h:6,t:2},0x0433:{h:7,t:1},0x0434:{h:2,t:3},0x0435:{h:5,t:4},0x0436:{h:4,t:4},0x0437:{h:4,t:3},0x0438:{h:1,t:1},0x0439:{h:1,t:1},0x043A:{h:1,t:1},0x043B:{h:3,t:1},0x043C:{h:3,t:1},0x043D:{h:1,t:1},0x043E:{h:2,t:5},0x043F:{h:1,t:1},0x0440:{h:1,t:1},0x0441:{h:2,t:4},0x0442:{h:1,t:1},0x0443:{h:1,t:3},0x0444:{h:2,t:100},0x0445:{h:4,t:4},0x0446:{h:1,t:6},0x0447:{h:8,t:1},0x0448:{h:1,t:1},0x0449:{h:1,t:6},0x044A:{h:8,t:7},0x044B:{h:1,t:1},0x044C:{h:1,t:7},0x044D:{h:4,t:100},0x044E:{h:1,t:5},0x044F:{h:3,t:1},0x0451:{h:5,t:4}};if(map[code])return map[code];if(code>=0xE000)return{h:200,t:200};return{h:0,t:0}}function insGRF(c0Code,cCode,h){if(c0Code!==0x0413&&c0Code!==0x0420&&c0Code!==0x0424)return"";if(c0Code===0x0413){if(h===0||h===100||[0x431,0x432,0x439,0x451].includes(cCode))return"\uE403";if([0x438,0x439,0x443,0x448,0x449,0x446,0x44F].includes(cCode))return"\uE401"}else if(c0Code===0x0420){if(cCode!==0x43B&&cCode!==0x43C)return"\uE402"}else if(c0Code===0x0424){if(cCode!==0x43B&&cCode!==0x43C)return"\uE401"}return""}function ins(c1,c2){if(!c1||!c2)return"";const info1=getHeadAndTail(c1);const info2=getHeadAndTail(c2);const t=info1.t,h=info2.h;const n1=c1.charCodeAt(0),n2=c2.charCodeAt(0);if(t===200||h===200)return"";if((n1===0x41F||n1===0x422)&&n2===0x432)return"\uE410";if((n1===0x41F||n1===0x422)&&n2===0x431)return"\uE411";const set1=[0x438,0x439,0x43B,0x43C,0x448];const set2=[0x438,0x439,0x446,0x448,0x449];if(set1.includes(n1)&&set2.includes(n2))return"\uE413";if([0x41D,0x41F,0x422].includes(n1)&&[0x456,0x457].includes(n2))return"\uE413";if(t===0){if(h===1||h===2||h===3||h===100)return"\uE402";if(h===4)return"\uE402\uE007";if(h===5)return"\uE402\uE005";if(h===6)return"\uE402\uE006";if(h===7)return"\uE402\uE007";if(h===8)return"\uE402\uE008"}if(t===1){if(h===0)return"\uE010\uE402";if(h===1)return"\uE011";if(h===2)return"\uE012";if(h===3)return"\uE010";if(h===4)return"\uE014";if(h===5)return"\uE015";if(h===6)return"\uE016";if(h===7)return"\uE017";if(h===8)return"\uE018";if(h===100)return"\uE010\uE403"}if(t===2){if(h===0)return"\uE020\uE402";if(h===1)return"\uE021";if(h===2)return"\uE022";if(h===3)return"\uE023";if(h===4)return"\uE024";if(h===5)return"\uE025";if(h===6)return"\uE026";if(h===7)return"\uE027";if(h===8)return"\uE028";if(h===100)return"\uE020\uE403"}if(t===3){if(h===0)return"\uE030\uE402";if(h===1)return"\uE031";if(h===2)return"\uE032";if(h===3)return"\uE033";if(h===4)return"\uE034";if(h===5)return"\uE035";if(h===6)return"\uE036";if(h===7)return"\uE037";if(h===8)return"\uE038";if(h===100)return"\uE030\uE403"}if(t===4){if(h===0)return"\uE040\uE402";if(h===1)return"\uE041";if(h===2)return"\uE042";if(h===3)return"\uE043";if(h===4)return"\uE044";if(h===5)return"\uE045";if(h===6)return"\uE046";if(h===7)return"\uE047";if(h===8)return"\uE048";if(h===100)return"\uE040\uE403"}if(t===5){if(h===0)return"\uE402";if(h===1)return"\uE051";if(h===2)return"\uE052";if(h===3)return"\uE053";if(h===4)return"\uE054";if(h===5)return"\uE055";if(h===6)return"\uE056";if(h===7)return"\uE057";if(h===8)return"\uE058";if(h===100)return"\uE403"}if(t===6){if(h===0)return"\uE060\uE402";if(h===1)return"\uE061";if(h===2)return"\uE062";if(h===3)return"\uE063";if(h===4)return"\uE064";if(h===5)return"\uE065";if(h===6)return"\uE066";if(h===7)return"\uE067";if(h===8)return"\uE068";if(h===100)return"\uE060\uE403"}if(t===7){if(h===0)return"\uE070\uE402";if(h===1)return"\uE071";if(h===2)return"\uE072";if(h===3)return"\uE073";if(h===4)return"\uE074";if(h===5)return"\uE075";if(h===6)return"\uE076";if(h===7)return"\uE077";if(h===8)return"\uE078";if(h===100)return"\uE070\uE403"}if(t===8){if(h===0)return"\uE080\uE402";if(h===1)return"\uE081";if(h===2)return"\uE082";if(h===3)return"\uE083";if(h===4)return"\uE084";if(h===5)return"\uE085";if(h===6)return"\uE086";if(h===7)return"\uE087";if(h===8)return"\uE088";if(h===100)return"\uE080\uE403"}if(t===100){if(h===0)return"\uE402";if(h===1)return"\uE402\uE402";if(h===2)return"\uE402\uE401";if(h===3)return"\uE402";if(h===4)return"\uE402\uE401\uE007";if(h===5)return"\uE402\uE005";if(h===6)return"\uE402\uE401\uE006";if(h===7)return"\uE402\uE007";if(h===8)return"\uE402\uE008";if(h===100)return"\uE403"}const grf=insGRF(n1,n2,h);if(grf)return grf;return""}function processPrimoText(text){if(!text)return"";let res="";let c1="";let c2=text[0];res+=ins(" ",c2)+c2;for(let i=1;i<text.length;i++){c1=c2;c2=text[i];res+=ins(c1,c2)+c2}res+=ins(c2," ");return res}
+        function getHeadAndTail(char){const code=char.charCodeAt(0);const map={0x0410:{h:100,t:8},0x0411:{h:100,t:100},0x0412:{h:100,t:100},0x0413:{h:100,t:100},0x0414:{h:100,t:8},0x0415:{h:100,t:4},0x0416:{h:100,t:4},0x0417:{h:100,t:100},0x0418:{h:100,t:1},0x0419:{h:100,t:1},0x041A:{h:100,t:1},0x041B:{h:100,t:1},0x041C:{h:100,t:1},0x041D:{h:100,t:1},0x041E:{h:100,t:100},0x041F:{h:100,t:1},0x0420:{h:100,t:100},0x0421:{h:100,t:4},0x0422:{h:100,t:1},0x0423:{h:100,t:100},0x0424:{h:100,t:100},0x0425:{h:100,t:4},0x0426:{h:100,t:6},0x0427:{h:100,t:1},0x0428:{h:100,t:1},0x0429:{h:100,t:6},0x042A:{h:100,t:100},0x042B:{h:100,t:1},0x042C:{h:100,t:100},0x042D:{h:100,t:100},0x042E:{h:100,t:100},0x042F:{h:100,t:1},0x0401:{h:100,t:4},0x0430:{h:2,t:1},0x0431:{h:2,t:100},0x0432:{h:6,t:2},0x0433:{h:7,t:1},0x0434:{h:2,t:3},0x0435:{h:5,t:4},0x0436:{h:4,t:4},0x0437:{h:4,t:3},0x0438:{h:1,t:1},0x0439:{h:1,t:1},0x043A:{h:1,t:1},0x043B:{h:3,t:1},0x043C:{h:3,t:1},0x043D:{h:1,t:1},0x043E:{h:2,t:5},0x043F:{h:1,t:1},0x0440:{h:1,t:1},0x0441:{h:2,t:4},0x0442:{h:1,t:1},0x0443:{h:1,t:3},0x0444:{h:2,t:100},0x0445:{h:4,t:4},0x0446:{h:1,t:6},0x0447:{h:8,t:1},0x0448:{h:1,t:1},0x0449:{h:1,t:6},0x044A:{h:8,t:7},0x044B:{h:1,t:1},0x044C:{h:1,t:7},0x044D:{h:4,t:100},0x044E:{h:1,t:5},0x044F:{h:3,t:1},0x0451:{h:5,t:4}};if(map[code])return map[code];if(code>=0xE000)return{h:200,t:200};return{h:0,t:0}}
+        function insGRF(c0Code,cCode,h){if(c0Code!==0x0413&&c0Code!==0x0420&&c0Code!==0x0424)return"";if(c0Code===0x0413){if(h===0||h===100||[0x431,0x432,0x439,0x451].includes(cCode))return"\uE403";if([0x438,0x439,0x443,0x448,0x449,0x446,0x44F].includes(cCode))return"\uE401"}else if(c0Code===0x0420){if(cCode!==0x43B&&cCode!==0x43C)return"\uE402"}else if(c0Code===0x0424){if(cCode!==0x43B&&cCode!==0x43C)return"\uE401"}return""}
+        function ins(c1,c2){if(!c1||!c2)return"";const info1=getHeadAndTail(c1);const info2=getHeadAndTail(c2);const t=info1.t,h=info2.h;const n1=c1.charCodeAt(0),n2=c2.charCodeAt(0);if(t===200||h===200)return"";if((n1===0x41F||n1===0x422)&&n2===0x432)return"\uE410";if((n1===0x41F||n1===0x422)&&n2===0x431)return"\uE411";const set1=[0x438,0x439,0x43B,0x43C,0x448];const set2=[0x438,0x439,0x446,0x448,0x449];if(set1.includes(n1)&&set2.includes(n2))return"\uE413";if([0x41D,0x41F,0x422].includes(n1)&&[0x456,0x457].includes(n2))return"\uE413";if(t===0){if(h===1||h===2||h===3||h===100)return"\uE402";if(h===4)return"\uE402\uE007";if(h===5)return"\uE402\uE005";if(h===6)return"\uE402\uE006";if(h===7)return"\uE402\uE007";if(h===8)return"\uE402\uE008"}if(t===1){if(h===0)return"\uE010\uE402";if(h===1)return"\uE011";if(h===2)return"\uE012";if(h===3)return"\uE010";if(h===4)return"\uE014";if(h===5)return"\uE015";if(h===6)return"\uE016";if(h===7)return"\uE017";if(h===8)return"\uE018";if(h===100)return"\uE010\uE403"}if(t===2){if(h===0)return"\uE020\uE402";if(h===1)return"\uE021";if(h===2)return"\uE022";if(h===3)return"\uE023";if(h===4)return"\uE024";if(h===5)return"\uE025";if(h===6)return"\uE026";if(h===7)return"\uE027";if(h===8)return"\uE028";if(h===100)return"\uE020\uE403"}if(t===3){if(h===0)return"\uE030\uE402";if(h===1)return"\uE031";if(h===2)return"\uE032";if(h===3)return"\uE033";if(h===4)return"\uE034";if(h===5)return"\uE035";if(h===6)return"\uE036";if(h===7)return"\uE037";if(h===8)return"\uE038";if(h===100)return"\uE030\uE403"}if(t===4){if(h===0)return"\uE040\uE402";if(h===1)return"\uE041";if(h===2)return"\uE042";if(h===3)return"\uE043";if(h===4)return"\uE044";if(h===5)return"\uE045";if(h===6)return"\uE046";if(h===7)return"\uE047";if(h===8)return"\uE048";if(h===100)return"\uE040\uE403"}if(t===5){if(h===0)return"\uE402";if(h===1)return"\uE051";if(h===2)return"\uE052";if(h===3)return"\uE053";if(h===4)return"\uE054";if(h===5)return"\uE055";if(h===6)return"\uE056";if(h===7)return"\uE057";if(h===8)return"\uE058";if(h===100)return"\uE403"}if(t===6){if(h===0)return"\uE060\uE402";if(h===1)return"\uE061";if(h===2)return"\uE062";if(h===3)return"\uE063";if(h===4)return"\uE064";if(h===5)return"\uE065";if(h===6)return"\uE066";if(h===7)return"\uE067";if(h===8)return"\uE068";if(h===100)return"\uE060\uE403"}if(t===7){if(h===0)return"\uE070\uE402";if(h===1)return"\uE071";if(h===2)return"\uE072";if(h===3)return"\uE073";if(h===4)return"\uE074";if(h===5)return"\uE075";if(h===6)return"\uE076";if(h===7)return"\uE077";if(h===8)return"\uE078";if(h===100)return"\uE070\uE403"}if(t===8){if(h===0)return"\uE080\uE402";if(h===1)return"\uE081";if(h===2)return"\uE082";if(h===3)return"\uE083";if(h===4)return"\uE084";if(h===5)return"\uE085";if(h===6)return"\uE086";if(h===7)return"\uE087";if(h===8)return"\uE088";if(h===100)return"\uE080\uE403"}if(t===100){if(h===0)return"\uE402";if(h===1)return"\uE402\uE402";if(h===2)return"\uE402\uE401";if(h===3)return"\uE402";if(h===4)return"\uE402\uE401\uE007";if(h===5)return"\uE402\uE005";if(h===6)return"\uE402\uE401\uE006";if(h===7)return"\uE402\uE007";if(h===8)return"\uE402\uE008";if(h===100)return"\uE403"}const grf=insGRF(n1,n2,h);if(grf)return grf;return""}
+        function processPrimoText(text){if(!text)return"";let res="";let c1="";let c2=text[0];res+=ins(" ",c2)+c2;for(let i=1;i<text.length;i++){c1=c2;c2=text[i];res+=ins(c1,c2)+c2}res+=ins(c2," ");return res}
 
         window.onload = async function() {
             try {
@@ -169,7 +186,6 @@
                     fontBase64 = reader.result;
                     document.getElementById('status').innerText = 'Готов к работе';
                     
-                    // --- НОВАЯ ЛОГИКА: Вставка текста из URL ---
                     const urlParams = new URLSearchParams(window.location.search);
                     const textParam = urlParams.get('text');
                     if (textParam) {
@@ -381,33 +397,19 @@
        function generatePDF() {
             if (!fontBase64) { alert("Шрифт не готов!"); return; }
             
-            // 1. ХИТРОСТЬ: Рисуем ссылку прямо на картинке (Canvas), 
-            // так как jsPDF не понимает русские буквы без загрузки спец. шрифта.
-            ctx.save(); // Сохраняем текущие настройки кисти
-            
-            // Настройки шрифта для подписи (размеры в пикселях для канваса 2480x3508)
-            ctx.font = "30px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"; 
-            ctx.fillStyle = "#aaaaaa"; // Светло-серый цвет
-            
-            // Рисуем текст внизу страницы (x=60, y=3450 пикселей)
+            ctx.save(); 
+            ctx.font = "30px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+            ctx.fillStyle = "#aaaaaa"; 
             ctx.fillText("Сгенерировано бесплатно на https://propisi.site", 60, 3450);
-            
-            ctx.restore(); // Возвращаем кисть как было
+            ctx.restore(); 
 
-            // 2. Инициализация PDF
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
             
-            // 3. Вставляем картинку (теперь уже с надписью)
             const imgData = canvas.toDataURL('image/jpeg', 0.85);
             doc.addImage(imgData, 'JPEG', 0, 0, 210, 297);
             
-            // 4. Сохраняем файл
             doc.save("propisi.pdf");
-            
-            // После скачивания можно перерисовать чисто, чтобы на экране надпись не мешалась,
-            // но обычно это не критично. Если нужно — раскомментируйте строку ниже:
-            // updatePreview(); 
         }
     </script>
 </body>

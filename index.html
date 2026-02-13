@@ -3,21 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Интерактивные Прописи Онлайн | Доска для Учителя</title>
-
-    <meta name="description" content="Бесплатная интерактивная доска для уроков чистописания. Рисуйте в узкую косую, используйте сетку Мазиной, записывайте видео-уроки письма.">
-    <meta name="keywords" content="прописи онлайн, интерактивная доска, чистописание, узкая косая, сетка мазиной, уроки письма">
-    <meta name="author" content="Propisi.site">
-
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Интерактивные Прописи: Онлайн Доска для Учителя">
-    <meta property="og:description" content="Записывайте видео-уроки письма, рисуйте на сетке 'узкая косая' и показывайте ученикам. Бесплатно.">
-    <meta property="og:url" content="https://propisi.site/">
-    <meta property="og:image" content="https://propisi.site/preview.jpg">
-
-   <link rel="icon" type="image/png" href="/favicon.png" sizes="192x192">
-<link rel="icon" type="image/png" href="/favicon.png"> 
-
+    <title>Сайт прописей — Чистописание и коррекция почерка</title>
+    <meta name="description" content="Бесплатные инструменты для обучения письму: Интерактивная доска для учителей, Генератор прописей PDF.">
+    <link rel="icon" type="image/png" href="favicon.png">
 
     <script type="text/javascript" >
        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -30,576 +18,211 @@
     <noscript><div><img src="https://mc.yandex.ru/watch/106467293" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 
     <style>
-        :root { --app-bg: #Eef2F5; --sidebar-bg: #FFFFFF; --text-primary: #1C1C1E; --text-secondary: #8E8E93; --accent: #007AFF; --radius-M: 10px; }
+        :root {
+            --ink: #007AFF;
+            --paper: #FFFFFF; 
+            --text: #1D1D1F;
+            --header-h: 60px;
+            --footer-h: 50px;
+        }
+
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--app-bg); color: var(--text-primary); height: 100vh; display: flex; overflow: hidden; }
 
-        .toggle-btn { position: fixed; top: 15px; left: 15px; width: 44px; height: 44px; background: white; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; font-size: 24px; border: none; cursor: pointer; z-index: 2000; color: var(--accent); transition: transform 0.2s; }
-        .toggle-btn:active { transform: scale(0.9); }
+        html, body {
+            height: 100%;
+            margin: 0; padding: 0;
+            overflow: hidden; 
+        }
 
-        .sidebar { width: 360px; min-width: 360px; height: 100%; background: var(--sidebar-bg); border-right: 1px solid rgba(0,0,0,0.1); display: flex; flex-direction: column; padding: 20px; padding-top: 70px; gap: 15px; overflow-y: auto; z-index: 1000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
-        .sidebar.closed { transform: translateX(-100%); position: absolute; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--paper);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
 
-        .app-title { font-size: 20px; font-weight: 700; margin: 0; }
-        .app-subtitle { font-size: 12px; color: var(--text-secondary); margin: 0; }
+            /* --- ФОН: ИДЕАЛЬНАЯ КОПИЯ СО СКРИНШОТА --- */
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='120' viewBox='0 0 40 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='exact_grid' x='0' y='0' width='40' height='120' patternUnits='userSpaceOnUse'%3E%3C!-- Наклонная линия (Серый) --%3E%3Cpath d='M0,120 L40,0' stroke='%23D9D9D9' stroke-width='1' fill='none'/%3E%3C!-- Горизонтальные линии (Голубой) --%3E%3Cline x1='0' y1='30' x2='40' y2='30' stroke='%238CA6D6' stroke-width='1'/%3E%3Cline x1='0' y1='60' x2='40' y2='60' stroke='%238CA6D6' stroke-width='1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23exact_grid)'/%3E%3C/svg%3E");
+            background-size: 40px 120px;
+        }
+
+        /* --- 1. ШАПКА (ИДЕНТИЧНА ВСЕМ СТРАНИЦАМ) --- */
+        header {
+            height: var(--header-h); background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px); border-bottom: 1px solid rgba(0,0,0,0.06);
+            flex-shrink: 0; display: flex; align-items: center; z-index: 1100;
+        }
+        .header-container { width: 100%; max-width: 1000px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
         
-        .nav-tabs { display: flex; background: #F2F2F7; padding: 4px; border-radius: 10px; }
-        .nav-tab { flex: 1; text-align: center; padding: 8px 12px; font-size: 13px; font-weight: 500; text-decoration: none; color: var(--text-primary); border-radius: 7px; transition: all 0.2s; }
-        .nav-tab.active { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .logo { display: flex; align-items: center; text-decoration: none; }
+        .logo img { height: 38px !important; width: auto !important; object-fit: contain; display: block; }
 
-        .section { display: flex; flex-direction: column; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
-        .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); }
+        .top-menu { display: flex; gap: 15px; }
+        .top-menu a { text-decoration: none; color: #333; font-weight: 500; font-size: 14px; transition: 0.2s; padding: 5px 8px; border-radius: 6px; }
+        .top-menu a:hover { color: var(--ink); background: rgba(0,122,255,0.05); }
 
-        select, input[type=file] { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #E5E5EA; background-color: white; font-size: 14px; outline: none; }
+        /* --- 2. ОСНОВНОЙ КОНТЕНТ --- */
+        main {
+            flex: 1; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center;
+            padding: 0 20px;
+            max-height: calc(100vh - var(--header-h) - var(--footer-h));
+        }
 
-        .tools-row { display: flex; gap: 8px; }
-        .tool-btn { flex: 1; padding: 10px; border: 1px solid #E5E5EA; border-radius: 8px; background: white; cursor: pointer; text-align: center; font-size: 13px; font-weight: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
-        .tool-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-        
-        .color-palette { display: flex; gap: 10px; justify-content: space-between; }
-        .color-swatch { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .color-swatch.active { border-color: #000; transform: scale(1.1); }
+        .hero-block {
+            text-align: center;
+            margin-bottom: 5vh; 
+        }
 
-        .control-row { display: flex; align-items: center; gap: 10px; background: #F2F2F7; padding: 5px; border-radius: 8px; }
-        .zoom-btn { width: 36px; height: 36px; border: none; background: white; border-radius: 6px; font-size: 18px; font-weight: bold; cursor: pointer; color: var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .val-display { flex-grow: 1; text-align: center; font-size: 14px; font-weight: 600; color: var(--text-primary); }
-        input[type=range] { width: 100%; }
+        h1 {
+            font-size: clamp(28px, 4.5vh, 42px);
+            margin: 0 0 1.5vh 0; color: #111; font-weight: 800;
+            background: #FFFFFF; display: inline-block;
+            padding: 15px 30px; border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+        .subtitle {
+            font-size: clamp(14px, 2.2vh, 18px); color: #555; margin: 0 auto 3vh; max-width: 600px;
+            background: rgba(255,255,255,0.9); padding: 10px 15px; border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
 
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        button.btn-action { border: none; height: 40px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; background: #F2F2F7; color: var(--text-primary); transition: 0.2s; display: flex; align-items: center; justify-content: center; width: 100%; }
-        button.btn-action:hover { background: #E5E5EA; }
-        button.btn-primary { background: var(--accent); color: white; }
-        button.btn-danger { background: #FF3B30; color: white; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .cta-group { display: flex; gap: 12px; justify-content: center; }
+        .btn {
+            padding: 1.5vh 3vh; border-radius: 10px; font-size: clamp(14px, 2vh, 16px);
+            font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 8px;
+            transition: transform 0.2s;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-primary { background: var(--ink); color: white; box-shadow: 0 4px 12px rgba(0,122,255,0.3); }
+        .btn-secondary { background: white; color: var(--text); border: 1px solid #ddd; }
 
-        .sidebar-footer { font-size: 11px; color: #999; margin-top: 5px; line-height: 1.4; text-align: center; padding-top: 10px; border-top: 1px solid #f0f0f0; }
-        .sidebar-footer a { color: #999; text-decoration: underline; }
-        
-        .main-area { flex-grow: 1; background-color: var(--app-bg); display: flex; align-items: center; justify-content: center; overflow: auto; position: relative; width: 100%; }
-        .canvas-wrapper { background: white; box-shadow: 0 4px 30px rgba(0,0,0,0.15); position: relative; flex-shrink: 0; margin: auto; }
-        canvas { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
-        #bgCanvas { z-index: 1; }
-        #drawCanvas { z-index: 2; cursor: crosshair; }
+        /* --- 3. КАРТОЧКИ --- */
+        .cards-row {
+            display: flex; gap: 20px; width: 100%; max-width: 960px;
+            justify-content: center;
+            height: 25vh; 
+            min-height: 160px; max-height: 220px;
+        }
 
-        @media (max-width: 900px) {
-            .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 85%; max-width: 320px; box-shadow: 4px 0 20px rgba(0,0,0,0.2); }
-            .sidebar.closed { transform: translateX(-100%); }
-            .main-area { padding: 10px; padding-top: 60px; display: block; overflow: scroll; }
-            .canvas-wrapper { margin: 0 auto; }
+        .card {
+            flex: 1; background: white; padding: 2.5vh; border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            text-decoration: none; color: inherit;
+            transition: transform 0.2s, border-color 0.2s;
+            border: 1px solid rgba(0,0,0,0.05); position: relative; overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+        .card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+            background: var(--ink); opacity: 0.2; transition: opacity 0.2s;
+        }
+        .card:hover { transform: translateY(-4px); border-color: rgba(0,122,255,0.3); }
+        .card:hover::before { opacity: 1; }
+
+        .card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 1vh; }
+        .card-icon { font-size: clamp(24px, 3vh, 32px); }
+        .card h3 { margin: 0; font-size: clamp(16px, 2.2vh, 18px); font-weight: 700; }
+        .card p { font-size: clamp(12px, 1.8vh, 14px); color: #666; margin: 0; line-height: 1.4; flex-grow: 1; }
+        .card-arrow { margin-top: auto; color: var(--ink); font-weight: 600; font-size: 13px; text-align: right; }
+
+        /* --- 4. ПОДВАЛ --- */
+        footer {
+            height: var(--footer-h); flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; color: #888;
+            background: rgba(255,255,255,0.95);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            text-align: center; z-index: 1100;
+        }
+        footer a { color: #888; text-decoration: none; border-bottom: 1px solid #eee; margin-left: 5px; }
+
+        /* --- МОБИЛЬНАЯ ВЕРСИЯ --- */
+        @media (max-width: 768px), (max-height: 600px) {
+            html, body { height: auto; overflow: auto; }
+            main { display: block; padding: 40px 20px; max-height: none; }
+            
+            /* Скрытие меню для мобильных */
+            .top-menu { display: none; }
+            .header-container { justify-content: center; }
+            
+            .cards-row { flex-direction: column; height: auto; max-height: none; gap: 15px; }
+            .card { min-height: auto; padding: 20px; }
+            .hero-block { margin-bottom: 40px; }
+            footer { height: auto; padding: 20px; }
         }
     </style>
 </head>
 <body>
 
-    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
-
-    <div class="sidebar" id="appSidebar">
-        <div class="app-header">
-            <h1 class="app-title">Прописи</h1>
-            <p class="app-subtitle">Интерактивная доска v11.5</p>
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <img src="logo.png" alt="Сайт прописей">
+            </a>
+            <nav class="top-menu">
+                <a href="board.html">Доска</a>
+                <a href="generator.html">Генератор</a>
+                <a href="propisi-alfavit.html">Алфавит</a>
+                <a href="about.html">О нас</a>
+            </nav>
         </div>
+    </header>
 
-        <div class="nav-tabs">
-            <a href="index.html" class="nav-tab active">Рисование</a>
-            <a href="generator.html" class="nav-tab">Генератор</a>
-        </div>
-
-        <div class="section">
-            <div class="section-label">1. Подложка</div>
-            <select id="bgSelect" onchange="changeBackground()">
-                <option value="propisi_often" selected>Узкая косая (1 класс)</option>
-                <option value="mazina">Сетка Мазиной (Ритм)</option>
-                <option value="propisi_lines">Узкая линейка (2 класс)</option>
-                <option value="wide_lines">Широкая линейка (Старшие)</option>
-                <option value="cell">Клетка (5 мм)</option> 
-                <option value="white">Чистый лист</option>
-                <option value="custom">📁 Загрузить своё фото...</option>
-            </select>
-            
-            <button id="btnUploadBg" class="btn-action" style="display:none; margin-top:8px; background:#E5E5EA;" onclick="document.getElementById('fileInput').click()">
-                📂 Выбрать файл
-            </button>
-            <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="handleImageUpload()">
-        </div>
-
-        <div class="section">
-            <div class="section-label">2. Инструменты</div>
-            <div class="tools-row">
-                <div class="tool-btn active" onclick="setTool('pen')" id="btnPen">🖊 Ручка</div>
-                <div class="tool-btn" onclick="setTool('eraser')" id="btnEraser">🧼 Ластик</div>
-                <div class="tool-btn" onclick="undo()" title="Отменить">↩️ Отмена</div>
+    <main>
+        <section class="hero-block">
+            <h1>Научитесь писать красиво.<br>Легко и бесплатно.</h1>
+            <div class="subtitle">
+                Профессиональные онлайн-инструменты для учителей начальных классов, логопедов и родителей.
             </div>
             
-            <div class="color-palette" id="palette">
-                <div class="color-swatch active" style="background:#0055AA" onclick="setColor('#0055AA', this)"></div>
-                <div class="color-swatch" style="background:#FF3B30" onclick="setColor('#FF3B30', this)"></div>
-                <div class="color-swatch" style="background:#34C759" onclick="setColor('#34C759', this)"></div>
-                <div class="color-swatch" style="background:#000000" onclick="setColor('#000000', this)"></div>
+            <div class="cta-group">
+                <a href="board.html" class="btn btn-primary">
+                    ✏️ Открыть Доску
+                </a>
+                <a href="generator.html" class="btn btn-secondary">
+                    🖨 Создать PDF
+                </a>
             </div>
-            
-            <div style="margin-top:5px;">
-                <div class="section-label">Толщина линии</div>
-                <input type="range" id="lineWidth" min="1" max="15" value="4">
-            </div>
-        </div>
+        </section>
 
-        <div class="section">
-            <div class="section-label">3. Запись урока</div>
-            <button class="btn-action btn-primary" id="btnPlay" onclick="playRecording(false)">▶️ Проиграть (Как учитель)</button>
-            
-            <div style="margin-top:5px;">
-                <div class="section-label">Скорость воспроизведения</div>
-                <div class="control-row">
-                    <span style="font-size:12px; color:#888;">0.5x</span>
-                    <input type="range" id="speedRange" min="1" max="10" value="5" oninput="updateSpeedDisp()">
-                    <span style="font-size:12px; color:#888;">3x</span>
+        <section class="cards-row">
+            <a href="board.html" class="card">
+                <div class="card-top">
+                    <div class="card-icon">🎨</div>
+                    <h3>Интерактивная доска</h3>
                 </div>
-                <div style="text-align:center; font-size:12px; color:#555; margin-top:2px;" id="speedVal">1.0x</div>
-            </div>
+                <p>Рисуйте на экране поверх сетки Мазиной или косой линейки. Для уроков на проекторе.</p>
+                <div class="card-arrow">Запустить →</div>
+            </a>
 
-            <div class="action-grid" style="margin-top:8px;">
-                 <button class="btn-action" id="btnExport" onclick="playRecording(true)">📹 Записать Видео</button>
-                 <button class="btn-action" onclick="downloadImage()">📷 Скачать Фото</button>
-            </div>
-        </div>
+            <a href="generator.html" class="card">
+                <div class="card-top">
+                    <div class="card-icon">📄</div>
+                    <h3>Генератор прописей</h3>
+                </div>
+                <p>Введите текст. Умный шрифт сам соединит буквы в слова. Скачайте PDF для печати.</p>
+                <div class="card-arrow">Создать →</div>
+            </a>
 
-        <div class="section" style="margin-top:auto; border-top: 1px solid #f0f0f0; padding-top: 10px;">
-            <div class="control-row">
-                <button class="zoom-btn" onclick="changeZoom(-0.1)">−</button>
-                <div class="val-display" id="zoomVal">100%</div>
-                <button class="zoom-btn" onclick="changeZoom(0.1)">+</button>
-            </div>
-            <button class="btn-action btn-danger" style="margin-top:10px; margin-bottom:15px;" onclick="clearCanvas()">🗑 Очистить всё</button>
+            <a href="propisi-alfavit.html" class="card">
+                <div class="card-top">
+                    <div class="card-icon">🅰️</div>
+                    <h3>Алфавит и Шаблоны</h3>
+                </div>
+                <p>Каталог готовых прописей (А-Я) и чистые листы разлиновки для скачивания.</p>
+                <div class="card-arrow">Выбрать букву →</div>
+            </a>
+        </section>
+    </main>
 
-            <div style="display: flex; flex-direction: column; gap: 6px; padding-top: 5px;">
-                <div class="section-label">📚 Полезное</div>
-                <a href="shablon-uzkaya-kosaya.html" style="font-size: 13px; text-decoration: none; color: #007AFF;">📄 Шаблон: Узкая косая</a>
-                <a href="propisi-alfavit.html" style="font-size: 13px; text-decoration: none; color: #007AFF;">🔤 Весь Алфавит (А-Я)</a>
-            </div>
-        </div>
+    <footer>
+        <p>Сайт прописей (propisi.site) — сделано с любовью к образованию © 2026. &nbsp;|&nbsp; <a href="about.html">Инструкция</a></p>
+    </footer>
 
-        <div class="sidebar-footer">
-            <a href="about.html">Инструкция</a> | <a href="propisi-alfavit.html">Алфавит</a><br>
-            <span style="font-size:10px; color:#ccc;">© 2026 Propisi.site</span>
-        </div>
-    </div>
-
-    <div class="main-area">
-        <div class="canvas-wrapper" id="canvasWrapper">
-            <canvas id="bgCanvas" width="2480" height="3508"></canvas>
-            <canvas id="drawCanvas" width="2480" height="3508"></canvas>
-        </div>
-    </div>
-
-    <script>
-        const bgCanvas = document.getElementById('bgCanvas');
-        const bgCtx = bgCanvas.getContext('2d');
-        const drawCanvas = document.getElementById('drawCanvas');
-        const drawCtx = drawCanvas.getContext('2d');
-        const wrapper = document.getElementById('canvasWrapper');
-        const sidebar = document.getElementById('appSidebar');
-
-        let actions = []; 
-        let currentStroke = null;
-        let isDrawing = false;
-        let isReplaying = false;
-        let tool = 'pen';
-        let color = '#0055AA';
-        let zoom = 1.0;
-        let customImage = null; 
-        let playbackSpeed = 5;
-
-        const MM = 11.81;
-        const ROW_H = 4 * MM; 
-        const GAP_H = 8 * MM; 
-        const MT = 20 * MM; 
-        const BASE_WIDTH_PX = 794; 
-        const BASE_HEIGHT_PX = 1123;
-
-        window.onload = function() {
-            setZoom(1.0);
-            updateSpeedDisp();
-            drawBackground();
-            setupEvents();
-        };
-
-        function toggleSidebar() { sidebar.classList.toggle('closed'); }
-
-        function updateSpeedDisp() {
-            playbackSpeed = parseInt(document.getElementById('speedRange').value);
-            let factor = 1.0;
-            if (playbackSpeed < 5) factor = 0.5 + (playbackSpeed-1)*0.125;
-            else factor = 1.0 + (playbackSpeed-5)*0.4;
-            document.getElementById('speedVal').innerText = factor.toFixed(1) + 'x';
-        }
-
-        function changeBackground() {
-            const val = document.getElementById('bgSelect').value;
-            const btn = document.getElementById('btnUploadBg');
-            if (val === 'custom') {
-                btn.style.display = 'flex'; 
-                document.getElementById('fileInput').click(); 
-            } else {
-                btn.style.display = 'none'; 
-                customImage = null;
-                drawBackground();
-            }
-        }
-
-        function handleImageUpload() {
-            const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() { customImage = img; drawBackground(); };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-                fileInput.value = '';
-            }
-        }
-
-        function drawBackground() {
-            const w = bgCanvas.width;
-            const h = bgCanvas.height;
-            const type = document.getElementById('bgSelect').value;
-            
-            // Очистка
-            bgCtx.fillStyle = 'white';
-            bgCtx.fillRect(0, 0, w, h);
-
-            if (customImage) { bgCtx.drawImage(customImage, 0, 0, w, h); return; }
-            if (type === 'white') return;
-
-            // ПОЛЯ
-            bgCtx.save();
-            bgCtx.lineWidth = 2;
-            bgCtx.setLineDash([]);
-            bgCtx.beginPath(); bgCtx.strokeStyle = '#FF8080'; bgCtx.lineWidth = 4;
-            bgCtx.moveTo(20*MM, 0); bgCtx.lineTo(20*MM, h); bgCtx.stroke();
-            bgCtx.restore();
-            
-            // КЛЕТКА
-            if (type === 'cell') {
-                const cellSize = 5 * MM; 
-                bgCtx.lineWidth = 1; bgCtx.strokeStyle = '#5096F2'; 
-                bgCtx.beginPath();
-                for (let x = 0; x < w; x += cellSize) { bgCtx.moveTo(x, 0); bgCtx.lineTo(x, h); }
-                for (let y = 0; y < h; y += cellSize) { bgCtx.moveTo(0, y); bgCtx.lineTo(w, y); }
-                bgCtx.stroke();
-                
-                // Повторно поле сверху
-                bgCtx.beginPath(); bgCtx.strokeStyle = '#FF8080'; bgCtx.lineWidth = 4;
-                bgCtx.moveTo(20*MM, 0); bgCtx.lineTo(20*MM, h); bgCtx.stroke();
-                return;
-            }
-
-            // ШИРОКАЯ ЛИНЕЙКА
-            if (type === 'wide_lines') {
-                const lineStep = 9 * MM; 
-                bgCtx.lineWidth = 2; bgCtx.strokeStyle = '#5096F2';
-                bgCtx.beginPath();
-                for (let y = MT; y < h; y += lineStep) {
-                    bgCtx.moveTo(0, y); bgCtx.lineTo(w, y);
-                }
-                bgCtx.stroke();
-                return;
-            }
-
-            // --- ОБЫЧНЫЕ / ЧАСТЫЕ / МАЗИНА ---
-            let lineHeight = ROW_H; 
-            const totalH = lineHeight + GAP_H;
-            let y = MT;
-            
-            let drawSlant = false;
-            let slantStep = 0;
-            
-            if (type === 'propisi_often') { drawSlant = true; slantStep = 25 * MM; }
-            if (type === 'mazina') { drawSlant = true; slantStep = 3.5 * MM; } 
-
-            // Рисуем строки
-            while(y < h - MT) {
-                // Основные линии строки
-                bgCtx.lineWidth = 2; bgCtx.strokeStyle = '#5096F2'; bgCtx.setLineDash([]);
-                bgCtx.beginPath(); 
-                bgCtx.moveTo(0, y); bgCtx.lineTo(w, y); 
-                bgCtx.stroke();
-                
-                bgCtx.beginPath(); 
-                bgCtx.moveTo(0, y + lineHeight); bgCtx.lineTo(w, y + lineHeight); 
-                bgCtx.stroke();
-
-                // ВСПОМОГАТЕЛЬНЫЕ ЛИНИИ ДЛЯ МАЗИНОЙ
-                if (type === 'mazina') {
-                    // 1. Пунктир в межстрочном (середина GAP)
-                    const midGap = y + lineHeight + (GAP_H / 2); 
-                    bgCtx.lineWidth = 1; bgCtx.strokeStyle = '#5096F2';
-                    bgCtx.setLineDash([5, 5]); 
-                    bgCtx.beginPath();
-                    bgCtx.moveTo(0, midGap); bgCtx.lineTo(w, midGap);
-                    bgCtx.stroke();
-
-                    // 2. Пунктир внутри рабочей строки (середина ROW)
-                    const midRow = y + (lineHeight / 2);
-                    bgCtx.beginPath();
-                    bgCtx.moveTo(0, midRow); bgCtx.lineTo(w, midRow);
-                    bgCtx.stroke();
-
-                    bgCtx.setLineDash([]); 
-                }
-
-                y += totalH;
-            }
-            
-            // Косые линии (рисуем ПОСЛЕ всего)
-            if (drawSlant) {
-                bgCtx.save();
-                bgCtx.lineWidth = (type === 'mazina') ? 1 : 2; 
-                bgCtx.strokeStyle = (type === 'mazina') ? '#BBBBBB' : '#D1D1D6'; 
-                bgCtx.beginPath(); 
-                
-                const tan = 0.466; 
-                const shift = h * tan;
-                
-                // Рисуем с запасом слева и справа
-                for(let x = -shift; x < w; x += slantStep) {
-                    bgCtx.moveTo(x + shift, 0); 
-                    bgCtx.lineTo(x, h);
-                }
-                bgCtx.stroke();
-                bgCtx.restore();
-            }
-        }
-
-        // --- ЛОГИКА РИСОВАНИЯ ---
-        function getCoords(e) {
-            const rect = drawCanvas.getBoundingClientRect();
-            let clientX = e.clientX; let clientY = e.clientY;
-            if (e.touches && e.touches.length > 0) {
-                clientX = e.touches[0].clientX; clientY = e.touches[0].clientY;
-            }
-            const x = clientX - rect.left; const y = clientY - rect.top;
-            return { x: x * (drawCanvas.width / rect.width), y: y * (drawCanvas.height / rect.height) };
-        }
-
-        function startDraw(e) {
-            if (isReplaying) return;
-            isDrawing = true;
-            const coords = getCoords(e);
-            const width = document.getElementById('lineWidth').value * 2;
-            currentStroke = {
-                type: 'stroke', tool: tool, color: color, width: width, points: [ {x: coords.x, y: coords.y} ]
-            };
-            drawCtx.beginPath();
-            drawCtx.lineCap = 'round'; drawCtx.lineJoin = 'round';
-            drawCtx.lineWidth = width;
-            drawCtx.strokeStyle = (tool === 'eraser') ? 'rgba(0,0,0,1)' : color;
-            drawCtx.globalCompositeOperation = (tool === 'eraser') ? 'destination-out' : 'source-over';
-            if (tool === 'eraser') drawCtx.lineWidth = 60; 
-            drawCtx.moveTo(coords.x, coords.y);
-        }
-
-        function moveDraw(e) {
-            if (!isDrawing) return;
-            e.preventDefault(); 
-            const coords = getCoords(e);
-            currentStroke.points.push({x: coords.x, y: coords.y});
-            drawCtx.lineTo(coords.x, coords.y);
-            drawCtx.stroke();
-        }
-
-        function endDraw() {
-            if (isDrawing && currentStroke) actions.push(currentStroke);
-            isDrawing = false;
-            currentStroke = null;
-            drawCtx.beginPath();
-        }
-
-        function setupEvents() {
-            drawCanvas.addEventListener('mousedown', startDraw);
-            drawCanvas.addEventListener('mousemove', moveDraw);
-            drawCanvas.addEventListener('mouseup', endDraw);
-            drawCanvas.addEventListener('mouseout', endDraw);
-            drawCanvas.addEventListener('touchstart', startDraw, {passive: false});
-            drawCanvas.addEventListener('touchmove', moveDraw, {passive: false});
-            drawCanvas.addEventListener('touchend', endDraw);
-        }
-
-        // --- UI ---
-        function setTool(t) {
-            tool = t;
-            document.getElementById('btnPen').classList.toggle('active', t==='pen');
-            document.getElementById('btnEraser').classList.toggle('active', t==='eraser');
-        }
-        function setColor(c, el) {
-            color = c; tool = 'pen'; setTool('pen');
-            document.querySelectorAll('.color-swatch').forEach(d => d.classList.remove('active'));
-            el.classList.add('active');
-        }
-        function changeZoom(delta) {
-            let newZoom = Math.round((zoom + delta) * 10) / 10;
-            if (newZoom < 0.2) newZoom = 0.2; if (newZoom > 5.0) newZoom = 5.0;
-            setZoom(newZoom);
-        }
-        function setZoom(z) {
-            zoom = z;
-            document.getElementById('zoomVal').innerText = Math.round(zoom * 100) + '%';
-            wrapper.style.width = (BASE_WIDTH_PX * zoom) + 'px';
-            wrapper.style.height = (BASE_HEIGHT_PX * zoom) + 'px';
-        }
-        function undo() {
-            if (actions.length === 0 || isReplaying) return;
-            actions.pop();
-            redrawAll();
-        }
-        function clearCanvas() {
-            if (isReplaying) return;
-            if(confirm('Удалить все записи?')) {
-                actions = [];
-                drawCtx.clearRect(0,0, drawCanvas.width, drawCanvas.height);
-            }
-        }
-
-        // --- PLAY & EXPORT ---
-        function playRecording(forExport) {
-            if (actions.length === 0) { alert('Сначала напишите что-нибудь!'); return; }
-            if (isReplaying) return;
-
-            isReplaying = true;
-            toggleButtons(false); 
-
-            let recorder = null;
-            
-            if (forExport) {
-                const stream = drawCanvas.captureStream(30);
-                recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-                const chunks = [];
-                recorder.ondataavailable = e => chunks.push(e.data);
-                recorder.onstop = () => {
-                    const blob = new Blob(chunks, { type: 'video/webm' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'lesson.webm';
-                    a.click();
-                    redrawAll(); 
-                };
-                recorder.start();
-                alert("Запись пошла! Не переключайте вкладку.");
-            }
-
-            drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-            
-            let actionIdx = 0;
-            let pointIdx = 0;
-            const speed = parseInt(document.getElementById('speedRange').value); 
-            let pointsPerFrame = speed;
-            if (speed > 6) pointsPerFrame = (speed - 4) * 5;
-
-            function animate() {
-                if (!isReplaying) return;
-
-                if (forExport) {
-                    drawCtx.drawImage(bgCanvas, 0, 0);
-                    for(let i=0; i<actionIdx; i++) {
-                        drawStroke(actions[i]);
-                    }
-                     const act = actions[actionIdx];
-                     if (act) {
-                         const partial = {...act, points: act.points.slice(0, pointIdx+1)};
-                         drawStroke(partial);
-                     }
-                }
-
-                if (!forExport) {
-                     const act = actions[actionIdx];
-                     if (pointIdx === 0) {
-                        drawCtx.beginPath();
-                        setupCtxStyle(act);
-                        if(act.points.length > 0) drawCtx.moveTo(act.points[0].x, act.points[0].y);
-                        pointIdx = 1;
-                     }
-                     for(let k=0; k < pointsPerFrame; k++) {
-                        if (pointIdx < act.points.length) {
-                            drawCtx.lineTo(act.points[pointIdx].x, act.points[pointIdx].y);
-                            drawCtx.stroke();
-                            pointIdx++;
-                        } else {
-                            actionIdx++;
-                            pointIdx = 0;
-                            break;
-                        }
-                    }
-                } else {
-                    const act = actions[actionIdx];
-                    pointIdx += pointsPerFrame;
-                    if (pointIdx >= act.points.length) {
-                        actionIdx++;
-                        pointIdx = 0;
-                    }
-                }
-
-                if (actionIdx >= actions.length) {
-                    isReplaying = false;
-                    toggleButtons(true);
-                    if (forExport && recorder) {
-                        recorder.stop();
-                    } 
-                } else {
-                    requestAnimationFrame(animate);
-                }
-            }
-            animate();
-        }
-
-        function setupCtxStyle(act) {
-            drawCtx.lineCap = 'round'; drawCtx.lineJoin = 'round';
-            if (act.tool === 'eraser') {
-                drawCtx.globalCompositeOperation = 'destination-out';
-                drawCtx.lineWidth = 60;
-            } else {
-                drawCtx.globalCompositeOperation = 'source-over';
-                drawCtx.strokeStyle = act.color;
-                drawCtx.lineWidth = act.width;
-            }
-        }
-
-        function drawStroke(act) {
-            drawCtx.beginPath();
-            setupCtxStyle(act);
-            if(act.points.length > 0) {
-                drawCtx.moveTo(act.points[0].x, act.points[0].y);
-                for (let i = 1; i < act.points.length; i++) {
-                    drawCtx.lineTo(act.points[i].x, act.points[i].y);
-                }
-                drawCtx.stroke();
-            }
-        }
-
-        function redrawAll() {
-            drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-            actions.forEach(act => drawStroke(act));
-        }
-
-        function toggleButtons(enable) {
-            document.getElementById('btnPlay').disabled = !enable;
-            document.getElementById('btnExport').disabled = !enable;
-        }
-
-        function downloadImage() {
-            const temp = document.createElement('canvas');
-            temp.width = bgCanvas.width;
-            temp.height = bgCanvas.height;
-            const tCtx = temp.getContext('2d');
-            tCtx.drawImage(bgCanvas, 0, 0);
-            tCtx.drawImage(drawCanvas, 0, 0);
-            const link = document.createElement('a');
-            link.download = 'propisi_page.jpg';
-            link.href = temp.toDataURL('image/jpeg', 0.9);
-            link.click();
-        }
-    </script>
 </body>
 </html>

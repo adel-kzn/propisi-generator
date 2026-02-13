@@ -37,7 +37,7 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--app-bg); color: var(--text-primary); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* --- ШАПКА И ЛОГОТИП --- */
+        /* --- ШАПКА --- */
         header {
             height: var(--header-h); background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(5px); border-bottom: 1px solid rgba(0,0,0,0.06);
@@ -55,10 +55,29 @@
         /* --- ПРИЛОЖЕНИЕ --- */
         .app-body { display: flex; flex: 1; overflow: hidden; position: relative; }
 
-        .sidebar { width: 360px; min-width: 360px; height: 100%; background: var(--sidebar-bg); border-right: 1px solid rgba(0,0,0,0.1); display: flex; flex-direction: column; padding: 20px; padding-top: 20px; gap: 15px; overflow-y: auto; z-index: 1000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+        /* ВАЖНОЕ ИЗМЕНЕНИЕ ДЛЯ ГАМБУРГЕРА: Убран overflow */
+        .sidebar { 
+            width: 360px; min-width: 360px; height: 100%; 
+            background: var(--sidebar-bg); border-right: 1px solid rgba(0,0,0,0.1); 
+            z-index: 1000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            position: relative; 
+        }
         .sidebar.closed { transform: translateX(-100%); position: absolute; }
         
-        .toggle-btn { position: absolute; top: 10px; right: -54px; width: 44px; height: 44px; background: white; border-radius: 10px; box-shadow: 4px 0 10px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; font-size: 24px; border: 1px solid #eee; cursor: pointer; z-index: 2000; color: var(--accent); transition: transform 0.2s; }
+        /* Внутренний скролл */
+        .sidebar-scroll {
+            width: 100%; height: 100%; overflow-y: auto; 
+            display: flex; flex-direction: column; padding: 20px; gap: 15px;
+        }
+        
+        .toggle-btn { 
+            position: absolute; top: 15px; right: -54px; 
+            width: 44px; height: 44px; background: white; border-radius: 10px; 
+            box-shadow: 4px 0 10px rgba(0,0,0,0.05); 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 24px; border: 1px solid #eee; cursor: pointer; 
+            z-index: 2000; color: var(--accent); transition: all 0.2s; 
+        }
         .toggle-btn:active { transform: scale(0.9); }
 
         .section { display: flex; flex-direction: column; gap: 8px; }
@@ -77,24 +96,22 @@
 
         footer { height: var(--footer-h); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #888; background: rgba(255, 255, 255, 0.95); border-top: 1px solid rgba(0,0,0,0.05); z-index: 1100; }
 
-   @media (max-width: 900px) {
-            /* Возвращаем меню в шапку (выстраиваем под логотипом) */
+        /* --- ИСПРАВЛЕННЫЙ АДАПТИВ --- */
+        @media (max-width: 900px) {
             header { height: auto; min-height: var(--header-h); padding-bottom: 12px; }
             .header-container { height: auto; flex-direction: column; align-items: center; padding: 12px 15px; gap: 12px; }
             .top-menu { display: flex !important; flex-wrap: wrap; justify-content: center; gap: 8px; }
             .top-menu a { font-size: 13px; padding: 8px 14px; border-radius: 8px; background: rgba(0, 122, 255, 0.08); border: 1px solid rgba(0, 122, 255, 0.1); }
 
-            /* Чиним левую панель и Гамбургер */
             .sidebar { position: fixed; left: 0; top: 0; bottom: 0; height: 100%; width: 85%; max-width: 320px; box-shadow: 4px 0 20px rgba(0,0,0,0.2); z-index: 3000; }
-            .sidebar.closed { transform: translateX(-100%); }
             
-            /* Гамбургер "торчит" снаружи, когда панель закрыта */
-            .sidebar.closed .toggle-btn { right: -54px !important; top: 12px !important; border-radius: 0 12px 12px 0 !important; box-shadow: 4px 0 10px rgba(0,0,0,0.1); background: white; }
-            /* Гамбургер уходит внутрь, когда панель открыта */
+            /* Гамбургер снаружи, когда панель закрыта */
+            .sidebar.closed .toggle-btn { right: -44px !important; top: 12px !important; border-radius: 0 12px 12px 0 !important; box-shadow: 4px 0 10px rgba(0,0,0,0.1); background: white; border-left: none; }
+            /* Гамбургер внутри, когда панель открыта */
             .sidebar:not(.closed) .toggle-btn { right: 15px !important; top: 15px !important; border-radius: 12px !important; background: #F2F2F7; }
 
             .main-area { padding: 10px; padding-top: 20px; display: block; overflow: auto; }
-            .canvas-wrapper, .a4-container { margin: 0 auto; }
+            .a4-container { margin: 0 auto; }
         }
     </style>
 </head>
@@ -118,36 +135,38 @@
         <div class="sidebar" id="appSidebar">
             <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
 
-            <div class="section">
-                <div class="section-label">1. Разлиновка</div>
-                <select id="bgSelect" onchange="updatePreview()">
-                    <option value="propisi_often" selected>Узкая косая (1 класс)</option>
-                    <option value="propisi_lines">Узкая линейка (2 класс)</option>
-                    <option value="wide_lines">Широкая линейка (Старшие)</option>
-                    <option value="cell">Клетка (5 мм)</option>
-                    <option value="white">Чистый лист</option>
-                </select>
-            </div>
+            <div class="sidebar-scroll">
+                <div class="section">
+                    <div class="section-label">1. Разлиновка</div>
+                    <select id="bgSelect" onchange="updatePreview()">
+                        <option value="propisi_often" selected>Узкая косая (1 класс)</option>
+                        <option value="propisi_lines">Узкая линейка (2 класс)</option>
+                        <option value="wide_lines">Широкая линейка (Старшие)</option>
+                        <option value="cell">Клетка (5 мм)</option>
+                        <option value="white">Чистый лист</option>
+                    </select>
+                </div>
 
-            <div class="section">
-                <div class="section-label">2. Текст</div>
-                <textarea id="textInput" oninput="handleInput()" placeholder="Введите текст..."></textarea>
-                <div style="font-size: 10px; color: #8E8E93;">* Авто-соединение букв.</div>
-            </div>
+                <div class="section">
+                    <div class="section-label">2. Текст</div>
+                    <textarea id="textInput" oninput="handleInput()" placeholder="Введите текст..."></textarea>
+                    <div style="font-size: 10px; color: #8E8E93;">* Авто-соединение букв.</div>
+                </div>
 
-            <div class="section">
-                <div class="section-label">3. Стиль текста</div>
-                <select id="textStyle" onchange="updatePreview()">
-                    <option value="dotted">::: Пунктирный (Точки)</option>
-                    <option value="outline">🔲 Контурный (Полый)</option>
-                    <option value="pale">⚪️ Серый (Для обводки)</option>
-                    <option value="black">⚫️ Черный (Сплошной)</option>
-                </select>
-            </div>
-            
-            <div class="section" style="margin-top: auto;">
-                 <button class="btn-primary" onclick="generatePDF()" id="downloadBtn">Скачать PDF</button>
-                <div id="status">Загрузка шрифта...</div>
+                <div class="section">
+                    <div class="section-label">3. Стиль текста</div>
+                    <select id="textStyle" onchange="updatePreview()">
+                        <option value="dotted">::: Пунктирный (Точки)</option>
+                        <option value="outline">🔲 Контурный (Полый)</option>
+                        <option value="pale">⚪️ Серый (Для обводки)</option>
+                        <option value="black">⚫️ Черный (Сплошной)</option>
+                    </select>
+                </div>
+                
+                <div class="section" style="margin-top: auto;">
+                     <button class="btn-primary" onclick="generatePDF()" id="downloadBtn">Скачать PDF</button>
+                    <div id="status">Загрузка шрифта...</div>
+                </div>
             </div>
         </div>
 

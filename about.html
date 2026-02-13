@@ -135,12 +135,26 @@
         }
 
         /* АДАПТИВ */
-        @media (max-width: 600px) {
-            .top-menu { display: none; }
-            .header-container { justify-content: center; }
+@media (max-width: 900px), (max-height: 600px) {
+            /* Общий сброс для скролла */
+            html, body { height: auto; overflow: auto; }
+            main { display: block; padding: 40px 20px; max-height: none; }
+            
+            /* Возвращаем меню в шапку */
+            header { height: auto; min-height: var(--header-h); padding-bottom: 12px; }
+            .header-container, .container, .container-nav { height: auto; flex-direction: column; align-items: center; padding: 12px 15px; gap: 12px; }
+            .top-menu, .menu { display: flex !important; flex-wrap: wrap; justify-content: center; gap: 8px; }
+            .top-menu a, .menu a { font-size: 13px; padding: 8px 14px; border-radius: 8px; background: rgba(0, 122, 255, 0.08); border: 1px solid rgba(0, 122, 255, 0.1); }
+            
+            /* Фиксы контента под мобильные экраны */
+            .cards-row { flex-direction: column; height: auto; max-height: none; gap: 15px; }
+            .card { min-height: auto; padding: 20px; }
+            .hero-block { margin-bottom: 40px; }
+            .alphabet-grid { grid-template-columns: repeat(4, 1fr); }
             .article-card { padding: 25px; }
             h1 { font-size: 28px; padding: 10px 20px; }
-            .btn { width: 100%; box-sizing: border-box; }
+            .btn { width: 100%; box-sizing: border-box; justify-content: center; }
+            footer { height: auto; padding: 20px; }
         }
     </style>
 </head>

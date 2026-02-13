@@ -34,7 +34,7 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--app-bg); color: var(--text-primary); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* --- ШАПКА И ЛОГОТИП --- */
+        /* --- ШАПКА --- */
         header {
             height: var(--header-h); background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(5px); border-bottom: 1px solid rgba(0,0,0,0.06);
@@ -42,7 +42,6 @@
         }
         .header-container { width: 100%; max-width: 1000px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
         
-        /* Жестко фиксируем размер картинки-логотипа */
         .logo { display: flex; align-items: center; text-decoration: none; }
         .logo img { height: 38px !important; width: auto !important; object-fit: contain; display: block; }
 
@@ -53,12 +52,32 @@
         /* --- ПРИЛОЖЕНИЕ --- */
         .app-body { display: flex; flex: 1; overflow: hidden; position: relative; }
 
-        .sidebar { width: 360px; min-width: 360px; height: 100%; background: var(--sidebar-bg); border-right: 1px solid rgba(0,0,0,0.1); display: flex; flex-direction: column; padding: 20px; padding-top: 20px; gap: 15px; overflow-y: auto; z-index: 1000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+        /* ВАЖНОЕ ИЗМЕНЕНИЕ ДЛЯ ГАМБУРГЕРА: Убран overflow */
+        .sidebar { 
+            width: 360px; min-width: 360px; height: 100%; 
+            background: var(--sidebar-bg); border-right: 1px solid rgba(0,0,0,0.1); 
+            z-index: 1000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            position: relative; 
+        }
         .sidebar.closed { transform: translateX(-100%); position: absolute; }
         
-        .toggle-btn { position: absolute; top: 10px; right: -54px; width: 44px; height: 44px; background: white; border-radius: 10px; box-shadow: 4px 0 10px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; font-size: 24px; border: 1px solid #eee; cursor: pointer; z-index: 2000; color: var(--accent); transition: transform 0.2s; }
+        /* Внутренний скролл */
+        .sidebar-scroll {
+            width: 100%; height: 100%; overflow-y: auto; 
+            display: flex; flex-direction: column; padding: 20px; gap: 15px;
+        }
+        
+        .toggle-btn { 
+            position: absolute; top: 15px; right: -54px; 
+            width: 44px; height: 44px; background: white; border-radius: 10px; 
+            box-shadow: 4px 0 10px rgba(0,0,0,0.05); 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 24px; border: 1px solid #eee; cursor: pointer; 
+            z-index: 2000; color: var(--accent); transition: all 0.2s; 
+        }
         .toggle-btn:active { transform: scale(0.9); }
 
+        /* ИНСТРУМЕНТЫ */
         .section { display: flex; flex-direction: column; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
         .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); }
 
@@ -92,24 +111,22 @@
 
         footer { height: var(--footer-h); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #888; background: rgba(255, 255, 255, 0.95); border-top: 1px solid rgba(0,0,0,0.05); z-index: 1100; }
 
+        /* --- ИСПРАВЛЕННЫЙ АДАПТИВ --- */
         @media (max-width: 900px) {
-            /* Возвращаем меню в шапку (выстраиваем под логотипом) */
             header { height: auto; min-height: var(--header-h); padding-bottom: 12px; }
             .header-container { height: auto; flex-direction: column; align-items: center; padding: 12px 15px; gap: 12px; }
             .top-menu { display: flex !important; flex-wrap: wrap; justify-content: center; gap: 8px; }
             .top-menu a { font-size: 13px; padding: 8px 14px; border-radius: 8px; background: rgba(0, 122, 255, 0.08); border: 1px solid rgba(0, 122, 255, 0.1); }
 
-            /* Чиним левую панель и Гамбургер */
             .sidebar { position: fixed; left: 0; top: 0; bottom: 0; height: 100%; width: 85%; max-width: 320px; box-shadow: 4px 0 20px rgba(0,0,0,0.2); z-index: 3000; }
-            .sidebar.closed { transform: translateX(-100%); }
             
-            /* Гамбургер "торчит" снаружи, когда панель закрыта */
-            .sidebar.closed .toggle-btn { right: -54px !important; top: 12px !important; border-radius: 0 12px 12px 0 !important; box-shadow: 4px 0 10px rgba(0,0,0,0.1); background: white; }
-            /* Гамбургер уходит внутрь, когда панель открыта */
+            /* Гамбургер снаружи, когда панель закрыта */
+            .sidebar.closed .toggle-btn { right: -44px !important; top: 12px !important; border-radius: 0 12px 12px 0 !important; box-shadow: 4px 0 10px rgba(0,0,0,0.1); background: white; border-left: none; }
+            /* Гамбургер внутри, когда панель открыта */
             .sidebar:not(.closed) .toggle-btn { right: 15px !important; top: 15px !important; border-radius: 12px !important; background: #F2F2F7; }
 
             .main-area { padding: 10px; padding-top: 20px; display: block; overflow: auto; }
-            .canvas-wrapper, .a4-container { margin: 0 auto; }
+            .canvas-wrapper { margin: 0 auto; }
         }
     </style>
 </head>
@@ -133,72 +150,69 @@
         <div class="sidebar" id="appSidebar">
             <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
 
-            <div class="section">
-                <div class="section-label">1. Подложка</div>
-                <select id="bgSelect" onchange="changeBackground()">
-                    <option value="propisi_often" selected>Узкая косая (1 класс)</option>
-                    <option value="mazina">Сетка Мазиной (Ритм)</option>
-                    <option value="propisi_lines">Узкая линейка (2 класс)</option>
-                    <option value="wide_lines">Широкая линейка (Старшие)</option>
-                    <option value="cell">Клетка (5 мм)</option> 
-                    <option value="white">Чистый лист</option>
-                    <option value="custom">📁 Загрузить своё фото...</option>
-                </select>
-                
-                <button id="btnUploadBg" class="btn-action" style="display:none; margin-top:8px; background:#E5E5EA;" onclick="document.getElementById('fileInput').click()">
-                    📂 Выбрать файл
-                </button>
-                <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="handleImageUpload()">
-            </div>
+            <div class="sidebar-scroll">
+                <div class="section">
+                    <div class="section-label">1. Подложка</div>
+                    <select id="bgSelect" onchange="changeBackground()">
+                        <option value="propisi_often" selected>Узкая косая (1 класс)</option>
+                        <option value="mazina">Сетка Мазиной (Ритм)</option>
+                        <option value="propisi_lines">Узкая линейка (2 класс)</option>
+                        <option value="wide_lines">Широкая линейка (Старшие)</option>
+                        <option value="cell">Клетка (5 мм)</option> 
+                        <option value="white">Чистый лист</option>
+                        <option value="custom">📁 Загрузить своё фото...</option>
+                    </select>
+                    
+                    <button id="btnUploadBg" class="btn-action" style="display:none; margin-top:8px; background:#E5E5EA;" onclick="document.getElementById('fileInput').click()">
+                        📂 Выбрать файл
+                    </button>
+                    <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="handleImageUpload()">
+                </div>
 
-            <div class="section">
-                <div class="section-label">2. Инструменты</div>
-                <div class="tools-row">
-                    <div class="tool-btn active" onclick="setTool('pen')" id="btnPen">🖊 Ручка</div>
-                    <div class="tool-btn" onclick="setTool('eraser')" id="btnEraser">🧼 Ластик</div>
-                    <div class="tool-btn" onclick="undo()" title="Отменить">↩️ Отмена</div>
-                </div>
-                
-                <div class="color-palette" id="palette">
-                    <div class="color-swatch active" style="background:#0055AA" onclick="setColor('#0055AA', this)"></div>
-                    <div class="color-swatch" style="background:#FF3B30" onclick="setColor('#FF3B30', this)"></div>
-                    <div class="color-swatch" style="background:#34C759" onclick="setColor('#34C759', this)"></div>
-                    <div class="color-swatch" style="background:#000000" onclick="setColor('#000000', this)"></div>
-                </div>
-                
-                <div style="margin-top:5px;">
-                    <div class="section-label">Толщина линии</div>
-                    <input type="range" id="lineWidth" min="1" max="15" value="4">
-                </div>
-            </div>
-
-            <div class="section">
-                <div class="section-label">3. Запись урока</div>
-                <button class="btn-action btn-primary" id="btnPlay" onclick="playRecording(false)">▶️ Проиграть (Как учитель)</button>
-                
-                <div style="margin-top:5px;">
-                    <div class="section-label">Скорость воспроизведения</div>
-                    <div class="control-row">
-                        <span style="font-size:12px; color:#888;">0.5x</span>
-                        <input type="range" id="speedRange" min="1" max="10" value="5" oninput="updateSpeedDisp()">
-                        <span style="font-size:12px; color:#888;">3x</span>
+                <div class="section">
+                    <div class="section-label">2. Инструменты</div>
+                    <div class="tools-row">
+                        <div class="tool-btn active" onclick="setTool('pen')" id="btnPen">🖊 Ручка</div>
+                        <div class="tool-btn" onclick="setTool('eraser')" id="btnEraser">🧼 Ластик</div>
+                        <div class="tool-btn" onclick="undo()" title="Отменить">↩️ Отмена</div>
                     </div>
-                    <div style="text-align:center; font-size:12px; color:#555; margin-top:2px;" id="speedVal">1.0x</div>
+                    
+                    <div class="color-palette" id="palette">
+                        <div class="color-swatch active" style="background:#0055AA" onclick="setColor('#0055AA', this)"></div>
+                        <div class="color-swatch" style="background:#FF3B30" onclick="setColor('#FF3B30', this)"></div>
+                        <div class="color-swatch" style="background:#34C759" onclick="setColor('#34C759', this)"></div>
+                        <div class="color-swatch" style="background:#000000" onclick="setColor('#000000', this)"></div>
+                    </div>
+                    
+                    <div style="margin-top:5px;">
+                        <div class="section-label">Толщина линии</div>
+                        <input type="range" id="lineWidth" min="1" max="15" value="4">
+                    </div>
                 </div>
 
-                <div class="action-grid" style="margin-top:8px;">
-                     <button class="btn-action" id="btnExport" onclick="playRecording(true)">📹 Записать Видео</button>
-                     <button class="btn-action" onclick="downloadImage()">📷 Скачать Фото</button>
+                <div class="section">
+                    <div class="section-label">3. Запись урока</div>
+                    <button class="btn-action btn-primary" id="btnPlay" onclick="playRecording(false)">▶️ Проиграть</button>
+                    
+                    <div class="action-grid" style="margin-top:5px;">
+                         <button class="btn-action" style="flex:1;" onclick="playRecording(true)">📹 Видео</button>
+                         <button class="btn-action" style="flex:1;" onclick="downloadImage()">📷 Фото</button>
+                    </div>
+                    
+                    <div style="margin-top:5px;">
+                        <div class="section-label">Скорость: <span id="speedVal" style="color:var(--text-primary);">1.0x</span></div>
+                        <input type="range" id="speedRange" min="1" max="10" value="5" oninput="updateSpeedDisp()">
+                    </div>
                 </div>
-            </div>
 
-            <div class="section" style="margin-top:auto; border-top: 1px solid #f0f0f0; padding-top: 10px;">
-                <div class="control-row">
-                    <button class="zoom-btn" onclick="changeZoom(-0.1)">−</button>
-                    <div class="val-display" id="zoomVal">100%</div>
-                    <button class="zoom-btn" onclick="changeZoom(0.1)">+</button>
+                <div class="section" style="margin-top:auto; border-bottom: none;">
+                    <div class="control-row">
+                        <button class="zoom-btn" onclick="changeZoom(-0.1)">−</button>
+                        <div class="val-display" id="zoomVal">100%</div>
+                        <button class="zoom-btn" onclick="changeZoom(0.1)">+</button>
+                    </div>
+                    <button class="btn-action btn-danger" style="margin-top:10px;" onclick="clearCanvas()">🗑 Очистить всё</button>
                 </div>
-                <button class="btn-action btn-danger" style="margin-top:10px;" onclick="clearCanvas()">🗑 Очистить всё</button>
             </div>
         </div>
 
